@@ -4,6 +4,10 @@
 androidGradlePlugin = '7.3.0'
 nexusPublishPlugin = '1.1.0'
 gradle-versions =  '0.41.0'
+spotlessPlugin = '6.4.2'
+
+# Spotless plugins
+ktlint = '0.45.2'
 
 # Dependencies
 
@@ -34,6 +38,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = 'com.android.library', version.ref = "androidGradlePlugin" }
 benmanes-versions = { id = 'com.github.ben-manes.versions', version.ref = "gradle-versions" }
 nexus-publishing = { id = 'io.github.gradle-nexus.publish-plugin', version.ref = "nexusPublishPlugin" }
+spotless = { id = 'com.diffplug.spotless', version.ref = "spotlessPlugin" }
 
 [libraries]
 
