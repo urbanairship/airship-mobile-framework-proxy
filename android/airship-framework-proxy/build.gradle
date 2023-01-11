@@ -1,0 +1,125 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+    id 'signing'
+    id 'kotlin-android'
+}
+
+group = 'com.urbanairship.android'
+description = "Airship Mobile Framework Proxy"
+version = rootProject.adapterVersion
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+
+    defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+     kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+        freeCompilerArgs = ["-Xexplicit-api=strict"]
+    }
+
+    namespace 'com.urbanairship.android.framework.proxy'
+}
+
+dependencies {
+    api(libs.airship.core)
+    api(libs.airship.message.center)
+    api(libs.airship.preference.center)
+    api(libs.airship.automation)
+
+    implementation(libs.kotlinx.coroutines.android)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.runner)
+    testImplementation(libs.androidx.test.rules)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets["main"].java.srcDirs
+}
+
+// Create the pom configuration:
+def pomConfig = {
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution 'repo'
+        }
+    }
+
+    developers {
+        developer {
+            name 'Airship'
+        }
+    }
+
+    scm {
+        connection 'https://github.com/urbanairship/airship-mobile-framework-proxy.git'
+        url 'https://github.com/urbanairship/airship-mobile-framework-proxy'
+    }
+}
+
+publishing {
+    publications {
+        Production(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+
+            artifact("$buildDir/outputs/aar/" + project.name + "-release.aar")
+            artifact(sourcesJar)
+
+            pom.withXml {
+                def root = asNode()
+
+                def dependenciesNode = root.appendNode('dependencies')
+                configurations.implementation.allDependencies.each {
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', it.group)
+                    dependencyNode.appendNode('artifactId', it.name)
+                    dependencyNode.appendNode('version', it.version)
+                }
+
+                root.appendNode('description', project.description)
+                root.appendNode('name', project.name)
+                root.appendNode('url', 'https://airship.com')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+signing {
+    // secretKey and password are required for signing.
+    def secretKey = System.getenv("SIGNING_KEY") ?: findProperty("signing.key")
+    def password = System.getenv("SIGNING_PASSWORD") ?: findProperty("signing.password")
+    // keyId is optional.
+    def keyId = System.getenv("SIGNING_KEY_ID") ?: findProperty("signing.keyId")
+    if (secretKey != null) {
+        required = true
+        sign(publishing.publications)
+        if (keyId != null) {
+            useInMemoryPgpKeys(keyId, secretKey, password)
+        } else {
+            useInMemoryPgpKeys(secretKey, password)
+        }
+    } else {
+        logger.info("Missing signing key! Signing will not be configured.")
+    }
+}

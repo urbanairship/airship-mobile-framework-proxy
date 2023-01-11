@@ -1,0 +1,61 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext {
+        adapterVersion = '1.0.0'
+        
+        // Android SDK versions
+        compileSdkVersion = 33
+        targetSdkVersion = 33
+        minSdkVersion = 21
+    }
+
+    repositories {
+        google()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:${libs.versions.androidGradlePlugin.get()}"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:${libs.versions.kotlin.get()}"
+    }
+}
+
+plugins {
+    alias(libs.plugins.benmanes.versions)
+    alias(libs.plugins.nexus.publishing)
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+task getVersion() {
+    doLast {
+        println adapterVersion
+    }
+}
+
+nexusPublishing {
+    // user and pass are required for publishing.
+    def user = System.getenv("SONATYPE_USERNAME") ?: findProperty("sonatype.username")
+    def pass = System.getenv("SONATYPE_PASSWORD") ?: findProperty("sonatype.password")
+    // profileId is optional, but supposedly speeds things up if set.
+    def profileId = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: findProperty("sonatype.stagingProfileId")
+    if (user != null && pass != null) {
+        repositories {
+            sonatype {
+                username.set(user)
+                password.set(pass)
+                stagingProfileId.set(profileId)
+            }
+        }
+    } else {
+        logger.info("Missing publishing credentials! Nexus publishing will not be configured.")
+    }
+}
+
