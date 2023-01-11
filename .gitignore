@@ -37,7 +37,7 @@ airshipconfig.properties
 .gradle
 .idea
 google-services.json
-gradle/
+
 
 # iOS
 AirshipConfig.plist

@@ -1,0 +1,60 @@
+[versions]
+
+# Gradle plugins
+androidGradlePlugin = '7.3.0'
+nexusPublishPlugin = '1.1.0'
+gradle-versions =  '0.41.0'
+
+# Dependencies
+
+# Kotlin
+kotlin = '1.7.10'
+kotlinx-coroutines = '1.6.4'
+
+# Androidx
+androidx-annotation = '1.4.0'
+
+# Firebase
+airship = '16.8.0'
+
+# Test
+google-truth = '1.1.3'
+junit = '4.13.2'
+mockito = '4.6.1'
+mockito-kotlin = '4.0.0'
+robolectric = '4.8.2'
+
+[plugins]
+android-library = { id = 'com.android.library', version.ref = "androidGradlePlugin" }
+kotlin-allopen = { id = 'org.jetbrains.kotlin.plugin.allopen', version.ref = "kotlin" }
+benmanes-versions = { id = 'com.github.ben-manes.versions', version.ref = "gradle-versions" }
+nexus-publishing = { id = 'io.github.gradle-nexus.publish-plugin', version.ref = "nexusPublishPlugin" }
+
+[libraries]
+
+# Kotlin
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines"}
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines"}
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines"}
+
+# Androidx
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidx-annotation" }
+
+# Airship
+airship-core = { module = "com.urbanairship.android:urbanairship-core", version.ref = "airship"}
+airship-message-center = { module = "com.urbanairship.android:urbanairship-message-center", version.ref = "airship"}
+airship-preference-center = { module = "com.urbanairship.android:urbanairship-preference-center", version.ref = "airship"}
+airship-automation = { module = "com.urbanairship.android:urbanairship-automation", version.ref = "airship"}
+
+# Testing
+junit = { module = "junit:junit", version.ref = "junit" }
+
+google-truth = { module = "com.google.truth:truth", version.ref = "google-truth" }
+
+robolectric-core = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+robolectric-annotations = { module = "org.robolectric:annotations", version.ref = "robolectric"}
+
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockito" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
