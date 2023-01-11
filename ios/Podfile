@@ -1,0 +1,5 @@
+target 'AirshipFrameworkProxy' do
+  pod 'Airship', '16.10.6'
+  pod 'Airship/PreferenceCenter', '16.10.6'
+  pod 'Airship/MessageCenter', '16.10.6'
+end
