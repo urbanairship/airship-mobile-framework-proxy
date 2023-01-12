@@ -1,7 +1,6 @@
 import Foundation
 import Combine
 
-
 public actor AirshipProxyEventEmitter {
     private let updateContinuation: AsyncStream<AirshipProxyEventType>.Continuation
     let pendingEventTypeAdded: AsyncStream<AirshipProxyEventType>

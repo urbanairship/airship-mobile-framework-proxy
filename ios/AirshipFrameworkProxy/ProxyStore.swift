@@ -77,8 +77,7 @@ class ProxyStore {
     }
 
     func shouldAutoLaunchPreferenceCenter(
-        _ preferenceCenterID: String,
-        autoLaunch: Bool
+        _ preferenceCenterID: String
     ) -> Bool {
         let autoLaunch: Bool? = readValue(
             preferenceCenterKey(preferenceCenterID)

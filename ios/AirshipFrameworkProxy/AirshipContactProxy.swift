@@ -15,8 +15,6 @@ public class AirshipContactProxy {
     }
 
     public func setNamedUser(_ namedUser: String) throws {
-        try ensureAirshipReady()
-
         let namedUser = namedUser.trimmingCharacters(
             in: CharacterSet.whitespacesAndNewlines
         )
@@ -29,13 +27,11 @@ public class AirshipContactProxy {
     }
 
     public func getNamedUser() throws -> String {
-        try ensureAirshipReady()
         return Airship.contact.namedUserID ?? ""
     }
 
 
     public func getContactSubscriptionLists() async throws -> [String: [String]] {
-        try ensureAirshipReady()
         return try await withCheckedThrowingContinuation { continuation in
             Airship.contact.fetchSubscriptionLists { lists, error in
                 if let error {
@@ -62,7 +58,6 @@ public class AirshipContactProxy {
     }
 
     public func editContactTagGroups(_ operations: Any) throws {
-        try ensureAirshipReady()
         let data = try JSONUtils.data(operations)
         let operations = try JSONDecoder().decode(
             [TagGroupOperation].self,
@@ -76,7 +71,6 @@ public class AirshipContactProxy {
     }
 
     public func editContactAttributes(_ operations: Any) throws {
-        try ensureAirshipReady()
         let data = try JSONUtils.data(operations)
         let operations = try JSONDecoder().decode(
             [AttributeOperation].self,
@@ -90,7 +84,6 @@ public class AirshipContactProxy {
     }
 
     public func editContactSubscriptionLists(_ operations: Any) throws {
-        try ensureAirshipReady()
         let data = try JSONUtils.data(operations)
         let operations = try JSONDecoder().decode(
             [SubscriptionListOperation].self,

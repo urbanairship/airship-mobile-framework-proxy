@@ -11,14 +11,14 @@ class AirshipDelegate: NSObject,
                        DeepLinkDelegate
 {
 
-    let pluginStore: ProxyStore
+    let proxyStore: ProxyStore
     let eventEmitter: AirshipProxyEventEmitter
 
     init(
-        pluginStore: ProxyStore,
+        proxyStore: ProxyStore,
         eventEmitter: AirshipProxyEventEmitter = AirshipProxyEventEmitter.shared
     ) {
-        self.pluginStore = pluginStore
+        self.proxyStore = proxyStore
         self.eventEmitter = eventEmitter
     }
     
@@ -26,7 +26,7 @@ class AirshipDelegate: NSObject,
         forMessageID messageID: String,
         animated: Bool
     ) {
-        guard !self.pluginStore.autoDisplayMessageCenter else {
+        guard !self.proxyStore.autoDisplayMessageCenter else {
             MessageCenter.shared.defaultUI.displayMessageCenter(
                 forMessageID: messageID,
                 animated: animated
@@ -36,13 +36,15 @@ class AirshipDelegate: NSObject,
 
         Task {
             await self.eventEmitter.addEvent(
-                DisplayMessageCenterEvent(messageID: messageID)
+                DisplayMessageCenterEvent(
+                    messageID: messageID
+                )
             )
         }
     }
 
     func displayMessageCenter(animated: Bool) {
-        guard !self.pluginStore.autoDisplayMessageCenter else {
+        guard !self.proxyStore.autoDisplayMessageCenter else {
             MessageCenter.shared.defaultUI.displayMessageCenter(
                 animated: animated
             )
@@ -62,8 +64,26 @@ class AirshipDelegate: NSObject,
         )
     }
 
-    func openPreferenceCenter(_ preferenceCenterID: String) -> Bool {
-        return true
+    func openPreferenceCenter(
+        _ preferenceCenterID: String
+    ) -> Bool {
+        let autoLaunch = self.proxyStore.shouldAutoLaunchPreferenceCenter(
+            preferenceCenterID
+        )
+
+        guard !autoLaunch else {
+            return autoLaunch
+        }
+
+        Task {
+            await self.eventEmitter.addEvent(
+                DisplayPreferenceCenterEvent(
+                    preferenceCenterID: preferenceCenterID
+                )
+            )
+        }
+
+        return false
     }
 
     func receivedDeepLink(
@@ -148,8 +168,19 @@ class AirshipDelegate: NSObject,
         let token = Utils.deviceTokenStringFromDeviceToken(deviceToken)
         Task {
             await self.eventEmitter.addEvent(
-                PushTokenReceived(
+                PushTokenReceivedEvent(
                     pushToken: token
+                )
+            )
+        }
+    }
+
+    func notificationAuthorizedSettingsDidChange(_ authorizedSettings: UAAuthorizedNotificationSettings
+    ) {
+        Task {
+            await self.eventEmitter.addEvent(
+                NotificationOptInStatusChangedEvent(
+                    authorizedSettings: authorizedSettings
                 )
             )
         }

@@ -7,8 +7,11 @@ public enum AirshipProxyEventType: CaseIterable {
     case pushTokenReceived
     case messageCenterUpdated
     case displayMessageCenter
+    case displayPreferenceCenter
+
     case notificationResponseReceived
     case pushReceived
+    case notificationOptInStatusChanged
 }
 
 public protocol AirshipProxyEvent {
@@ -53,7 +56,7 @@ struct DisplayMessageCenterEvent: AirshipProxyEvent {
     init(messageID: String? = nil) {
         if let messageID = messageID {
             self.body = [
-                "messageID": messageID
+                "messageId": messageID
             ]
         } else {
             self.body = [:]
@@ -62,9 +65,20 @@ struct DisplayMessageCenterEvent: AirshipProxyEvent {
     }
 }
 
+struct DisplayPreferenceCenterEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .displayPreferenceCenter
+    let body: [String: Any]
+
+    init(preferenceCenterID: String) {
+        self.body = [
+            "preferenceCenterId": preferenceCenterID
+        ]
+    }
+}
+
 struct NotificationResponseEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .notificationResponseReceived
-    var body: [String : Any]
+    let body: [String : Any]
 
     init(response: UNNotificationResponse) {
         self.body = PushUtils.responsePayload(response)
@@ -73,19 +87,35 @@ struct NotificationResponseEvent: AirshipProxyEvent {
 
 struct PushReceivedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .pushReceived
-    var body: [String : Any]
+    let body: [String : Any]
 
     init(userInfo: [AnyHashable : Any]) {
         self.body = PushUtils.contentPayload(userInfo)
     }
 }
 
-struct PushTokenReceived: AirshipProxyEvent {
+struct PushTokenReceivedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .pushTokenReceived
-    var body: [String : Any]
+    let body: [String : Any]
 
     init(pushToken: String) {
         self.body = ["pushToken": pushToken]
     }
 }
 
+
+struct NotificationOptInStatusChangedEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .notificationOptInStatusChanged
+
+    let body: [String: Any]
+
+    init(
+        authorizedSettings: UAAuthorizedNotificationSettings
+    ) {
+        self.body = [
+            "optIn": authorizedSettings != [],
+            "authorizedSettings": authorizedSettings.names
+        ]
+    }
+
+}
