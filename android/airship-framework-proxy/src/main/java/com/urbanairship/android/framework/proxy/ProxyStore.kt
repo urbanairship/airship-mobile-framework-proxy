@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonMap
+import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 
 /**
@@ -21,81 +22,34 @@ internal class ProxyStore(private val context: Context) {
 
     private val lock = Object()
 
-    /**
-     * Custom notification icon resource name.
-     */
-    var notificationIcon: String?
-        get() = getString(NOTIFICATION_ICON_KEY, null)
-        set(value) {
-            edit().putString(NOTIFICATION_ICON_KEY, value).apply()
-        }
+    private var _notificationConfig: NotificationConfig? = null
+    var notificationConfig: NotificationConfig
+        get() {
+            val config = _notificationConfig
+            if (config != null) {
+                return config
+            }
 
-    /**
-     * Custom large notification icon resource name.
-     */
-    var notificationLargeIcon: String?
-        get() = getString(NOTIFICATION_LARGE_ICON_KEY, null)
-        set(value) {
-            edit().putString(NOTIFICATION_LARGE_ICON_KEY, value).apply()
+            val fromJson = NotificationConfig(getJson(NOTIFICATION_CONFIG).optMap())
+            _notificationConfig = fromJson
+            return fromJson
         }
-
-    /**
-     * Notification accent color resource name.
-     */
-    var notificationAccentColor: String?
-        get() = getString(NOTIFICATION_ACCENT_COLOR_KEY, null)
-        set(value) {
-            edit().putString(NOTIFICATION_ACCENT_COLOR_KEY, value).apply()
-        }
+        set(value) = setJson(NOTIFICATION_CONFIG, value)
 
     /**
      * Airship Configuration.
      */
     var airshipConfig: JsonMap?
-        get() {
-            val config = getString(AIRSHIP_CONFIG, null) ?: return JsonMap.EMPTY_MAP
-            return try {
-                JsonValue.parseString(config).map
-            } catch (e: JsonException) {
-                ProxyLogger.error("Failed to parse config.", e)
-                null
-            }
-        }
-        set(value) {
-            edit().putString(AIRSHIP_CONFIG, value.toString()).apply()
-        }
+        get() = getJson(AIRSHIP_CONFIG).optMap()
+        set(value) =  setJson(AIRSHIP_CONFIG, value)
 
-    /**
-     * Default notification channel ID.
-     */
-    var defaultNotificationChannelId: String?
-        get() = getString(DEFAULT_NOTIFICATION_CHANNEL_ID, null)
-        set(value) {
-            edit().putString(DEFAULT_NOTIFICATION_CHANNEL_ID, value).apply()
-        }
-
-    /**
-     * Opt in status.
-     */
     var optInStatus: Boolean
-        get() = getBoolean(NOTIFICATIONS_OPT_IN_KEY, false)
-        set(optIn) {
-            edit().putBoolean(NOTIFICATIONS_OPT_IN_KEY, optIn).apply()
-        }
+        get() = getBoolean(NOTIFICATIONS_OPT_IN, false)
+        set(optIn) = setBoolean(NOTIFICATIONS_OPT_IN, optIn)
 
-    val isAutoLaunchMessageCenterEnabled: Boolean
+    var isAutoLaunchMessageCenterEnabled: Boolean
         get() = getBoolean(AUTO_LAUNCH_MESSAGE_CENTER, true)
-
-    fun setAutoLaunchMessageCenter(autoLaunch: Boolean) {
-        edit().putBoolean(AUTO_LAUNCH_MESSAGE_CENTER, autoLaunch).apply()
-    }
-
-    val isAutoLaunchChatEnabled: Boolean
-        get() = getBoolean(AUTO_LAUNCH_CHAT, true)
-
-    fun setAutoLaunchChat(autoLaunch: Boolean) {
-        edit().putBoolean(AUTO_LAUNCH_CHAT, autoLaunch).apply()
-    }
+        set(enabled) = setBoolean(AUTO_LAUNCH_MESSAGE_CENTER, enabled)
 
     fun isAutoLaunchPreferenceCenterEnabled(preferenceId: String): Boolean {
         val key = getAutoLaunchPreferenceCenterKey(preferenceId)
@@ -104,7 +58,18 @@ internal class ProxyStore(private val context: Context) {
 
     fun setAutoLaunchPreferenceCenter(preferenceId: String, autoLaunch: Boolean) {
         val key = getAutoLaunchPreferenceCenterKey(preferenceId)
-        edit().putBoolean(key, autoLaunch).apply()
+        setBoolean(key, autoLaunch)
+    }
+
+    private fun getJson(key: String, defaultValue: JsonValue = JsonValue.NULL): JsonValue {
+        ensurePreferences()
+        val jsonString = getString(NOTIFICATION_CONFIG, null) ?: return defaultValue
+        return try {
+            return JsonValue.parseString(jsonString)
+        } catch (e: JsonException) {
+            ProxyLogger.error("Failed to parse $key in config.", e)
+            defaultValue
+        }
     }
 
     private fun getString(key: String, defaultValue: String?): String? {
@@ -117,9 +82,31 @@ internal class ProxyStore(private val context: Context) {
         return preferences.getBoolean(key, defaultValue)
     }
 
-    private fun edit(): SharedPreferences.Editor {
+    private fun setString(key: String, value: String?) {
         ensurePreferences()
-        return preferences.edit()
+        if (value != null) {
+            preferences.edit().putString(key, value).apply()
+        } else {
+            preferences.edit().remove(key).apply()
+        }
+    }
+
+    private fun setBoolean(key: String, value: Boolean?) {
+        ensurePreferences()
+        if (value != null) {
+            preferences.edit().putBoolean(key, value).apply()
+        } else {
+            preferences.edit().remove(key).apply()
+        }
+    }
+
+    private fun setJson(key: String, value: JsonSerializable?) {
+        ensurePreferences()
+        if (value != null) {
+            preferences.edit().putString(key, value.toJsonValue().toString()).apply()
+        } else {
+            preferences.edit().remove(key).apply()
+        }
     }
 
     private fun ensurePreferences() {
@@ -134,6 +121,10 @@ internal class ProxyStore(private val context: Context) {
         }
     }
 
+    private fun getAutoLaunchPreferenceCenterKey(preferenceId: String): String {
+        return "preference_center_auto_launch_$preferenceId"
+    }
+
     companion object {
         @SuppressLint("StaticFieldLeak")
         @Volatile
@@ -141,14 +132,10 @@ internal class ProxyStore(private val context: Context) {
         private val sharedInstanceLock = Any()
 
         private const val SHARED_PREFERENCES_FILE = "com.urbanairship.android.framework.proxy"
-        private const val AUTO_LAUNCH_CHAT = "AUTO_LAUNCH_CHAT"
-        private const val NOTIFICATIONS_OPT_IN_KEY = "NOTIFICATIONS_OPT_IN_KEY"
-        private const val NOTIFICATION_ICON_KEY = "notification_icon"
-        private const val NOTIFICATION_LARGE_ICON_KEY = "notification_large_icon"
-        private const val NOTIFICATION_ACCENT_COLOR_KEY = "notification_accent_color"
-        private const val DEFAULT_NOTIFICATION_CHANNEL_ID = "default_notification_channel_id"
-        private const val AUTO_LAUNCH_MESSAGE_CENTER = "com.urbanairship.auto_launch_message_center"
-        private const val AIRSHIP_CONFIG = "airship_config"
+        private const val NOTIFICATIONS_OPT_IN = "NOTIFICATIONS_OPT_IN"
+        private const val AUTO_LAUNCH_MESSAGE_CENTER = "AUTO_LAUNCH_MESSAGE_CENTER"
+        private const val AIRSHIP_CONFIG = "AIRSHIP_CONFIG"
+        private const val NOTIFICATION_CONFIG = "NOTIFICATION_CONFIG"
 
         /**
          * Returns the shared [ProxyStore] instance.
@@ -163,10 +150,6 @@ internal class ProxyStore(private val context: Context) {
                 }
                 return sharedInstance!!
             }
-        }
-
-        private fun getAutoLaunchPreferenceCenterKey(preferenceId: String): String {
-            return "preference_center_auto_launch_$preferenceId"
         }
     }
 }
