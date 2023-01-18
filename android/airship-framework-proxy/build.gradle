@@ -38,6 +38,7 @@ dependencies {
     api(libs.airship.automation)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation 'androidx.preference:preference-ktx:1.2.0'
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.test.core)
