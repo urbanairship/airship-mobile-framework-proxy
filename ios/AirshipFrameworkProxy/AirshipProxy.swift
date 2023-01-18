@@ -13,6 +13,18 @@ public class AirshipProxy {
     private let onAirshipReady: (() -> Void)?
     private let airshipDelegate: AirshipDelegate
 
+    public let locale: AirshipLocaleProxy
+    public let push: AirshipPushProxy
+    public let channel: AirshipChannelProxy
+    public let messageCenter: AirshipMessageCenterProxy
+    public let preferenceCenter: AirshipPreferenceCenterProxy
+    public let inApp: AirshipInAppProxy
+    public let contact: AirshipContactProxy
+    public let analytics: AirshipAnalyticsProxy
+    public let action: AirshipActionProxy
+    public let privacyManager: AirshipPrivacyManagerProxy
+
+
     public convenience init(
         launchOptions: [UIApplication.LaunchOptionsKey: Any]?,
         onAirshipReady: (() -> Void)? = nil
@@ -35,6 +47,58 @@ public class AirshipProxy {
         self.airshipDelegate = AirshipDelegate(
             proxyStore: proxyStore
         )
+        self.locale = AirshipLocaleProxy {
+            try AirshipProxy.ensureAirshipReady()
+            return Airship.shared.localeManager
+        }
+        
+        self.push = AirshipPushProxy(proxyStore: proxyStore) {
+            try AirshipProxy.ensureAirshipReady()
+            return Airship.push
+        }
+        
+        self.channel = AirshipChannelProxy {
+            try AirshipProxy.ensureAirshipReady()
+            return Airship.channel
+        }
+
+        self.messageCenter = AirshipMessageCenterProxy(
+            proxyStore: proxyStore
+        ) {
+            try AirshipProxy.ensureAirshipReady()
+            return MessageCenter.shared
+        }
+
+        self.preferenceCenter = AirshipPreferenceCenterProxy(
+            proxyStore: proxyStore
+        ) {
+            try AirshipProxy.ensureAirshipReady()
+            return PreferenceCenter.shared
+        }
+        self.inApp = AirshipInAppProxy {
+            try AirshipProxy.ensureAirshipReady()
+            return InAppAutomation.shared
+        }
+
+        self.contact = AirshipContactProxy {
+            try AirshipProxy.ensureAirshipReady()
+            return Airship.contact
+        }
+
+        self.analytics = AirshipAnalyticsProxy {
+            try AirshipProxy.ensureAirshipReady()
+            return Airship.analytics
+        }
+
+        self.action = AirshipActionProxy {
+            try AirshipProxy.ensureAirshipReady()
+            return AirshipActionRunner()
+        }
+
+        self.privacyManager = AirshipPrivacyManagerProxy {
+            try AirshipProxy.ensureAirshipReady()
+            return Airship.shared.privacyManager
+        }
     }
 
     public func takeOff(
@@ -114,9 +178,10 @@ public class AirshipProxy {
         }
     }
 
-    private func ensureAirshipReady() throws {
+    private static func ensureAirshipReady() throws {
         guard Airship.isFlying else {
             throw AirshipProxyError.takeOffNotCalled
         }
     }
 }
+

@@ -20,20 +20,21 @@ public class AirshipContactProxy {
         )
 
         if (namedUser.isEmpty) {
-            Airship.contact.reset()
+            try self.contact.reset()
         } else {
-            Airship.contact.identify(namedUser)
+            try self.contact.identify(namedUser)
         }
     }
 
     public func getNamedUser() throws -> String {
-        return Airship.contact.namedUserID ?? ""
+        return try self.contact.namedUserID ?? ""
     }
 
 
     public func getContactSubscriptionLists() async throws -> [String: [String]] {
+        let instance = try self.contact
         return try await withCheckedThrowingContinuation { continuation in
-            Airship.contact.fetchSubscriptionLists { lists, error in
+            instance.fetchSubscriptionLists { lists, error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
@@ -63,7 +64,7 @@ public class AirshipContactProxy {
             [TagGroupOperation].self,
             from: data
         )
-        Airship.contact.editTagGroups { editor in
+        try self.contact.editTagGroups { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)
             }
@@ -76,7 +77,7 @@ public class AirshipContactProxy {
             [AttributeOperation].self,
             from: data
         )
-        Airship.contact.editAttributes { editor in
+        try self.contact.editAttributes { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)
             }
@@ -89,7 +90,7 @@ public class AirshipContactProxy {
             [SubscriptionListOperation].self,
             from: data
         )
-        Airship.contact.editSubscriptionLists { editor in
+        try self.contact.editSubscriptionLists { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)
             }
@@ -98,5 +99,24 @@ public class AirshipContactProxy {
 }
 
 protocol AirshipContactProtocol: AnyObject {
+    @discardableResult
+    func fetchSubscriptionLists(
+        completionHandler: @escaping ([String: ChannelScopes]?, Error?) -> Void) -> Disposable
+
+    func editSubscriptionLists(_ editorBlock: (ScopedSubscriptionListEditor) -> Void)
+
+    func editAttributes(_ editorBlock: (AttributesEditor) -> Void)
+
+    func editTagGroups(_ editorBlock: (TagGroupsEditor) -> Void)
+
+    func identify(_ namedUserID: String)
+
+    func reset()
+
+    var namedUserID: String? { get }
+
+}
+
+extension Contact: AirshipContactProtocol {
 
 }
