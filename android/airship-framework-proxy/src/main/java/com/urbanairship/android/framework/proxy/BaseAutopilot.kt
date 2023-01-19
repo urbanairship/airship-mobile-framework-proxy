@@ -3,6 +3,8 @@
 package com.urbanairship.android.framework.proxy
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
 import androidx.annotation.XmlRes
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
@@ -76,14 +78,26 @@ public abstract class BaseAutopilot : Autopilot() {
             firstReady = true
         }
 
-        configOptions = ConfigLoader().loadConfig(context)
+        val builder = createConfigBuilder(context)
+        AirshipProxy.shared(context).proxyStore.airshipConfig?.let {
+            builder.applyProxyConfig(it)
+        }
+
+        val configOptions = builder.build()
 
         return try {
-            configOptions!!.validate()
+            configOptions.validate()
+            this.configOptions = configOptions
             true
         } catch (e: Exception) {
             false
         }
+    }
+
+    public open fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder {
+        return AirshipConfigOptions.newBuilder()
+            .applyDefaultProperties(context)
+            .setRequireInitialRemoteConfigEnabled(true)
     }
 
     override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions? {
@@ -91,4 +105,35 @@ public abstract class BaseAutopilot : Autopilot() {
     }
 
     public abstract fun onMigrateData(context: Context, proxyStore: ProxyStore)
+}
+
+internal fun AirshipConfigOptions.Builder.applyProxyConfig(proxyConfig: ProxyConfig) {
+    proxyConfig?.developmentEnvironment?.let {
+        this.setDevelopmentAppKey(it.appKey)
+            .setDevelopmentAppSecret(it.appSecret)
+            .setDevelopmentLogLevel(it.logLevel ?: Log.DEBUG)
+    }
+
+    proxyConfig?.productionEnvironment?.let {
+        this.setProductionAppKey(it.appKey)
+            .setProductionAppSecret(it.appSecret)
+            .setProductionLogLevel(it.logLevel ?: Log.DEBUG)
+    }
+
+    proxyConfig?.defaultEnvironment?.let {
+        this.setAppKey(it.appKey)
+            .setAppSecret(it.appSecret)
+            .setLogLevel(it.logLevel ?: Log.ERROR)
+    }
+
+    proxyConfig?.site?.let { this.setSite(it) }
+    proxyConfig?.inProduction?.let { this.setInProduction(it) }
+    proxyConfig?.isChannelCreationDelayEnabled?.let { this.setChannelCreationDelayEnabled(it) }
+    proxyConfig?.initialConfigUrl?.let { this.setInitialConfigUrl(it) }
+    proxyConfig?.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
+    proxyConfig?.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
+    proxyConfig?.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
+    proxyConfig?.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
+    proxyConfig?.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
+    proxyConfig?.enabledFeatures?.let { this.setEnabledFeatures(it) }
 }
