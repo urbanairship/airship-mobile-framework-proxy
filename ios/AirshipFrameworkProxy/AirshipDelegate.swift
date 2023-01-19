@@ -15,7 +15,7 @@ class AirshipDelegate: NSObject,
     let eventEmitter: AirshipProxyEventEmitter
 
     init(
-        proxyStore: ProxyStore,
+        proxyStore: ProxyStore = ProxyStore.shared,
         eventEmitter: AirshipProxyEventEmitter = AirshipProxyEventEmitter.shared
     ) {
         self.proxyStore = proxyStore

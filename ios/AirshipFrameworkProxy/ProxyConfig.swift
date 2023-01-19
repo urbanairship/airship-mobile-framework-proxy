@@ -86,82 +86,78 @@ extension ProxyConfig.Site {
     }
 }
 
-extension ProxyConfig {
-    var airshipConfig: Config {
-        let config = Config.default()
-        config.requireInitialRemoteConfigEnabled = true
+extension Config {
 
-        if let appKey = defaultEnvironment?.appKey,
-           let appSecret = defaultEnvironment?.appSecret {
-            config.defaultAppKey = appKey
-            config.defaultAppSecret = appSecret
+    func applyProxyConfig(proxyConfig: ProxyConfig) {
+        if let appKey = proxyConfig.defaultEnvironment?.appKey,
+           let appSecret = proxyConfig.defaultEnvironment?.appSecret {
+            self.defaultAppKey = appKey
+            self.defaultAppSecret = appSecret
         }
 
-        if let appKey = productionEnvironment?.appKey,
-           let appSecret = productionEnvironment?.appSecret {
-            config.productionAppKey = appKey
-            config.productionAppSecret = appSecret
+        if let appKey = proxyConfig.productionEnvironment?.appKey,
+           let appSecret = proxyConfig.productionEnvironment?.appSecret {
+            self.productionAppKey = appKey
+            self.productionAppSecret = appSecret
         }
 
-        if let appKey = developmentEnvironment?.appKey,
-           let appSecret = developmentEnvironment?.appSecret {
-            config.developmentAppKey = appKey
-            config.developmentAppSecret = appSecret
+        if let appKey = proxyConfig.developmentEnvironment?.appKey,
+           let appSecret = proxyConfig.developmentEnvironment?.appSecret {
+            self.developmentAppKey = appKey
+            self.developmentAppSecret = appSecret
         }
 
-        if let level = productionEnvironment?.logLevel {
-            config.productionLogLevel  = level.airshipLogLevel
-        } else if let level = defaultEnvironment?.logLevel {
-            config.productionLogLevel  = level.airshipLogLevel
+        if let level = proxyConfig.productionEnvironment?.logLevel {
+            self.productionLogLevel  = level.airshipLogLevel
+        } else if let level = proxyConfig.defaultEnvironment?.logLevel {
+            self.productionLogLevel  = level.airshipLogLevel
         }
 
-        if let level = developmentEnvironment?.logLevel {
-            config.developmentLogLevel  = level.airshipLogLevel
-        } else if let level = defaultEnvironment?.logLevel {
-            config.developmentLogLevel  = level.airshipLogLevel
+        if let level = proxyConfig.developmentEnvironment?.logLevel {
+            self.developmentLogLevel  = level.airshipLogLevel
+        } else if let level = proxyConfig.defaultEnvironment?.logLevel {
+            self.developmentLogLevel  = level.airshipLogLevel
         }
 
-        if let inProduction = inProduction {
-            config.inProduction = inProduction
+        if let inProduction = proxyConfig.inProduction {
+            self.inProduction = inProduction
         }
 
-        if let isChannelCreationDelayEnabled = isChannelCreationDelayEnabled {
-            config.isChannelCreationDelayEnabled = isChannelCreationDelayEnabled
+        if let isChannelCreationDelayEnabled = proxyConfig.isChannelCreationDelayEnabled {
+            self.isChannelCreationDelayEnabled = isChannelCreationDelayEnabled
         }
 
-        if let itunesID = ios?.itunesID {
-            config.itunesID = itunesID
+        if let itunesID = proxyConfig.ios?.itunesID {
+            self.itunesID = itunesID
         }
 
-        if let site = site {
-            config.site = site.airshipSite
+        if let site = proxyConfig.site {
+            self.site = site.airshipSite
         }
 
-        if let initialConfigURL = initialConfigURL {
-            config.initialConfigURL = initialConfigURL
+        if let initialConfigURL = proxyConfig.initialConfigURL {
+            self.initialConfigURL = initialConfigURL
         }
 
-        if let channelCaptureEnabled = channelCaptureEnabled {
-            config.isChannelCaptureEnabled = channelCaptureEnabled
+        if let channelCaptureEnabled = proxyConfig.channelCaptureEnabled {
+            self.isChannelCaptureEnabled = channelCaptureEnabled
         }
 
-        if let enabledFeatures = enabledFeatures {
-            config.enabledFeatures = enabledFeatures
+        if let enabledFeatures = proxyConfig.enabledFeatures {
+            self.enabledFeatures = enabledFeatures
         }
 
-        if let allowList = urlAllowList {
-            config.urlAllowList = allowList
+        if let allowList = proxyConfig.urlAllowList {
+            self.urlAllowList = allowList
         }
 
-        if let allowList = urlAllowListScopeOpenURL {
-            config.urlAllowListScopeOpenURL = allowList
+        if let allowList = proxyConfig.urlAllowListScopeOpenURL {
+            self.urlAllowListScopeOpenURL = allowList
         }
 
-        if let allowList = urlAllowListScopeJavaScriptInterface {
-            config.urlAllowListScopeJavaScriptInterface = allowList
+        if let allowList = proxyConfig.urlAllowListScopeJavaScriptInterface {
+            self.urlAllowListScopeJavaScriptInterface = allowList
         }
-
-        return config
     }
 }
 

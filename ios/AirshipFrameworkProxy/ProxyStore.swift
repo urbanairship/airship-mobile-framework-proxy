@@ -3,7 +3,9 @@
 import Foundation
 import AirshipKit
 
-class ProxyStore {
+public class ProxyStore {
+
+    static let shared: ProxyStore = ProxyStore()
 
     private let defaults: UserDefaults = UserDefaults(
         suiteName: "airship-framework-proxy"
@@ -16,7 +18,7 @@ class ProxyStore {
     private let foregroundPresentationOptionsKey = "foregroundPresentationOptions"
     private let autoDisplayMessageCenterKey = "autoDisplayMessageCenter"
 
-    var config: ProxyConfig? {
+    public var config: ProxyConfig? {
         get {
             return readCodable(configKey)
         }
@@ -25,7 +27,7 @@ class ProxyStore {
         }
     }
 
-    var foregroundPresentationOptions: UNNotificationPresentationOptions {
+    public var foregroundPresentationOptions: UNNotificationPresentationOptions {
         get {
             let value: UInt? = readValue(
                 foregroundPresentationOptionsKey
@@ -46,7 +48,7 @@ class ProxyStore {
         }
     }
 
-    var autoDisplayMessageCenter: Bool {
+    public var autoDisplayMessageCenter: Bool {
         get {
             return readValue(autoDisplayMessageCenterKey) ?? true
         }
@@ -66,7 +68,7 @@ class ProxyStore {
     }
 
 
-    func setAutoLaunchPreferenceCenter(
+    public func setAutoLaunchPreferenceCenter(
         _ preferenceCenterID: String,
         autoLaunch: Bool
     ) {

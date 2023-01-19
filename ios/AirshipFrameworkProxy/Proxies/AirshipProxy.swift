@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 import AirshipKit
 
 public enum AirshipProxyError: Error {
@@ -7,11 +6,19 @@ public enum AirshipProxyError: Error {
     case invalidConfig(String)
 }
 
+public protocol AirshipProxyDelegate {
+    func migrateData(store: ProxyStore)
+    func loadDefaultConfig() -> Config
+    func onAirshipReady()
+}
+
 @objc
 public class AirshipProxy: NSObject {
+
+    public var delegate: AirshipProxyDelegate?
+    private var migrateCalled: Bool = false
+
     private let proxyStore: ProxyStore
-    private let launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    private let onAirshipReady: (() -> Void)?
     private let airshipDelegate: AirshipDelegate
 
     @objc
@@ -35,29 +42,12 @@ public class AirshipProxy: NSObject {
     @objc
     public let privacyManager: AirshipPrivacyManagerProxy
 
-
-    public convenience init(
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?,
-        onAirshipReady: (() -> Void)? = nil
-    ) {
-        self.init(
-            launchOptions: launchOptions,
-            proxyStore: ProxyStore(),
-            onAirshipReady: onAirshipReady
-        )
-    }
+    public static let shared: AirshipProxy = AirshipProxy()
 
     init(
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?,
-        proxyStore: ProxyStore,
-        onAirshipReady: (() -> Void)? = nil
+        proxyStore: ProxyStore = ProxyStore.shared
     ) {
-        self.launchOptions = launchOptions
-        self.onAirshipReady = onAirshipReady
         self.proxyStore = proxyStore
-        self.airshipDelegate = AirshipDelegate(
-            proxyStore: proxyStore
-        )
         self.locale = AirshipLocaleProxy {
             try AirshipProxy.ensureAirshipReady()
             return Airship.shared.localeManager
@@ -110,35 +100,45 @@ public class AirshipProxy: NSObject {
             try AirshipProxy.ensureAirshipReady()
             return Airship.shared.privacyManager
         }
+
+        self.airshipDelegate = AirshipDelegate(proxyStore: proxyStore)
+        super.init()
     }
 
-    @objc(takeOffWithJSON:withError:)
+    @objc(takeOffWithJSON:launchOptions:withError:)
     public func _takeOff(
-        json: Any
+        json: Any,
+        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) throws -> NSNumber {
-        return try NSNumber(value: self.takeOff(json: json))
+        return try NSNumber(
+            value: self.takeOff(
+                json: json,
+                launchOptions: launchOptions
+            )
+        )
     }
 
     public func takeOff(
-        json: Any
+        json: Any,
+        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) throws -> Bool {
         let proxyConfig = try JSONDecoder().decode(
             ProxyConfig.self,
             from: try JSONUtils.data(json)
         )
 
-        return try takeOff(config: proxyConfig)
+        return try takeOff(config: proxyConfig, launchOptions: launchOptions)
 
     }
 
     public func takeOff(
-        config: ProxyConfig
+        config: ProxyConfig,
+        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) throws -> Bool {
         self.proxyStore.config = config
-        try? attemptTakeOff()
+        try? attemptTakeOff(launchOptions: launchOptions)
         return Airship.isFlying
     }
-
 
     @objc
     public func isFlying(
@@ -146,31 +146,41 @@ public class AirshipProxy: NSObject {
         return Airship.isFlying
     }
 
-    private func attemptTakeOff() throws {
+    private static func ensureAirshipReady() throws {
+        guard Airship.isFlying else {
+            throw AirshipProxyError.takeOffNotCalled
+        }
+    }
+
+    @objc
+    public func attemptTakeOff(
+        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) throws {
         guard !Airship.isFlying else {
             return;
         }
 
-        AirshipLogger.debug("attemptTakeOff: \(String(describing: self.launchOptions))")
+        if (!migrateCalled) {
+            self.delegate?.migrateData(store: self.proxyStore)
+            migrateCalled = true
+        }
 
-        var airshipConfig: Config? = nil
+        AirshipLogger.debug("attemptTakeOff: \(String(describing: launchOptions))")
+
+        let airshipConfig: Config = delegate?.loadDefaultConfig() ?? Config.default()
+        airshipConfig.requireInitialRemoteConfigEnabled = true
 
         if let config = self.proxyStore.config {
-            airshipConfig = config.airshipConfig
-            guard airshipConfig?.validate() == true else {
+            airshipConfig.applyProxyConfig(proxyConfig: config)
+            guard airshipConfig.validate() == true else {
                 throw AirshipProxyError.invalidConfig(
                     "Invalid config: \(String(describing: airshipConfig))"
                 )
             }
         } else {
-            airshipConfig = Config.default()
-            guard airshipConfig?.validate() == true else {
+            guard airshipConfig.validate() == true else {
                 return
             }
-        }
-
-        guard let airshipConfig = airshipConfig else {
-            return
         }
 
         AirshipLogger.debug("Taking off! \(airshipConfig)")
@@ -197,18 +207,12 @@ public class AirshipProxy: NSObject {
             self.airshipDelegate.channelCreated()
         }
 
-        self.onAirshipReady?()
+        self.delegate?.onAirshipReady()
 
         Airship.push.defaultPresentationOptions = self.proxyStore.foregroundPresentationOptions
 
         if let categories = PushUtils.loadCategories() {
             Airship.push.customCategories = categories
-        }
-    }
-
-    private static func ensureAirshipReady() throws {
-        guard Airship.isFlying else {
-            throw AirshipProxyError.takeOffNotCalled
         }
     }
 }
