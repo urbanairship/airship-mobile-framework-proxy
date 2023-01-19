@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
    s.author                  = { "Airship" => "support@airship.com" }
 
    s.license                 = { :type => 'Apache License, Version 2.0', :file => '../LICENSE' }
-   s.source                  = { :git => "https://github.com/urbanairship/ios-library.git", :tag => s.version.to_s }
+   s.source                  = { :git => "https://github.com/urbanairship/airship-mobile-framework-proxy.git", :tag => s.version.to_s }
 
    s.module_name             = "AirshipFrameworkProxy"
    s.ios.deployment_target   = "13.0"
