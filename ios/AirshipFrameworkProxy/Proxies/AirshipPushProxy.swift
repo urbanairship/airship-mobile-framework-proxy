@@ -4,7 +4,8 @@ import Foundation
 import AirshipKit
 import UserNotifications
 
-public class AirshipPushProxy {
+@objc
+public class AirshipPushProxy: NSObject {
 
     private let proxyStore: ProxyStore
     private let pushProvider: () throws -> AirshipPush
@@ -21,24 +22,37 @@ public class AirshipPushProxy {
     }
 
 
+    @objc
     public func setUserNotificationsEnabled(
         _ enabled: Bool
     ) throws -> Void {
         try self.push.userPushNotificationsEnabled = enabled
     }
 
+    @objc(isUserNotificationsEnabledWithError:)
+    public func _isUserNotificationsEnabled() throws -> NSNumber {
+        return try NSNumber(value: self.push.userPushNotificationsEnabled)
+    }
+
     public func isUserNotificationsEnabled() throws -> Bool {
         return try self.push.userPushNotificationsEnabled
     }
 
+    @objc
     public func enableUserPushNotifications() async throws -> Bool {
         return try await self.push.enableUserNotifications()
     }
 
-    public func getRegistrationToken() throws -> String {
-        return try self.push.deviceToken ?? ""
+    @objc(getRegistrationTokenOrEmptyWithError:)
+    public func _getRegistrationToken() throws -> String {
+        return try getRegistrationToken() ?? ""
     }
 
+    public func getRegistrationToken() throws -> String? {
+        return try self.push.deviceToken
+    }
+
+    @objc
     public func setNotificationOptions(
         _ options:[Any]
     ) throws {
@@ -46,6 +60,7 @@ public class AirshipPushProxy {
         try self.push.notificationOptions = options
     }
 
+    @objc
     public func setForegroundPresentationOptions(
         _ options:[Any]
     ) throws {
@@ -54,6 +69,7 @@ public class AirshipPushProxy {
         self.proxyStore.foregroundPresentationOptions = options
     }
 
+    @objc
     public func getNotificationStatus() throws -> [String: Any] {
         let push = try self.push
         let isSystemEnabled = push.authorizedNotificationSettings != []
@@ -71,32 +87,47 @@ public class AirshipPushProxy {
         return result
     }
 
+    @objc
     public func setAutobadgeEnabled(_ enabled: Bool) throws {
         try self.push.autobadgeEnabled = enabled
+    }
+
+    @objc(isAutobadgeEnabledWithError:)
+    public func _isAutobadgeEnabled() throws -> NSNumber {
+        return try NSNumber(value: self.isAutobadgeEnabled())
     }
 
     public func isAutobadgeEnabled() throws -> Bool {
         return try self.push.autobadgeEnabled
     }
 
+    @objc
     func setBadgeNumber(_ badgeNumber: Int) throws {
         try self.push.badgeNumber = badgeNumber
+    }
+
+    @objc(getBadgeNumberWithError:)
+    public func _getBadgeNumber() throws -> NSNumber {
+        return try NSNumber(value: self.getBadgeNumber())
     }
 
     func getBadgeNumber() throws -> Int {
         return try self.push.badgeNumber
     }
 
+    @objc
     public func clearNotifications() {
         UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     }
 
+    @objc
     public func clearNotification(_ identifier: String) {
         UNUserNotificationCenter.current().removeDeliveredNotifications(
             withIdentifiers: [identifier]
         )
     }
 
+    @objc
     public func getActiveNotifications() async -> [[String: Any]] {
         return await withCheckedContinuation { continuation in
             UNUserNotificationCenter.current().getDeliveredNotifications { notifications in

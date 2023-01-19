@@ -3,7 +3,8 @@
 import Foundation
 import AirshipKit
 
-public class AirshipContactProxy {
+@objc
+public class AirshipContactProxy: NSObject {
 
     private let contactProvider: () throws -> AirshipContactProtocol
     private var contact: AirshipContactProtocol {
@@ -14,6 +15,7 @@ public class AirshipContactProxy {
         self.contactProvider = contactProvider
     }
 
+    @objc
     public func setNamedUser(_ namedUser: String) throws {
         let namedUser = namedUser.trimmingCharacters(
             in: CharacterSet.whitespacesAndNewlines
@@ -26,11 +28,16 @@ public class AirshipContactProxy {
         }
     }
 
-    public func getNamedUser() throws -> String {
-        return try self.contact.namedUserID ?? ""
+    public func getNamedUser() throws -> String? {
+        return try self.contact.namedUserID
     }
 
+    @objc(getNamedUserOrEmptyWithError:)
+    public func _getNamedUser() throws -> String {
+        return try getNamedUser() ?? ""
+    }
 
+    @objc
     public func getContactSubscriptionLists() async throws -> [String: [String]] {
         let instance = try self.contact
         return try await withCheckedThrowingContinuation { continuation in
@@ -58,12 +65,17 @@ public class AirshipContactProxy {
 
     }
 
-    public func editContactTagGroups(_ operations: Any) throws {
-        let data = try JSONUtils.data(operations)
+    @objc
+    public func editTagGroups(json: Any) throws {
+        let data = try JSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [TagGroupOperation].self,
             from: data
         )
+        try self.editTagGroups(operations: operations)
+    }
+
+    public func editTagGroups(operations: [TagGroupOperation]) throws {
         try self.contact.editTagGroups { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)
@@ -71,12 +83,18 @@ public class AirshipContactProxy {
         }
     }
 
-    public func editContactAttributes(_ operations: Any) throws {
-        let data = try JSONUtils.data(operations)
+    @objc
+    public func editAttributes(json: Any) throws {
+        let data = try JSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [AttributeOperation].self,
             from: data
         )
+        try editAttributes(operations: operations)
+    }
+
+
+    public func editAttributes(operations: [AttributeOperation]) throws {
         try self.contact.editAttributes { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)
@@ -84,12 +102,20 @@ public class AirshipContactProxy {
         }
     }
 
-    public func editContactSubscriptionLists(_ operations: Any) throws {
-        let data = try JSONUtils.data(operations)
+    @objc
+    public func editSubscriptionLists(json: Any) throws {
+        let data = try JSONUtils.data(json)
         let operations = try JSONDecoder().decode(
-            [SubscriptionListOperation].self,
+            [ScopedSubscriptionListOperation].self,
             from: data
         )
+
+        try self.editSubscriptionLists(operations: operations)
+    }
+
+    public func editSubscriptionLists(
+        operations: [ScopedSubscriptionListOperation]
+    ) throws {
         try self.contact.editSubscriptionLists { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)

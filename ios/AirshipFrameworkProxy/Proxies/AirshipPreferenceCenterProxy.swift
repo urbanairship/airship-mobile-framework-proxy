@@ -3,7 +3,8 @@
 import Foundation
 import AirshipKit
 
-public class AirshipPreferenceCenterProxy {
+@objc
+public class AirshipPreferenceCenterProxy: NSObject {
 
     private let proxyStore: ProxyStore
 
@@ -20,10 +21,12 @@ public class AirshipPreferenceCenterProxy {
         self.preferenceCenterProvider = preferenceCenterProvider
     }
 
+    @objc
     public func displayPreferenceCenter(preferenceCenterId: String) throws {
         try self.preferenceCenter.open(preferenceCenterId)
     }
 
+    @objc
     public func setAutoLaunchPreferenceCenter(
         _ autoLaunch: Bool,
         forPreferenceId preferenceId: String
@@ -34,6 +37,7 @@ public class AirshipPreferenceCenterProxy {
         )
     }
 
+    @objc
     public func getPreferenceCenterConfig(
         preferenceCenterID: String
     ) async throws -> [String: Any] {

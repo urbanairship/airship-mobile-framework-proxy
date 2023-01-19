@@ -3,7 +3,8 @@
 import Foundation
 import AirshipKit
 
-public class AirshipAnalyticsProxy {
+@objc
+public class AirshipAnalyticsProxy: NSObject {
 
     private let analyticsProvider: () throws -> AirshipAnalyticsProtocol
     private var analytics: AirshipAnalyticsProtocol {
@@ -15,13 +16,12 @@ public class AirshipAnalyticsProxy {
     }
 
 
-
+    @objc
     public func trackScreen(_ screen: String) throws {
         try self.analytics.trackScreen(screen)
     }
 
-
-
+    @objc
     public func associateIdentifier(
         identifier:String,
         key: String

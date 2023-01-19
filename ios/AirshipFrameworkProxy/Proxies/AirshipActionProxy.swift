@@ -3,7 +3,8 @@
 import Foundation
 import AirshipKit
 
-public class AirshipActionProxy {
+@objc
+public class AirshipActionProxy: NSObject {
 
     private let actionRunnerProvider: () throws -> AirshipActionRunnerProtocol
     private var actionRunner: AirshipActionRunnerProtocol {
@@ -14,6 +15,7 @@ public class AirshipActionProxy {
         self.actionRunnerProvider = actionRunnerProvider
     }
 
+    @objc
     public func runAction(
         _ name: String,
         actionValue value: Any

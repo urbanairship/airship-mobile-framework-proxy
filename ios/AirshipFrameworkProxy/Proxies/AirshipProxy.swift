@@ -7,21 +7,32 @@ public enum AirshipProxyError: Error {
     case invalidConfig(String)
 }
 
-public class AirshipProxy {
+@objc
+public class AirshipProxy: NSObject {
     private let proxyStore: ProxyStore
     private let launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     private let onAirshipReady: (() -> Void)?
     private let airshipDelegate: AirshipDelegate
 
+    @objc
     public let locale: AirshipLocaleProxy
+    @objc
     public let push: AirshipPushProxy
+    @objc
     public let channel: AirshipChannelProxy
+    @objc
     public let messageCenter: AirshipMessageCenterProxy
+    @objc
     public let preferenceCenter: AirshipPreferenceCenterProxy
+    @objc
     public let inApp: AirshipInAppProxy
+    @objc
     public let contact: AirshipContactProxy
+    @objc
     public let analytics: AirshipAnalyticsProxy
+    @objc
     public let action: AirshipActionProxy
+    @objc
     public let privacyManager: AirshipPrivacyManagerProxy
 
 
@@ -101,18 +112,35 @@ public class AirshipProxy {
         }
     }
 
+    @objc(takeOffWithJSON:withError:)
+    public func _takeOff(
+        json: Any
+    ) throws -> NSNumber {
+        return try NSNumber(value: self.takeOff(json: json))
+    }
+
     public func takeOff(
-        _ config: [String : Any]
+        json: Any
     ) throws -> Bool {
         let proxyConfig = try JSONDecoder().decode(
             ProxyConfig.self,
-            from: try JSONUtils.data(config)
+            from: try JSONUtils.data(json)
         )
-        self.proxyStore.config = proxyConfig
-        try attemptTakeOff()
+
+        return try takeOff(config: proxyConfig)
+
+    }
+
+    public func takeOff(
+        config: ProxyConfig
+    ) throws -> Bool {
+        self.proxyStore.config = config
+        try? attemptTakeOff()
         return Airship.isFlying
     }
 
+
+    @objc
     public func isFlying(
     ) -> Bool {
         return Airship.isFlying

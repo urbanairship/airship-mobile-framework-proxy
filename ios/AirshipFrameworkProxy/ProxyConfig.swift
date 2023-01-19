@@ -4,8 +4,8 @@ import Foundation
 import AirshipKit
 
 
-struct ProxyConfig: Codable {
-    enum LogLevel: String, Codable {
+public struct ProxyConfig: Codable {
+    public enum LogLevel: String, Codable {
         case verbose
         case debug
         case info
@@ -14,38 +14,38 @@ struct ProxyConfig: Codable {
         case none
     }
 
-    enum Site: String, Codable {
+    public enum Site: String, Codable {
         case eu
         case us
     }
 
-    struct Environment: Codable {
-        let logLevel: LogLevel?
-        let appKey: String?
-        let appSecret: String?
+    public struct Environment: Codable {
+        public let logLevel: LogLevel?
+        public let appKey: String?
+        public let appSecret: String?
     }
 
-    struct PlatformConfig: Codable {
-        let itunesID: String?
+    public struct PlatformConfig: Codable {
+        public let itunesID: String?
 
         private enum CodingKeys: String, CodingKey {
             case itunesID = "itunesId"
         }
     }
 
-    let defaultEnvironment: Environment?
-    let productionEnvironment: Environment?
-    let developmentEnvironment: Environment?
-    let inProduction: Bool?
-    let ios: PlatformConfig?
-    let site: Site?
-    let isChannelCreationDelayEnabled: Bool?
-    let enabledFeatures: Features?
-    let urlAllowListScopeOpenURL: [String]?
-    let urlAllowListScopeJavaScriptInterface: [String]?
-    let urlAllowList: [String]?
-    let initialConfigURL: String?
-    let channelCaptureEnabled: Bool?
+    public let defaultEnvironment: Environment?
+    public let productionEnvironment: Environment?
+    public let developmentEnvironment: Environment?
+    public let inProduction: Bool?
+    public let ios: PlatformConfig?
+    public let site: Site?
+    public let isChannelCreationDelayEnabled: Bool?
+    public let enabledFeatures: Features?
+    public let urlAllowListScopeOpenURL: [String]?
+    public let urlAllowListScopeJavaScriptInterface: [String]?
+    public let urlAllowList: [String]?
+    public let initialConfigURL: String?
+    public let channelCaptureEnabled: Bool?
 
     private enum CodingKeys: String, CodingKey {
         case defaultEnvironment = "default"
@@ -85,7 +85,6 @@ extension ProxyConfig.Site {
         }
     }
 }
-
 
 extension ProxyConfig {
     var airshipConfig: Config {

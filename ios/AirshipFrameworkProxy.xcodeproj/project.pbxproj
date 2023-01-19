@@ -31,6 +31,7 @@
 		6E142EC0296F85CD00F71E23 /* SubscriptionListOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E64296E3DEB00F71E23 /* SubscriptionListOperation.swift */; };
 		6E142EC1296F85CD00F71E23 /* TagGroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E6D296E3DEB00F71E23 /* TagGroupOperation.swift */; };
 		6E142EC2296F87DA00F71E23 /* AirshipProxyEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E8D296F852300F71E23 /* AirshipProxyEventEmitter.swift */; };
+		6EFB83DA2979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB83D92979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift */; };
 		F52B547438A2AFFE231B4881 /* libPods-AirshipFrameworkProxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C39B66064DB5DC0206E8993 /* libPods-AirshipFrameworkProxy.a */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +72,7 @@
 		6E142E95296F852300F71E23 /* AirshipContactProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipContactProxy.swift; sourceTree = "<group>"; };
 		6E142E96296F852300F71E23 /* AirshipProxyEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipProxyEvent.swift; sourceTree = "<group>"; };
 		6E142E97296F852300F71E23 /* AirshipPreferenceCenterProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipPreferenceCenterProxy.swift; sourceTree = "<group>"; };
+		6EFB83D92979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopedSubscriptionListOperation.swift; sourceTree = "<group>"; };
 		7C39B66064DB5DC0206E8993 /* libPods-AirshipFrameworkProxy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AirshipFrameworkProxy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC1D7402ACBBD71CD5050040 /* Pods-AirshipFrameworkProxy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipFrameworkProxy.debug.xcconfig"; path = "Target Support Files/Pods-AirshipFrameworkProxy/Pods-AirshipFrameworkProxy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -118,26 +120,17 @@
 		6E142E4E296E3A8800F71E23 /* AirshipFrameworkProxy */ = {
 			isa = PBXGroup;
 			children = (
-				6E142E94296F852300F71E23 /* AirshipActionProxy.swift */,
-				6E142E93296F852300F71E23 /* AirshipAnalyticsProxy.swift */,
-				6E142E8F296F852300F71E23 /* AirshipChannelProxy.swift */,
-				6E142E95296F852300F71E23 /* AirshipContactProxy.swift */,
-				6E142E92296F852300F71E23 /* AirshipInAppProxy.swift */,
-				6E142E8E296F852300F71E23 /* AirshipLocaleProxy.swift */,
-				6E142E90296F852300F71E23 /* AirshipMessageCenterProxy.swift */,
-				6E142E97296F852300F71E23 /* AirshipPreferenceCenterProxy.swift */,
-				6E142E91296F852300F71E23 /* AirshipPrivacyManagerProxy.swift */,
-				6E142E8B296F852300F71E23 /* AirshipProxy.swift */,
+				6EFB83D82979BB1F0008BEB5 /* Proxies */,
 				6E142E96296F852300F71E23 /* AirshipProxyEvent.swift */,
 				6E142E8D296F852300F71E23 /* AirshipProxyEventEmitter.swift */,
-				6E142E8C296F852300F71E23 /* AirshipPushProxy.swift */,
 				6E142E66296E3DEB00F71E23 /* AirshipDelegate.swift */,
 				6E142E65296E3DEB00F71E23 /* AirshipExtensions.swift */,
-				6E142E67296E3DEB00F71E23 /* AttributeOperation.swift */,
 				6E142E6C296E3DEB00F71E23 /* ProxyConfig.swift */,
 				6E142E68296E3DEB00F71E23 /* ProxyStore.swift */,
 				6E142E6A296E3DEB00F71E23 /* PushUtils.swift */,
+				6E142E67296E3DEB00F71E23 /* AttributeOperation.swift */,
 				6E142E64296E3DEB00F71E23 /* SubscriptionListOperation.swift */,
+				6EFB83D92979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift */,
 				6E142E6D296E3DEB00F71E23 /* TagGroupOperation.swift */,
 				6E142E4F296E3A8800F71E23 /* AirshipFrameworkProxy.h */,
 			);
@@ -150,6 +143,24 @@
 				6E142E59296E3A8800F71E23 /* AirshipFrameworkProxyTests.swift */,
 			);
 			path = AirshipFrameworkProxyTests;
+			sourceTree = "<group>";
+		};
+		6EFB83D82979BB1F0008BEB5 /* Proxies */ = {
+			isa = PBXGroup;
+			children = (
+				6E142E8C296F852300F71E23 /* AirshipPushProxy.swift */,
+				6E142E94296F852300F71E23 /* AirshipActionProxy.swift */,
+				6E142E93296F852300F71E23 /* AirshipAnalyticsProxy.swift */,
+				6E142E8F296F852300F71E23 /* AirshipChannelProxy.swift */,
+				6E142E95296F852300F71E23 /* AirshipContactProxy.swift */,
+				6E142E92296F852300F71E23 /* AirshipInAppProxy.swift */,
+				6E142E8E296F852300F71E23 /* AirshipLocaleProxy.swift */,
+				6E142E90296F852300F71E23 /* AirshipMessageCenterProxy.swift */,
+				6E142E97296F852300F71E23 /* AirshipPreferenceCenterProxy.swift */,
+				6E142E91296F852300F71E23 /* AirshipPrivacyManagerProxy.swift */,
+				6E142E8B296F852300F71E23 /* AirshipProxy.swift */,
+			);
+			path = Proxies;
 			sourceTree = "<group>";
 		};
 		E795D17A6D8B67EA12AE176D /* Pods */ = {
@@ -327,6 +338,7 @@
 				6E142EBB296F85CD00F71E23 /* AirshipExtensions.swift in Sources */,
 				6E142EBC296F85CD00F71E23 /* AttributeOperation.swift in Sources */,
 				6E142EBD296F85CD00F71E23 /* ProxyConfig.swift in Sources */,
+				6EFB83DA2979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift in Sources */,
 				6E142EBE296F85CD00F71E23 /* ProxyStore.swift in Sources */,
 				6E142EBF296F85CD00F71E23 /* PushUtils.swift in Sources */,
 				6E142EC0296F85CD00F71E23 /* SubscriptionListOperation.swift in Sources */,
