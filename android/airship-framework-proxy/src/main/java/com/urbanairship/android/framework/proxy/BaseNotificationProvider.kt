@@ -20,12 +20,13 @@ public open class BaseNotificationProvider(
     }
 
     override fun getDefaultNotificationChannelId(): String {
-        return preferences.notificationConfig?.defaultChannelId ?: super.getDefaultNotificationChannelId()
+        return preferences.notificationConfig?.defaultChannelId
+            ?: super.getDefaultNotificationChannelId()
     }
 
     @DrawableRes
     override fun getSmallIcon(): Int {
-        val iconResourceName: String? = preferences.notificationConfig.notificationIcon
+        val iconResourceName: String? = preferences.notificationConfig?.icon
 
         iconResourceName?.let {
             val id = Utils.getNamedResource(context, it, "drawable")
@@ -39,7 +40,7 @@ public open class BaseNotificationProvider(
 
     @DrawableRes
     override fun getLargeIcon(): Int {
-        val largeIconResourceName: String? = preferences.notificationConfig.notificationLargeIcon
+        val largeIconResourceName: String? = preferences.notificationConfig?.largeIcon
 
         largeIconResourceName?.let {
             val id = Utils.getNamedResource(context, it, "drawable")
@@ -52,7 +53,7 @@ public open class BaseNotificationProvider(
 
     @ColorInt
     override fun getDefaultAccentColor(): Int {
-        val accentHexColor: String? = preferences.notificationConfig.accentColor
+        val accentHexColor: String? = preferences.notificationConfig?.accentColor
 
         return if (accentHexColor != null) {
             Utils.getHexColor(accentHexColor, super.getDefaultAccentColor())

@@ -9,6 +9,7 @@ import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
+import com.urbanairship.app.GlobalActivityMonitor
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
 
@@ -39,6 +40,7 @@ public abstract class BaseAutopilot : Autopilot() {
         airship.pushManager.addPushTokenListener(airshipListener)
         airship.pushManager.notificationListener = airshipListener
         airship.deepLinkListener = airshipListener
+        airship.permissionsManager.addOnPermissionStatusChangedListener(airshipListener)
 
         // Set our custom notification provider
         val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)

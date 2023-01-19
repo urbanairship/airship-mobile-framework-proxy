@@ -14,9 +14,8 @@ public class EventEmitter {
     private val lock = Any()
 
     private val pendingEvents = mutableMapOf<EventType, MutableList<Event>>()
-
     private val _pendingEventsUpdates = MutableSharedFlow<EventType>()
-    public val pendingEventsUpdates: SharedFlow<EventType> = _pendingEventsUpdates
+    public val pendingEventListener: SharedFlow<EventType> = _pendingEventsUpdates
 
     /**
      * Adds an event.

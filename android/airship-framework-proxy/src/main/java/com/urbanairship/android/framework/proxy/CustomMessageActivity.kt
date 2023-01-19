@@ -2,29 +2,23 @@
 
 package com.urbanairship.android.framework.proxy
 
-import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageActivity
+import kotlinx.coroutines.launch
 
 public class CustomMessageActivity : MessageActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        intent?.let {
-            if (CustomMessageCenterActivity.CLOSE_MESSAGE_CENTER == it.action) {
-                finish()
+        val messageCenter = AirshipProxy.shared(this).messageCenter
+        this.lifecycleScope.launch {
+            messageCenter.displayState.collect { display ->
+                if (!display) {
+                    finish()
+                }
             }
         }
     }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-
-        if (CustomMessageCenterActivity.CLOSE_MESSAGE_CENTER == intent.action) {
-            finish()
-        }
-    }
-
-
 }

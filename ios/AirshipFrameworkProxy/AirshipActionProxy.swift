@@ -3,13 +3,6 @@
 import Foundation
 import AirshipKit
 
-public enum AirshipActionProxyError: Error {
-    case notFound
-    case error(Error)
-    case rejectedArguments
-    case other
-}
-
 public class AirshipActionProxy {
 
     private let actionRunnerProvider: () throws -> AirshipActionRunnerProtocol
@@ -24,27 +17,11 @@ public class AirshipActionProxy {
     public func runAction(
         _ name: String,
         actionValue value: Any
-    ) async throws -> Any? {
-        let actionResult = try await self.actionRunner.runAction(
+    ) async throws -> ActionResult {
+        return try await self.actionRunner.runAction(
             name,
             value: value
         )
-
-        switch (actionResult.status) {
-        case .completed:
-            return actionResult.value
-        case .actionNotFound:
-            throw AirshipActionProxyError.notFound
-        case .argumentsRejected:
-            throw AirshipActionProxyError.rejectedArguments
-        case .error: fallthrough
-        @unknown default:
-            if let error = actionResult.error {
-                throw AirshipActionProxyError.error(error)
-            } else {
-                throw AirshipActionProxyError.other
-            }
-        }
     }
 }
 
