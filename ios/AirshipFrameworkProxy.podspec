@@ -1,0 +1,21 @@
+
+Pod::Spec.new do |s|
+   s.version                 = "0.1.0"
+   s.name                    = "AirshipFrameworkProxy"
+   s.summary                 = "Airship iOS mobile framework proxy"
+   s.documentation_url       = "https://docs.airship.com/platform/mobile"
+   s.homepage                = "https://www.airship.com"
+   s.author                  = { "Airship" => "support@airship.com" }
+
+   s.license                 = { :type => 'Apache License, Version 2.0', :file => '../LICENSE' }
+   s.source                  = { :git => "https://github.com/urbanairship/ios-library.git", :tag => s.version.to_s }
+
+   s.module_name             = "AirshipFrameworkProxy"
+   s.ios.deployment_target   = "13.0"
+   s.requires_arc            = true
+   s.swift_version           = "5.0"
+   s.source_files            = "AirshipFrameworkProxy/**/*.{h,m,swift}"
+   s.dependency                'Airship', "16.10.7"
+   s.dependency                "Airship/MessageCenter", "16.10.7"
+   s.dependency                "Airship/PreferenceCenter", "16.10.7"
+end

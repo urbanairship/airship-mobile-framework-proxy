@@ -40,7 +40,7 @@ public actor AirshipProxyEventEmitter {
         }
 
         for type in types {
-            var result = eventMap[type] ?? []
+            let result = eventMap[type] ?? []
             eventMap[type] = result.filter { event in
                 return !handler(event)
             }
