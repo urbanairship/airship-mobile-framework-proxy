@@ -8,6 +8,7 @@ import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
 
@@ -18,7 +19,8 @@ import com.urbanairship.preferencecenter.PreferenceCenter
 public abstract class BaseAutopilot : Autopilot() {
 
     private var configOptions: AirshipConfigOptions? = null
-    private var dataMigrated: Boolean = false
+    private var firstReady: Boolean = false
+    private lateinit var proxyStore: ProxyStore
 
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
@@ -26,7 +28,7 @@ public abstract class BaseAutopilot : Autopilot() {
         ProxyLogger.setLogLevel(airship.airshipConfigOptions.logLevel)
         val context = UAirship.getApplicationContext()
 
-        val airshipListener = AirshipListener(ProxyStore.shared(context), EventEmitter.shared())
+        val airshipListener = AirshipListener(proxyStore, EventEmitter.shared())
 
         PreferenceCenter.shared().openListener = airshipListener
         MessageCenter.shared().setOnShowMessageCenterListener(airshipListener)
@@ -67,9 +69,9 @@ public abstract class BaseAutopilot : Autopilot() {
     }
 
     override fun isReady(context: Context): Boolean {
-        if (!dataMigrated) {
-            onMigrateData(context)
-            dataMigrated = true
+        if (!firstReady) {
+            onMigrateData(context, AirshipProxy.shared(context).proxyStore)
+            firstReady = true
         }
 
         configOptions = ConfigLoader().loadConfig(context)
@@ -86,5 +88,5 @@ public abstract class BaseAutopilot : Autopilot() {
         return configOptions
     }
 
-    public abstract fun onMigrateData(context: Context)
+    public abstract fun onMigrateData(context: Context, proxyStore: ProxyStore)
 }

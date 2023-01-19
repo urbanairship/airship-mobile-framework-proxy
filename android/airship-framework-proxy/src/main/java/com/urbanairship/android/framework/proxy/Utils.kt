@@ -4,9 +4,14 @@ package com.urbanairship.android.framework.proxy
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import androidx.annotation.ColorInt
+import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.PrivacyManager
 import com.urbanairship.android.framework.proxy.ProxyLogger.error
+import com.urbanairship.json.JsonException
+import com.urbanairship.json.JsonList
+import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
 import com.urbanairship.util.UAStringUtil
 
@@ -14,7 +19,7 @@ import com.urbanairship.util.UAStringUtil
  * Module utils.
  */
 public object Utils {
-    private val featureMap: Map<String, Int> = mapOf(
+    internal val featureMap: Map<String, Int> = mapOf(
         "none" to PrivacyManager.FEATURE_NONE,
         "in_app_automation" to PrivacyManager.FEATURE_IN_APP_AUTOMATION,
         "message_center" to PrivacyManager.FEATURE_MESSAGE_CENTER,
@@ -27,6 +32,54 @@ public object Utils {
         "all" to PrivacyManager.FEATURE_ALL
     )
 
+    public fun parseLogLevel(logLevel: String): Int {
+        return when (logLevel.lowercase().trim()) {
+            "verbose" -> Log.VERBOSE
+            "debug" -> Log.DEBUG
+            "info" -> Log.INFO
+            "warning" -> Log.WARN
+            "error" -> Log.ERROR
+            "none" -> Log.ASSERT
+            else -> {
+                throw JsonException("Invalid log level: $logLevel")
+            }
+        }
+    }
+
+    public fun logLevelString(logLevel: Int): String {
+        return when (logLevel) {
+            Log.VERBOSE -> "verbose"
+            Log.DEBUG -> "debug"
+            Log.INFO -> "info"
+            Log.WARN -> "warning"
+            Log.ERROR -> "error"
+            Log.ASSERT -> "none"
+            else -> {
+                throw JsonException("Invalid log level: $logLevel")
+            }
+        }
+    }
+
+
+    @PrivacyManager.Feature
+    public fun parseFeatures(value: JsonValue): Int {
+        var result = PrivacyManager.FEATURE_NONE
+        for (value in value.optList()) {
+            result = result or parseFeature(value.optString())
+        }
+        return result
+    }
+
+    @AirshipConfigOptions.Site
+    public fun parseSite(value: String): String {
+        return when (value) {
+            "eu" -> AirshipConfigOptions.SITE_EU
+            "us" -> AirshipConfigOptions.SITE_US
+            else -> {
+                throw IllegalArgumentException("Invalid site: $value")
+            }
+        }
+    }
 
     /**
      * Gets a resource value by name.
@@ -37,9 +90,14 @@ public object Utils {
      * @return The resource ID or 0 if not found.
      */
     @JvmStatic
-    public fun getNamedResource(context: Context, resourceName: String, resourceFolder: String): Int {
+    public fun getNamedResource(
+        context: Context,
+        resourceName: String,
+        resourceFolder: String
+    ): Int {
         if (!UAStringUtil.isEmpty(resourceName)) {
-            val id = context.resources.getIdentifier(resourceName, resourceFolder, context.packageName)
+            val id =
+                context.resources.getIdentifier(resourceName, resourceFolder, context.packageName)
             if (id != 0) {
                 return id
             } else {
@@ -72,7 +130,7 @@ public object Utils {
 
     @PrivacyManager.Feature
     @JvmStatic
-    internal fun parseFeature(feature: String): Int {
+    public fun parseFeature(feature: String): Int {
         val value = featureMap[feature]
         value?.let {
             return it
@@ -82,7 +140,7 @@ public object Utils {
     }
 
     @JvmStatic
-    internal fun convertFeatures(@PrivacyManager.Feature features: Int): List<String> {
+    public fun featureNames(@PrivacyManager.Feature features: Int): List<String> {
         val result: MutableList<String> = ArrayList()
         for ((key, value) in featureMap) {
             if (value == PrivacyManager.FEATURE_ALL) {
@@ -113,9 +171,11 @@ public object Utils {
     }
 
 
-    public fun notificationMap(message: PushMessage,
-                        notificationId: Int? = null,
-                        notificationTag: String? = null): Map<String, Any> {
+    public fun notificationMap(
+        message: PushMessage,
+        notificationId: Int? = null,
+        notificationTag: String? = null
+    ): Map<String, Any> {
 
         val notification = mutableMapOf<String, Any>()
         val extras = mutableMapOf<String, String>()
@@ -142,7 +202,9 @@ public object Utils {
         message.title?.let { notification["title"] = it }
         message.alert?.let { notification["alert"] = it }
         message.summary?.let { notification["summary"] = it }
-        notificationId?.let { notification["notificationId"] = getNotificationId(it, notificationTag) }
+        notificationId?.let {
+            notification["notificationId"] = getNotificationId(it, notificationTag)
+        }
 
         return notification
     }
