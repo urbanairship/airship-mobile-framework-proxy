@@ -18,7 +18,7 @@ public class AirshipPrivacyManagerProxy: NSObject {
     }
 
     @objc
-    func setEnabled(
+    public func setEnabled(
         featureNames: [String]
     ) throws {
         let features = try Features.parse(featureNames)
@@ -26,25 +26,25 @@ public class AirshipPrivacyManagerProxy: NSObject {
     }
 
     @objc
-    func setEnabled(
+    public func setEnabled(
         features: Features
     ) throws {
         try self.privacyManager.enabledFeatures = features
     }
 
     @objc
-    func getEnabled(
+    public func getEnabledNames(
     ) throws -> [String] {
         return try self.privacyManager.enabledFeatures.names
     }
 
-    func getEnabled(
+    public func getEnabled(
     ) throws -> Features {
         return try self.privacyManager.enabledFeatures
     }
 
     @objc
-    func enable(
+    public func enable(
         featureNames: [String]
     ) throws {
         let features = try Features.parse(featureNames)
@@ -54,7 +54,7 @@ public class AirshipPrivacyManagerProxy: NSObject {
     }
 
     @objc
-    func enable(
+    public func enable(
         features: Features
     ) throws {
         try self.privacyManager.enableFeatures(
@@ -82,7 +82,7 @@ public class AirshipPrivacyManagerProxy: NSObject {
         )
     }
 
-    @objc
+    @objc(isEnabledFeatureNames:error:)
     public func _isEnabled(
         featuresNames: [String]
     ) throws -> NSNumber {

@@ -42,6 +42,7 @@ public class AirshipProxy: NSObject {
     @objc
     public let privacyManager: AirshipPrivacyManagerProxy
 
+    @objc
     public static let shared: AirshipProxy = AirshipProxy()
 
     init(

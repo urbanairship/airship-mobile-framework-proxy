@@ -37,7 +37,6 @@ public class AirshipMessageCenterProxy: NSObject {
         try self.messageCenter.display(messageID: messageID)
     }
 
-
     public func getMessages() throws -> [AirshipMessageCenterMessage] {
         return try self.messageCenter.messages
     }
@@ -59,49 +58,25 @@ public class AirshipMessageCenterProxy: NSObject {
     }
 
     @objc
-    public func _getUnreadCount() throws -> NSNumber {
-        return try NSNumber(value: self.unreadCount)
+    public func getUnreadCount() async throws -> Int {
+        return try self.messageCenter.unreadCount
     }
 
-    public var unreadCount: Int {
-        get throws {
-            return try self.messageCenter.unreadCount
-        }
-    }
-
-    @objc(deleteMessage:withError:)
-    public func _deleteMessage(
-        messageID: String
-    ) async throws -> NSNumber {
-        return try await NSNumber(value: self.deleteMessage(messageID: messageID))
-    }
-
+    @objc
     public func deleteMessage(
         messageID: String
     ) async throws -> Bool {
         return try await self.messageCenter.deleteMessage(messageID: messageID)
     }
 
-    @objc(markMessageRead:withError:)
-    public func _markMessageRead(
-        messageID: String
-    ) async throws -> NSNumber {
-        return try await NSNumber(
-            value: self.markMessageRead(messageID: messageID)
-        )
-    }
-
+    @objc
     public func markMessageRead(
         messageID:String
     ) async throws -> Bool {
         return try await self.messageCenter.markMessageRead(messageID: messageID)
     }
 
-    @objc(refreshWithError:)
-    public func _refresh() async throws -> NSNumber {
-        return try await NSNumber(value: self.refresh())
-    }
-
+    @objc
     public func refresh() async throws -> Bool {
         return try await self.messageCenter.refresh()
     }
