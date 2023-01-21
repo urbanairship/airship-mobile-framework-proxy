@@ -21,18 +21,18 @@ public class AirshipMessageCenterProxy: NSObject {
     }
 
     @objc
-    public func displayMessageCenter() throws {
+    public func display() throws {
         try self.messageCenter.display()
     }
 
     @objc
-    public func dismissMessageCenter() throws {
+    public func dismiss() throws {
         try self.messageCenter.dismiss()
     }
 
     @objc
-    public func displayMessage(
-        _ messageID: String
+    public func display(
+        messageID: String
     ) throws {
         try self.messageCenter.display(messageID: messageID)
     }
