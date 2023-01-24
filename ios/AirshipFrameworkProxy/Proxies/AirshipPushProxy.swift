@@ -111,7 +111,7 @@ public class AirshipPushProxy: NSObject {
         return try NSNumber(value: self.getBadgeNumber())
     }
 
-    func getBadgeNumber() throws -> Int {
+    public func getBadgeNumber() throws -> Int {
         return try self.push.badgeNumber
     }
 

@@ -17,13 +17,13 @@ public class AirshipAnalyticsProxy: NSObject {
 
 
     @objc
-    public func trackScreen(_ screen: String) throws {
+    public func trackScreen(_ screen: String?) throws {
         try self.analytics.trackScreen(screen)
     }
 
     @objc
     public func associateIdentifier(
-        identifier:String,
+        identifier: String?,
         key: String
     ) throws {
         try self.analytics.associateIdentifier(

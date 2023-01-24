@@ -22,17 +22,17 @@ public class AirshipPreferenceCenterProxy: NSObject {
     }
 
     @objc
-    public func displayPreferenceCenter(preferenceCenterId: String) throws {
-        try self.preferenceCenter.open(preferenceCenterId)
+    public func displayPreferenceCenter(preferenceCenterID: String) throws {
+        try self.preferenceCenter.open(preferenceCenterID)
     }
 
     @objc
     public func setAutoLaunchPreferenceCenter(
         _ autoLaunch: Bool,
-        forPreferenceId preferenceId: String
+        preferenceCenterID: String
     ) {
         self.proxyStore.setAutoLaunchPreferenceCenter(
-            preferenceId,
+            preferenceCenterID,
             autoLaunch: autoLaunch
         )
     }

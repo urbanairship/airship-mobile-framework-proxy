@@ -3,6 +3,10 @@
 import Foundation
 import AirshipKit
 
+public enum AirshipMessageCenterProxyError: Error {
+    case messageNotFound
+    case refreshFailed
+}
 
 @objc
 public class AirshipMessageCenterProxy: NSObject {
@@ -21,20 +25,17 @@ public class AirshipMessageCenterProxy: NSObject {
     }
 
     @objc
-    public func display() throws {
-        try self.messageCenter.display()
+    public func display(messageID: String?) throws {
+        if let messageID = messageID {
+            try self.messageCenter.display(messageID: messageID)
+        } else {
+            try self.messageCenter.display()
+        }
     }
 
     @objc
     public func dismiss() throws {
         try self.messageCenter.dismiss()
-    }
-
-    @objc
-    public func display(
-        messageID: String
-    ) throws {
-        try self.messageCenter.display(messageID: messageID)
     }
 
     public func getMessages() throws -> [AirshipMessageCenterMessage] {
@@ -65,20 +66,34 @@ public class AirshipMessageCenterProxy: NSObject {
     @objc
     public func deleteMessage(
         messageID: String
-    ) async throws -> Bool {
-        return try await self.messageCenter.deleteMessage(messageID: messageID)
+    ) async throws {
+        guard
+            try await self.messageCenter.deleteMessage(
+                messageID: messageID
+            )
+        else {
+            throw AirshipMessageCenterProxyError.messageNotFound
+        }
     }
 
     @objc
     public func markMessageRead(
         messageID:String
-    ) async throws -> Bool {
-        return try await self.messageCenter.markMessageRead(messageID: messageID)
+    ) async throws {
+        guard
+            try await self.messageCenter.markMessageRead(
+                messageID: messageID
+            )
+        else {
+            throw AirshipMessageCenterProxyError.messageNotFound
+        }
     }
 
     @objc
-    public func refresh() async throws -> Bool {
-        return try await self.messageCenter.refresh()
+    public func refresh() async throws {
+        guard try await self.messageCenter.refresh() else {
+            throw AirshipMessageCenterProxyError.refreshFailed
+        }
     }
 
     @objc
