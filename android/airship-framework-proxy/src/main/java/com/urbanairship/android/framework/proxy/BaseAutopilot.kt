@@ -23,7 +23,6 @@ public abstract class BaseAutopilot : Autopilot() {
 
     private var configOptions: AirshipConfigOptions? = null
     private var firstReady: Boolean = false
-    private lateinit var proxyStore: ProxyStore
 
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
@@ -31,7 +30,10 @@ public abstract class BaseAutopilot : Autopilot() {
         ProxyLogger.setLogLevel(airship.airshipConfigOptions.logLevel)
         val context = UAirship.getApplicationContext()
 
-        val airshipListener = AirshipListener(proxyStore, EventEmitter.shared())
+        val airshipListener = AirshipListener(
+            AirshipProxy.shared(context).proxyStore,
+            EventEmitter.shared()
+        )
 
         PreferenceCenter.shared().openListener = airshipListener
         MessageCenter.shared().setOnShowMessageCenterListener(airshipListener)
