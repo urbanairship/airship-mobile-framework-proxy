@@ -113,7 +113,7 @@ public class AirshipProxy(
     }
 
     private fun ensureTakeOff() {
-        if (!UAirship.isFlying() || !UAirship.isTakingOff()) {
+        if (!UAirship.isFlying() && !UAirship.isTakingOff()) {
             throw java.lang.IllegalStateException("Takeoff not called.")
         }
     }
