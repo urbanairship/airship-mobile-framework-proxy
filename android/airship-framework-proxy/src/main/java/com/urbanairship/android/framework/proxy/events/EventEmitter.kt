@@ -44,6 +44,17 @@ public class EventEmitter {
         }
     }
 
+    public fun hasEvents(types: List<EventType>): Boolean {
+        synchronized(lock) {
+            for (type in types) {
+                if (!pendingEvents[type].isNullOrEmpty()) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
     /**
      * Processes events for the given types.
      * @param types The types.
