@@ -66,7 +66,6 @@ public class PushProxy internal constructor(
             .toJsonValue()
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.O)
     public fun isNotificationChannelEnabled(channelId: String): Boolean {
         val manager =

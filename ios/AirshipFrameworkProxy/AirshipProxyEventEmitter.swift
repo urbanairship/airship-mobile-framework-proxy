@@ -3,7 +3,7 @@ import Combine
 
 public actor AirshipProxyEventEmitter {
     private let updateContinuation: AsyncStream<AirshipProxyEventType>.Continuation
-    let pendingEventTypeAdded: AsyncStream<AirshipProxyEventType>
+    public let pendingEventTypeAdded: AsyncStream<AirshipProxyEventType>
     public static let shared = AirshipProxyEventEmitter()
 
     init() {
@@ -18,6 +18,12 @@ public actor AirshipProxyEventEmitter {
 
     public func hasEvent(type: AirshipProxyEventType) -> Bool {
         return eventMap[type]?.isEmpty == false
+    }
+
+    public func hasAnyEvents() -> Bool {
+        return eventMap.values.contains { events in
+            !events.isEmpty
+        }
     }
 
     public func takePendingEvents(

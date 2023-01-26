@@ -16,16 +16,21 @@ public class AirshipContactProxy: NSObject {
     }
 
     @objc
-    public func setNamedUser(_ namedUser: String) throws {
+    public func identify(_ namedUser: String) throws {
         let namedUser = namedUser.trimmingCharacters(
             in: CharacterSet.whitespacesAndNewlines
         )
 
-        if (namedUser.isEmpty) {
-            try self.contact.reset()
-        } else {
+        if (!namedUser.isEmpty) {
             try self.contact.identify(namedUser)
+        } else {
+            try self.contact.reset()
         }
+    }
+
+    @objc
+    public func reset() throws {
+        try self.contact.reset()
     }
 
     public func getNamedUser() throws -> String? {
@@ -38,7 +43,7 @@ public class AirshipContactProxy: NSObject {
     }
 
     @objc
-    public func getContactSubscriptionLists() async throws -> [String: [String]] {
+    public func getSubscriptionLists() async throws -> [String: [String]] {
         let instance = try self.contact
         return try await withCheckedThrowingContinuation { continuation in
             instance.fetchSubscriptionLists { lists, error in

@@ -21,11 +21,6 @@ public struct TagGroupOperation: Decodable {
     }
 
     func apply(editor: TagGroupsEditor) {
-        guard group.isEmpty else {
-            AirshipLogger.error("Invalid tag group operation: \(self)")
-            return
-        }
-
         switch(action) {
         case .removeTags:
             editor.remove(tags, group: group)

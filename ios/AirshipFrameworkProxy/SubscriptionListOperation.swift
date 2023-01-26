@@ -18,11 +18,6 @@ public struct SubscriptionListOperation: Decodable {
     }
 
     func apply(editor: SubscriptionListEditor) {
-        guard listID.isEmpty else {
-            AirshipLogger.error("Invalid subscription list operation: \(self)")
-            return
-        }
-
         switch(action) {
         case .subscribe:
             editor.subscribe(listID)

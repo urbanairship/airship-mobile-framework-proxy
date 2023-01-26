@@ -72,7 +72,7 @@ class AirshipDelegate: NSObject,
         )
 
         guard !autoLaunch else {
-            return autoLaunch
+            return false
         }
 
         Task {

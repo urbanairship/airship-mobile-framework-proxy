@@ -38,16 +38,14 @@ public class MessageCenterProxy internal constructor(
         return messageCenterProvider().inbox.messages.map { MessageCenterMessage(it) }
     }
 
-    public fun deleteMessage(messageId: String): Boolean {
-        val message = messageCenterProvider().inbox.getMessage(messageId)
-        message?.delete()
-        return message != null
+    public fun deleteMessage(messageId: String) {
+        requireNotNull(messageCenterProvider().inbox.getMessage(messageId))
+            .delete()
     }
 
-    public fun markMessageRead(messageId: String): Boolean {
-        val message = messageCenterProvider().inbox.getMessage(messageId)
-        message?.markRead()
-        return message != null
+    public fun markMessageRead(messageId: String) {
+        requireNotNull(messageCenterProvider().inbox.getMessage(messageId))
+            .markRead()
     }
 
     public fun refreshInbox(): PendingResult<Boolean> {

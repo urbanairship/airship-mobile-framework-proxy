@@ -20,7 +20,7 @@ public struct ScopedSubscriptionListOperation: Decodable {
     }
 
     func apply(editor: ScopedSubscriptionListEditor) {
-        guard listID.isEmpty,
+        guard 
               let scope = try? ChannelScope.fromString(scope)
         else {
             AirshipLogger.error("Invalid subscription list operation: \(self)")

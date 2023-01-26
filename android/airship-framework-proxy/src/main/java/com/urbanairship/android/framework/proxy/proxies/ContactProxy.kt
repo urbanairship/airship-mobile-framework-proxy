@@ -7,7 +7,7 @@ import com.urbanairship.contacts.Contact
 import com.urbanairship.json.JsonValue
 
 public class ContactProxy internal constructor(private val contactProvider: () -> Contact) {
-    public fun setNamedUser(namedUser: String?) {
+    public fun identify(namedUser: String?) {
         if (namedUser.isNullOrBlank()) {
             contactProvider().reset()
         } else {
@@ -15,7 +15,11 @@ public class ContactProxy internal constructor(private val contactProvider: () -
         }
     }
 
-    public fun getNamedUser(): String? {
+    public fun reset() {
+        contactProvider().reset()
+    }
+
+    public fun getNamedUserId(): String? {
         return contactProvider().namedUserId
     }
 

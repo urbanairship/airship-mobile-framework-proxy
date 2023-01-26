@@ -53,7 +53,7 @@ public class ProxyStore internal constructor(private val context: Context) {
     }
 
     private fun <T> getJson(key: String, parser: (JsonValue) -> T): T? {
-        val jsonString = getString(NOTIFICATION_CONFIG, null) ?: return null
+        val jsonString = getString(key, null) ?: return null
         return try {
             val json = JsonValue.parseString(jsonString)
             parser(json)

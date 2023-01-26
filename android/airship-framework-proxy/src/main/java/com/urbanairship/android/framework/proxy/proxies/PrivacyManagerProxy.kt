@@ -10,7 +10,13 @@ public class PrivacyManagerProxy internal constructor(
 
     public fun setEnabledFeatures(featureNames: List<String>) {
         setEnabledFeatures(
-            Utils.parseFeatures(JsonValue.wrapOpt(featureNames))
+            JsonValue.wrapOpt(featureNames)
+        )
+    }
+
+    public fun setEnabledFeatures(featureNames: JsonValue) {
+        setEnabledFeatures(
+            Utils.parseFeatures(featureNames)
         )
     }
 
@@ -24,7 +30,13 @@ public class PrivacyManagerProxy internal constructor(
 
     public fun enableFeatures(featureNames: List<String>) {
         enableFeatures(
-            Utils.parseFeatures(JsonValue.wrapOpt(featureNames))
+            JsonValue.wrapOpt(featureNames)
+        )
+    }
+
+    public fun enableFeatures(featureNames: JsonValue) {
+        enableFeatures(
+            Utils.parseFeatures(featureNames)
         )
     }
 
@@ -34,7 +46,13 @@ public class PrivacyManagerProxy internal constructor(
 
     public fun disableFeatures(featureNames: List<String>) {
         disableFeatures(
-            Utils.parseFeatures(JsonValue.wrapOpt(featureNames))
+            JsonValue.wrapOpt(featureNames)
+        )
+    }
+
+    public fun disableFeatures(featureNames: JsonValue) {
+        disableFeatures(
+            Utils.parseFeatures(featureNames)
         )
     }
 
@@ -44,7 +62,13 @@ public class PrivacyManagerProxy internal constructor(
 
     public fun isFeatureEnabled(featureNames: List<String>): Boolean {
         return isFeatureEnabled(
-            Utils.parseFeatures(JsonValue.wrapOpt(featureNames))
+            JsonValue.wrapOpt(featureNames)
+        )
+    }
+
+    public fun isFeatureEnabled(featureNames: JsonValue): Boolean {
+        return isFeatureEnabled(
+            Utils.parseFeatures(featureNames)
         )
     }
 

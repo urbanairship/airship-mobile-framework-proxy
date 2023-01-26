@@ -54,17 +54,17 @@ public class AirshipPushProxy: NSObject {
 
     @objc
     public func setNotificationOptions(
-        _ options:[Any]
+        names:[String]
     ) throws {
-        let options = try UANotificationOptions.parse(options)
+        let options = try UANotificationOptions.parse(names)
         try self.push.notificationOptions = options
     }
 
     @objc
     public func setForegroundPresentationOptions(
-        _ options:[Any]
+        names:[String]
     ) throws {
-        let options = try UNNotificationPresentationOptions.parse(options)
+        let options = try UNNotificationPresentationOptions.parse(names)
         try self.push.defaultPresentationOptions = options
         self.proxyStore.foregroundPresentationOptions = options
     }
@@ -102,7 +102,7 @@ public class AirshipPushProxy: NSObject {
     }
 
     @objc
-    func setBadgeNumber(_ badgeNumber: Int) throws {
+    public func setBadgeNumber(_ badgeNumber: Int) throws {
         try self.push.badgeNumber = badgeNumber
     }
 
@@ -111,7 +111,7 @@ public class AirshipPushProxy: NSObject {
         return try NSNumber(value: self.getBadgeNumber())
     }
 
-    func getBadgeNumber() throws -> Int {
+    public func getBadgeNumber() throws -> Int {
         return try self.push.badgeNumber
     }
 
