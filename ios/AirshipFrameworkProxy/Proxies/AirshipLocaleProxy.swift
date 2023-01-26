@@ -16,10 +16,15 @@ public class AirshipLocaleProxy: NSObject {
     }
 
     @objc
-    public func setCurrentLocale(_ localeIdentifier: String) throws {
-        try self.locale.currentLocale = Locale(
-            identifier: localeIdentifier
-        )
+    public func setCurrentLocale(_ localeIdentifier: String?) throws {
+        if let localeIdentifier = localeIdentifier {
+            try self.locale.currentLocale = Locale(
+                identifier: localeIdentifier
+            )
+        } else {
+            try self.locale.clearLocale()
+        }
+
     }
 
     @objc

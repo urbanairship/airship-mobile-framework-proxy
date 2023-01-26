@@ -23,6 +23,8 @@ public class AirshipContactProxy: NSObject {
 
         if (!namedUser.isEmpty) {
             try self.contact.identify(namedUser)
+        } else {
+            try self.contact.reset()
         }
     }
 
