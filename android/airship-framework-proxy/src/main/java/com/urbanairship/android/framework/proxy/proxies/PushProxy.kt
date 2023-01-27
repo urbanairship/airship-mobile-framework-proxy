@@ -82,8 +82,8 @@ public class PushProxy internal constructor(
         return pushProvider().pushToken
     }
 
-    public fun isUserNotificationsEnabled() {
-        pushProvider().userNotificationsEnabled
+    public fun isUserNotificationsEnabled(): Boolean {
+        return pushProvider().userNotificationsEnabled
     }
 
     public fun clearNotifications() {

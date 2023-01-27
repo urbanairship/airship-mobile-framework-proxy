@@ -13,7 +13,7 @@ public struct SubscriptionListOperation: Decodable {
     let listID: String
 
     private enum CodingKeys: String, CodingKey {
-        case action = "type"
+        case action = "action"
         case listID = "listId"
     }
 

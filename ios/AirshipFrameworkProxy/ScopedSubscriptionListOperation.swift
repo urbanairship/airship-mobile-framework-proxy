@@ -14,7 +14,7 @@ public struct ScopedSubscriptionListOperation: Decodable {
     let scope: String
 
     private enum CodingKeys: String, CodingKey {
-        case action = "type"
+        case action = "action"
         case listID = "listId"
         case scope = "scope"
     }
