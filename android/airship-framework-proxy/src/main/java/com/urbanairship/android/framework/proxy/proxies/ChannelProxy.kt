@@ -23,8 +23,8 @@ public class ChannelProxy internal constructor(private val channelProvider: () -
         channelProvider().editTags().removeTag(tag).apply()
     }
 
-    public fun getTags() {
-        channelProvider().tags
+    public fun getTags(): Set<String> {
+        return channelProvider().tags
     }
 
     public fun getSubscriptionLists(): PendingResult<Set<String>> {

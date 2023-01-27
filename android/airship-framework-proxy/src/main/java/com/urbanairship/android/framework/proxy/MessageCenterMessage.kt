@@ -17,7 +17,7 @@ public data class MessageCenterMessage(
 
     internal constructor(message: Message) : this(
         title = message.title,
-        id = message.title,
+        id = message.messageId,
         sentDate = message.sentDateMS,
         listIconUrl = message.listIconUrl,
         isRead = message.isRead,
