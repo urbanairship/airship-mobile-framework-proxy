@@ -6,7 +6,7 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
-  release:
+  android:
     if: github.repository == 'urbanairship/airship-mobile-framework-proxy'
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +36,9 @@ jobs:
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
       - name: Build
-        run: ./gradlew assembleRelease --stacktrace
+        run: |
+          cd android
+          ./gradlew airship-framework-proxy:assembleRelease --stacktrace
 
       - name: Github Release
         uses: actions/create-release@v1.0.1
