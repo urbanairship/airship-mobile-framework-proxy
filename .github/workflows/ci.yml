@@ -19,12 +19,12 @@ jobs:
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
-      - name: Build and Test SDK
-        run: |
-          cd android
-          bash ./gradlew airship-framework-proxy:assembleDebug airship-framework-proxy:testDebugUnitTest --info --stacktrace
-          cd -
+      - name: Set actual directory to Android project
+        run: cd android
 
+      - name: Build and Test SDK
+        run: bash ./gradlew airship-framework-proxy:assembleDebug airship-framework-proxy:testDebugUnitTest --info --stacktrace
+        
       - name: publish unit test reports
         if: always()
         uses: mikepenz/action-junit-report@a6502270b81b22b7cf745720fcf00edf7d31dc04
@@ -33,4 +33,33 @@ jobs:
           github_token: ${{ github.token }}
           report_paths: '**/build/test-results/**/TEST-*.xml'
           fail_on_failure: true
+          
+      - name: Go back to Root directory
+        run: cd -
+          
+  ios:
+    runs-on: macOS-12
+    steps:
+      - name: Set actual directory to iOS project
+        run: cd ios
+        
+      - name: Set env variable
+        run: echo "ImageVersion=$ImageVersion"  >> $GITHUB_ENV
+        
+      - uses: actions/checkout@v2
+      
+      - uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ env.ImageVersion }}-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: ${{ runner.os }}-gems-${{ env.ImageVersion }}
+          
+      - name: Build SDK
+        run: make build-xcframeworks
+        
+      - name: Pod lint
+        run: make pod-lint
+        
+      - name: Go back to Root directory
+        run: cd -
           
