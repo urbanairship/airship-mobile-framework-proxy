@@ -55,6 +55,12 @@ nexusPublishing {
                 stagingProfileId.set(profileId)
             }
         }
+        transitionCheckOptions {
+            maxRetries.set(100)
+            delayBetween.set(Duration.ofSeconds(60*2))
+        }
+        connectTimeout = Duration.ofSeconds(60*30)
+        clientTimeout = Duration.ofSeconds(60*30)
     } else {
         logger.info("Missing publishing credentials! Nexus publishing will not be configured.")
     }
