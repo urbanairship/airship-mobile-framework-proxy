@@ -27,7 +27,7 @@ internal class NotificationResponseEvent(
 
     override val body: Map<String, Any> = run {
         val map = mutableMapOf(
-            "notification" to Utils.notificationMap(
+            "pushPayload" to Utils.notificationMap(
                 notificationInfo.message,
                 notificationInfo.notificationId,
                 notificationInfo.notificationTag

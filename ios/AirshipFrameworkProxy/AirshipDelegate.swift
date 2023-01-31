@@ -126,6 +126,13 @@ class AirshipDelegate: NSObject,
         _ notificationResponse: UNNotificationResponse,
         completionHandler: @escaping () -> Void
     ) {
+        guard
+            notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier
+        else {
+            completionHandler()
+            return
+        }
+
         Task {
             await self.eventEmitter.addEvent(
                 NotificationResponseEvent(

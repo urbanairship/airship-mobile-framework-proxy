@@ -23,7 +23,9 @@ internal class PushReceivedEvent : Event {
      * @param message The push message.
      */
     constructor(message: PushMessage) {
-        this.body = Utils.notificationMap(message)
+        this.body = mapOf(
+            "pushPayload" to Utils.notificationMap(message)
+        )
     }
 
     /**
@@ -32,10 +34,12 @@ internal class PushReceivedEvent : Event {
      * @param notificationInfo The posted notification info.
      */
     constructor(notificationInfo: NotificationInfo) {
-        this.body =  Utils.notificationMap(
-            notificationInfo.message,
-            notificationInfo.notificationId,
-            notificationInfo.notificationTag
+        this.body = mapOf(
+            "pushPayload" to Utils.notificationMap(
+                notificationInfo.message,
+                notificationInfo.notificationId,
+                notificationInfo.notificationTag
+            )
         )
     }
 

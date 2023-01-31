@@ -212,9 +212,24 @@ public class AirshipProxy: NSObject {
 
         Airship.push.defaultPresentationOptions = self.proxyStore.foregroundPresentationOptions
 
-        if let categories = PushUtils.loadCategories() {
+        if let categories = self.loadCategories() {
             Airship.push.customCategories = categories
         }
+    }
+
+    private func loadCategories() -> Set<UNNotificationCategory>? {
+        let categoriesPath = Bundle.main.path(
+            forResource: "UACustomNotificationCategories",
+            ofType: "plist"
+        )
+
+        guard let categoriesPath = categoriesPath else {
+            return nil
+        }
+
+        return NotificationCategories.createCategories(
+            fromFile: categoriesPath
+        )
     }
 }
 
