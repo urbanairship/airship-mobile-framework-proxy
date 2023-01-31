@@ -4,29 +4,6 @@ import Foundation
 import AirshipKit
 
 struct PushUtils {
-    static func responsePayload(
-        _ response: UNNotificationResponse
-    ) -> [String : Any] {
-        var payload: [String: Any] = [:]
-
-        payload["pushPayload"] = self.contentPayload(
-            response.notification.request.content.userInfo,
-            notificationID: response.notification.request.identifier
-        )
-
-        if (response.actionIdentifier == UNNotificationDefaultActionIdentifier) {
-            payload["isForeground"] = true
-        } else {
-            if let action = self.findAction(response) {
-                payload["isForeground"] = action.options.contains(.foreground)
-            } else {
-                payload["isForeground"] = true
-            }
-            payload["actionId"] = response.actionIdentifier
-        }
-        return payload
-    }
-
     static func contentPayload(
         _ userInfo: [AnyHashable: Any],
         notificationID: String? = nil
@@ -62,21 +39,5 @@ struct PushUtils {
         })?.actions.first(where: { (action) -> Bool in
             return action.identifier == notificationResponse.actionIdentifier
         })
-    }
-
-
-    static func loadCategories() -> Set<UNNotificationCategory>? {
-        let categoriesPath = Bundle.main.path(
-            forResource: "UACustomNotificationCategories",
-            ofType: "plist"
-        )
-
-        guard let categoriesPath = categoriesPath else {
-            return nil
-        }
-
-        return NotificationCategories.createCategories(
-            fromFile: categoriesPath
-        )
     }
 }

@@ -81,7 +81,24 @@ struct NotificationResponseEvent: AirshipProxyEvent {
     let body: [String : Any]
 
     init(response: UNNotificationResponse) {
-        self.body = PushUtils.responsePayload(response)
+        var body: [String: Any] = [:]
+        body["pushPayload"] = PushUtils.contentPayload(
+            response.notification.request.content.userInfo,
+            notificationID: response.notification.request.identifier
+        )
+
+        if (response.actionIdentifier == UNNotificationDefaultActionIdentifier) {
+            body["isForeground"] = true
+        } else {
+            if let action = PushUtils.findAction(response) {
+                body["isForeground"] = action.options.contains(.foreground)
+            } else {
+                body["isForeground"] = true
+            }
+            body["actionId"] = response.actionIdentifier
+        }
+
+        self.body = body
     }
 }
 
@@ -90,7 +107,9 @@ struct PushReceivedEvent: AirshipProxyEvent {
     let body: [String : Any]
 
     init(userInfo: [AnyHashable : Any]) {
-        self.body = PushUtils.contentPayload(userInfo)
+        self.body = [
+            "pushPayload": PushUtils.contentPayload(userInfo)
+        ]
     }
 }
 
@@ -119,3 +138,5 @@ struct NotificationOptInStatusChangedEvent: AirshipProxyEvent {
     }
 
 }
+
+
