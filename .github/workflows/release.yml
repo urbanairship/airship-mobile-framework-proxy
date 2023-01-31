@@ -5,9 +5,12 @@ on:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
+env:
+  BUNDLE_PATH: vendor/bundle
+  DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
+
 jobs:
   android:
-    if: github.repository == 'urbanairship/airship-mobile-framework-proxy'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -35,10 +38,11 @@ jobs:
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
+      - name: Set actual directory to Android project
+        run: cd android
+
       - name: Build
-        run: |
-          cd android
-          ./gradlew airship-framework-proxy:assembleRelease --stacktrace
+        run: ./gradlew airship-framework-proxy:assembleRelease --stacktrace
 
       - name: Github Release
         uses: actions/create-release@v1.0.1
@@ -64,3 +68,64 @@ jobs:
           --stacktrace
           --max-workers 1
           closeAndReleaseSonatypeStagingRepository
+          
+      - name: Go back to Root directory
+        run: cd -
+          
+  ios:
+    runs-on: macOS-12
+    steps:
+      - name: Set actual directory to iOS project
+        run: cd ios
+        
+      - uses: actions/checkout@v2
+      
+      - uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: ${{ runner.os }}-gems-
+          
+      - name: Install Coreutils
+        run: brew install coreutils
+
+      - name: Build SDK
+        run: |
+          pod install
+          xcodebuild -scheme AirshipFrameworkProxy build
+
+      - name: Upload zip distribution
+        uses: actions/upload-artifact@v1
+        with:
+          name: airship
+          path: ./build/AirshipFrameworkProxy.zip
+      
+      - name: Publish Pods
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: exec pod trunk push AirshipFrameworkProxy.podspec
+
+      - name: Github Release
+        id: create_release
+        uses: actions/create-release@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: ${{ steps.get_version.outputs.VERSION }}
+          body: ${{ steps.get_release_notes.outputs.NOTES }}
+          draft: false
+          prerelease: false
+          
+      - name: Upload zip distribution
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/AirshipFrameworkProxy.zip
+          asset_name: AirshipFrameworkProxy.zip
+          asset_content_type: application/zip
+
+      - name: Go back to Root directory
+        run: cd -
