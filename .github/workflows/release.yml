@@ -7,7 +7,7 @@ on:
 
 env:
   BUNDLE_PATH: vendor/bundle
-  DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
 
 jobs:
   android:
@@ -38,11 +38,11 @@ jobs:
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
-      - name: Set actual directory to Android project
-        run: cd android
-
       - name: Build
-        run: ./gradlew airship-framework-proxy:assembleRelease --stacktrace
+        run: |
+          cd android
+          ./gradlew airship-framework-proxy:assembleRelease --stacktrace
+          cd -
 
       - name: Github Release
         uses: actions/create-release@v1.0.1
@@ -63,21 +63,17 @@ jobs:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: >-
+          cd android
           ./gradlew
           publishProductionPublicationToSonatypeRepository
           --stacktrace
           --max-workers 1
           closeAndReleaseSonatypeStagingRepository
-          
-      - name: Go back to Root directory
-        run: cd -
+          cd -
           
   ios:
     runs-on: macOS-12
     steps:
-      - name: Set actual directory to iOS project
-        run: cd ios
-        
       - uses: actions/checkout@v2
       
       - uses: actions/cache@v1
@@ -91,14 +87,16 @@ jobs:
 
       - name: Build SDK
         run: |
+          cd ios
           pod install
           xcodebuild -scheme AirshipFrameworkProxy build
+          cd -
 
       - name: Upload zip distribution
         uses: actions/upload-artifact@v1
         with:
           name: airship
-          path: ./build/AirshipFrameworkProxy.zip
+          path: ./ios/build/AirshipFrameworkProxy.zip
       
       - name: Publish Pods
         env:
@@ -123,9 +121,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/AirshipFrameworkProxy.zip
+          asset_path: ./ios/build/AirshipFrameworkProxy.zip
           asset_name: AirshipFrameworkProxy.zip
           asset_content_type: application/zip
-
-      - name: Go back to Root directory
-        run: cd -
