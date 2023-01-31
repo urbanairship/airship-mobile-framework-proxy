@@ -133,7 +133,9 @@ struct NotificationOptInStatusChangedEvent: AirshipProxyEvent {
     ) {
         self.body = [
             "optIn": authorizedSettings != [],
-            "authorizedSettings": authorizedSettings.names
+            "ios": [
+                "authroizedSettings": authorizedSettings.names
+            ]
         ]
     }
 

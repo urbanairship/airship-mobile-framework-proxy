@@ -4,14 +4,20 @@ package com.urbanairship.android.framework.proxy.events
 
 import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 
 /**
  * Emits events to listeners in the JS layer.
  */
 public class EventEmitter {
     private val lock = Any()
+
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val pendingEvents = mutableMapOf<EventType, MutableList<Event>>()
     private val _pendingEventsUpdates = MutableSharedFlow<EventType>()
@@ -26,6 +32,9 @@ public class EventEmitter {
         synchronized(lock) {
             pendingEvents.putIfAbsent(event.type, mutableListOf())
             pendingEvents[event.type]?.add(event)
+            scope.launch {
+                _pendingEventsUpdates.emit(event.type)
+            }
         }
     }
 
