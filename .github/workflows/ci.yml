@@ -26,11 +26,11 @@ jobs:
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
-      - name: Set actual directory to Android project
-        run: cd android
-
       - name: Build and Test SDK
-        run: bash ./gradlew airship-framework-proxy:assembleDebug airship-framework-proxy:testDebugUnitTest --info --stacktrace
+        run: |
+          cd android
+          bash ./gradlew airship-framework-proxy:assembleDebug airship-framework-proxy:testDebugUnitTest --info --stacktrace
+          cd -
         
       - name: publish unit test reports
         if: always()
@@ -41,15 +41,9 @@ jobs:
           report_paths: '**/build/test-results/**/TEST-*.xml'
           fail_on_failure: true
           
-      - name: Go back to Root directory
-        run: cd -
-          
   ios:
     runs-on: macOS-12
     steps:
-      - name: Set actual directory to iOS project
-        run: cd ios
-        
       - name: Set env variable
         run: echo "ImageVersion=$ImageVersion"  >> $GITHUB_ENV
         
@@ -66,12 +60,13 @@ jobs:
 
       - name: Build SDK
         run: |
+          cd ios
           pod install
           xcodebuild -scheme AirshipFrameworkProxy build
+          cd -
         
       - name: Pod lint
-        run: exec pod lib lint AirshipFrameworkProxy.podspec --verbose --platforms=ios --fail-fast --skip-tests
-        
-      - name: Go back to Root directory
-        run: cd -
-          
+        run: |
+          cd ios
+          exec pod lib lint AirshipFrameworkProxy.podspec --verbose --platforms=ios --fail-fast --skip-tests
+          cd -
