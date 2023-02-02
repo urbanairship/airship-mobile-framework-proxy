@@ -1,9 +1,16 @@
 package com.urbanairship.android.framework.proxy
 
-import androidx.core.content.PermissionChecker.PermissionResult
 import com.urbanairship.actions.DeepLinkListener
-import com.urbanairship.android.framework.proxy.events.*
-import com.urbanairship.app.ApplicationListener
+import com.urbanairship.android.framework.proxy.events.ChannelCreatedEvent
+import com.urbanairship.android.framework.proxy.events.DeepLinkEvent
+import com.urbanairship.android.framework.proxy.events.DisplayMessageCenterEvent
+import com.urbanairship.android.framework.proxy.events.DisplayPreferenceCenterEvent
+import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.events.MessageCenterUpdatedEvent
+import com.urbanairship.android.framework.proxy.events.NotificationOptInEvent
+import com.urbanairship.android.framework.proxy.events.NotificationResponseEvent
+import com.urbanairship.android.framework.proxy.events.PushReceivedEvent
+import com.urbanairship.android.framework.proxy.events.PushTokenReceivedEvent
 import com.urbanairship.channel.AirshipChannelListener
 import com.urbanairship.messagecenter.InboxListener
 import com.urbanairship.messagecenter.MessageCenter
@@ -11,7 +18,12 @@ import com.urbanairship.permission.OnPermissionStatusChangedListener
 import com.urbanairship.permission.Permission
 import com.urbanairship.permission.PermissionStatus
 import com.urbanairship.preferencecenter.PreferenceCenter
-import com.urbanairship.push.*
+import com.urbanairship.push.NotificationActionButtonInfo
+import com.urbanairship.push.NotificationInfo
+import com.urbanairship.push.NotificationListener
+import com.urbanairship.push.PushListener
+import com.urbanairship.push.PushMessage
+import com.urbanairship.push.PushTokenListener
 
 internal class AirshipListener(
     private val proxyStore: ProxyStore,

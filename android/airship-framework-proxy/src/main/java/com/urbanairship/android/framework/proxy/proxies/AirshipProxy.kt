@@ -15,7 +15,6 @@ import com.urbanairship.json.JsonValue
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
 
-
 public class AirshipProxy(
     private val context: Context,
     internal val proxyStore: ProxyStore

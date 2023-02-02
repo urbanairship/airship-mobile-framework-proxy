@@ -2,11 +2,11 @@
 
 package com.urbanairship.android.framework.proxy.events
 
-import com.urbanairship.push.NotificationActionButtonInfo
-import com.urbanairship.push.NotificationInfo
 import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.Utils
+import com.urbanairship.push.NotificationActionButtonInfo
+import com.urbanairship.push.NotificationInfo
 
 /**
  * Notification response event.

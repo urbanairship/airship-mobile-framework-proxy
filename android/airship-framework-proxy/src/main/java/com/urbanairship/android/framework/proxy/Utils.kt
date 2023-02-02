@@ -10,7 +10,6 @@ import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.PrivacyManager
 import com.urbanairship.android.framework.proxy.ProxyLogger.error
 import com.urbanairship.json.JsonException
-import com.urbanairship.json.JsonList
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
 import com.urbanairship.util.UAStringUtil
@@ -59,7 +58,6 @@ public object Utils {
             }
         }
     }
-
 
     @PrivacyManager.Feature
     public fun parseFeatures(value: JsonValue): Int {
@@ -127,7 +125,6 @@ public object Utils {
         return defaultColor
     }
 
-
     @PrivacyManager.Feature
     @JvmStatic
     public fun parseFeature(feature: String): Int {
@@ -174,7 +171,6 @@ public object Utils {
         }
         return id
     }
-
 
     public fun notificationMap(
         message: PushMessage,

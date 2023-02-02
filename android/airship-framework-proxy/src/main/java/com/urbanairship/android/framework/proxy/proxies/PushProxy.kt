@@ -6,7 +6,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.PendingResult
-import com.urbanairship.android.framework.proxy.*
+import com.urbanairship.android.framework.proxy.BaseNotificationProvider
+import com.urbanairship.android.framework.proxy.NotificationConfig
+import com.urbanairship.android.framework.proxy.ProxyLogger
+import com.urbanairship.android.framework.proxy.ProxyStore
+import com.urbanairship.android.framework.proxy.Utils
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
@@ -115,20 +119,19 @@ public class PushProxy internal constructor(
         NotificationManagerCompat.from(context).cancel(tag, id)
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.M)
     public fun getActiveNotifications(): List<Map<String, Any>> {
         val manager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        return manager.activeNotifications.mapNotNull {  notification ->
+        return manager.activeNotifications.mapNotNull { notification ->
             val id = notification.id
             val tag = notification.tag
             val pushBundle = notification.notification.extras
                 .getBundle(BaseNotificationProvider.PUSH_MESSAGE_BUNDLE_EXTRA)
 
             if (pushBundle != null) {
-                Utils.notificationMap(PushMessage(pushBundle), id,  tag)
+                Utils.notificationMap(PushMessage(pushBundle), id, tag)
             } else {
                 null
             }

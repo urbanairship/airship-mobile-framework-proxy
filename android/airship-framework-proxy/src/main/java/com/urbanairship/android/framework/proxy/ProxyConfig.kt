@@ -2,7 +2,9 @@ package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.AirshipConfigOptions.Site
 import com.urbanairship.PrivacyManager.Feature
-import com.urbanairship.json.*
+import com.urbanairship.json.JsonMap
+import com.urbanairship.json.JsonSerializable
+import com.urbanairship.json.JsonValue
 
 public data class ProxyConfig(
     val defaultEnvironment: Environment?,

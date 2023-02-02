@@ -2,8 +2,6 @@
 
 package com.urbanairship.android.framework.proxy
 
-import com.urbanairship.json.JsonMap
-
 public enum class EventType {
     CHANNEL_CREATED,
     DEEP_LINK_RECEIVED,
