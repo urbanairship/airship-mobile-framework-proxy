@@ -71,12 +71,16 @@ extension Features: Codable {
         if (self == .all) {
             return ["all"]
         }
+
         if (self == []) {
             return ["none"]
         }
+
         Features.nameMap.forEach { key, value in
-            if (self.contains(value)) {
-                names.append(key)
+            if (value != [] || value != .all) {
+                if (self.contains(value)) {
+                    names.append(key)
+                }
             }
         }
 
