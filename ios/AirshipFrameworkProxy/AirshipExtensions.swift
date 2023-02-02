@@ -78,9 +78,8 @@ extension Features: Codable {
             return []
         }
 
-
         Features.nameMap.forEach { key, value in
-            if (value != [] || value != .all) {
+            if (value != [] && value != .all) {
                 if (self.contains(value)) {
                     names.append(key)
                 }
@@ -109,16 +108,19 @@ extension Features: Codable {
         return features
     }
 
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.names)
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
         if let names: [String] = try? container.decode([String].self) {
             self = try Features.parse(names)
+        } else {
+            throw AirshipErrors.error("Failed to parse features")
         }
-
-        self = Features(
-            rawValue: try container.decode(UInt.self)
-        )
     }
 }
 

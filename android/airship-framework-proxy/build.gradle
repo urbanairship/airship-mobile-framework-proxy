@@ -29,6 +29,12 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
         freeCompilerArgs = ["-Xexplicit-api=strict"]
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
