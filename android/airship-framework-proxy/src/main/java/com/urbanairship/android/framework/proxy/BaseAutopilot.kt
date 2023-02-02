@@ -11,10 +11,8 @@ import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
-import com.urbanairship.app.GlobalActivityMonitor
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
-
 
 /**
  * Module's autopilot to customize Urban Airship.

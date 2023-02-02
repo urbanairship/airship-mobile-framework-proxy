@@ -4,7 +4,6 @@ import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 
-
 public data class NotificationConfig(
     val icon: String?,
     val largeIcon: String?,

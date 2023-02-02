@@ -31,10 +31,10 @@ public class ProxyStore internal constructor(private val context: Context) {
         set(value) = setJson(NOTIFICATION_CONFIG, value)
 
     public var airshipConfig: ProxyConfig?
-        get() = getJson(AIRSHIP_CONFIG) { ProxyConfig(it.optMap())}
+        get() = getJson(AIRSHIP_CONFIG) { ProxyConfig(it.optMap()) }
         set(value) = setJson(AIRSHIP_CONFIG, value)
 
-    public  var optInStatus: Boolean
+    public var optInStatus: Boolean
         get() = getBoolean(NOTIFICATIONS_OPT_IN, false)
         set(optIn) = setBoolean(NOTIFICATIONS_OPT_IN, optIn)
 

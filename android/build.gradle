@@ -1,38 +1,20 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     ext {
         adapterVersion = '1.0.4'
-        
         // Android SDK versions
         compileSdkVersion = 33
         targetSdkVersion = 33
         minSdkVersion = 21
-    }
-
-    repositories {
-        google()
-        gradlePluginPortal()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath "com.android.tools.build:gradle:${libs.versions.androidGradlePlugin.get()}"
-        classpath "org.jetbrains.kotlin:kotlin-allopen:${libs.versions.kotlin.get()}"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}"
     }
 }
 
 plugins {
     alias(libs.plugins.benmanes.versions)
     alias(libs.plugins.nexus.publishing)
-}
+    alias(libs.plugins.spotless)
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+    alias(libs.plugins.kotlin.android).apply(false)
+    alias(libs.plugins.android.library).apply(false)
 }
 
 task getVersion() {
@@ -66,3 +48,28 @@ nexusPublishing {
     }
 }
 
+
+spotless {
+    kotlin {
+        target '**/*.kt'
+        targetExclude '.idea/**', 'build/**', '*/build/**'
+        ktlint(libs.versions.ktlint.get()).userData(["android": "true"])
+
+        licenseHeaderFile "${rootDir}/gradle/spotless.license"
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
+}
+
+def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+tasks.named("dependencyUpdates").configure {
+    it.rejectVersionIf {
+        isNonStable(it.candidate.version)
+    }
+}

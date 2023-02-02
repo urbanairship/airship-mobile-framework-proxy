@@ -1,7 +1,9 @@
 package com.urbanairship.android.framework.proxy.proxies
 
 import com.urbanairship.PendingResult
-import com.urbanairship.android.framework.proxy.*
+import com.urbanairship.android.framework.proxy.AttributeOperation
+import com.urbanairship.android.framework.proxy.SubscriptionListOperation
+import com.urbanairship.android.framework.proxy.TagGroupOperation
 import com.urbanairship.android.framework.proxy.applyOperation
 import com.urbanairship.channel.AirshipChannel
 import com.urbanairship.json.JsonValue

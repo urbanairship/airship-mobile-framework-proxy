@@ -4,7 +4,6 @@ package com.urbanairship.android.framework.proxy.events
 
 import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow

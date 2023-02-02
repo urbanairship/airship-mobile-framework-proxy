@@ -4,7 +4,6 @@ import com.urbanairship.contacts.Scope
 import com.urbanairship.contacts.ScopedSubscriptionListEditor
 import com.urbanairship.json.JsonMap
 
-
 public data class ScopedSubscriptionListOperation(
     public val listId: String,
     public val scope: Scope,

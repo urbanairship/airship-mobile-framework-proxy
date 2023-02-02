@@ -4,6 +4,10 @@
 androidGradlePlugin = '7.3.0'
 nexusPublishPlugin = '1.1.0'
 gradle-versions =  '0.41.0'
+spotlessPlugin = '6.4.2'
+
+# Spotless plugins
+ktlint = '0.45.2'
 
 # Dependencies
 
@@ -20,8 +24,7 @@ airship = '16.8.0'
 # Test
 google-truth = '1.1.3'
 junit = '4.13.2'
-mockito = '4.6.1'
-mockito-kotlin = '4.0.0'
+mockk = '1.12.5'
 robolectric = '4.8.2'
 androidx-test-core = '1.4.0'
 androidx-test-espresso = '3.4.0'
@@ -31,10 +34,11 @@ androidx-test-runner = '1.4.0'
 androidx-test-truth = '1.4.0'
 
 [plugins]
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = 'com.android.library', version.ref = "androidGradlePlugin" }
-kotlin-allopen = { id = 'org.jetbrains.kotlin.plugin.allopen', version.ref = "kotlin" }
 benmanes-versions = { id = 'com.github.ben-manes.versions', version.ref = "gradle-versions" }
 nexus-publishing = { id = 'io.github.gradle-nexus.publish-plugin', version.ref = "nexusPublishPlugin" }
+spotless = { id = 'com.diffplug.spotless', version.ref = "spotlessPlugin" }
 
 [libraries]
 
@@ -74,6 +78,4 @@ google-truth = { module = "com.google.truth:truth", version.ref = "google-truth"
 robolectric-core = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 robolectric-annotations = { module = "org.robolectric:annotations", version.ref = "robolectric"}
 
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockito" }
-mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
