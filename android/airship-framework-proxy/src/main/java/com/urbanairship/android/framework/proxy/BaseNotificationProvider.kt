@@ -11,7 +11,7 @@ import com.urbanairship.push.notifications.AirshipNotificationProvider
 import com.urbanairship.push.notifications.NotificationArguments
 
 public open class BaseNotificationProvider(
-    public val context: Context,
+    internal val context: Context,
     configOptions: AirshipConfigOptions
 ) : AirshipNotificationProvider(context, configOptions) {
 
@@ -19,15 +19,19 @@ public open class BaseNotificationProvider(
         ProxyStore.shared(context)
     }
 
+    private val notificationConfig: NotificationConfig?
+    get()  {
+        return preferences.notificationConfig ?: preferences.airshipConfig?.androidConfig?.notificationConfig
+    }
+
     override fun getDefaultNotificationChannelId(): String {
-        return preferences.notificationConfig?.defaultChannelId
+        return notificationConfig?.defaultChannelId
             ?: super.getDefaultNotificationChannelId()
     }
 
     @DrawableRes
     override fun getSmallIcon(): Int {
-        val iconResourceName: String? = preferences.notificationConfig?.icon
-
+        val iconResourceName: String? = notificationConfig?.icon
         iconResourceName?.let {
             val id = Utils.getNamedResource(context, it, "drawable")
             if (id > 0) {
@@ -40,7 +44,7 @@ public open class BaseNotificationProvider(
 
     @DrawableRes
     override fun getLargeIcon(): Int {
-        val largeIconResourceName: String? = preferences.notificationConfig?.largeIcon
+        val largeIconResourceName: String? = notificationConfig?.largeIcon
 
         largeIconResourceName?.let {
             val id = Utils.getNamedResource(context, it, "drawable")
@@ -53,7 +57,7 @@ public open class BaseNotificationProvider(
 
     @ColorInt
     override fun getDefaultAccentColor(): Int {
-        val accentHexColor: String? = preferences.notificationConfig?.accentColor
+        val accentHexColor: String? = notificationConfig?.accentColor
 
         return if (accentHexColor != null) {
             Utils.getHexColor(accentHexColor, super.getDefaultAccentColor())

@@ -52,7 +52,7 @@ public data class ProxyConfig(
             .putOpt("suppressAllowListError", suppressAllowListError)
             .putOpt("isChannelCaptureEnabled", isChannelCaptureEnabled)
             .putOpt("isChannelCreationDelayEnabled", isChannelCreationDelayEnabled)
-            .putOpt("features", enabledFeatures)
+            .putOpt("enabledFeatures", enabledFeatures)
             .putOpt("android", androidConfig)
             .build()
             .toJsonValue()

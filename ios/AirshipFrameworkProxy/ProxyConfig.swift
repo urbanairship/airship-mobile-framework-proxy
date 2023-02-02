@@ -45,7 +45,8 @@ public struct ProxyConfig: Codable {
     public let urlAllowListScopeJavaScriptInterface: [String]?
     public let urlAllowList: [String]?
     public let initialConfigURL: String?
-    public let channelCaptureEnabled: Bool?
+    public let isChannelCaptureEnabled: Bool?
+    public let suppressAllowListError: Bool?
 
     private enum CodingKeys: String, CodingKey {
         case defaultEnvironment = "default"
@@ -60,8 +61,8 @@ public struct ProxyConfig: Codable {
         case urlAllowListScopeJavaScriptInterface = "urlAllowListScopeJavaScriptInterface"
         case urlAllowList = "urlAllowList"
         case initialConfigURL = "initialConfigUrl"
-        case channelCaptureEnabled = "channelCaptureEnabled"
-
+        case isChannelCaptureEnabled = "isChannelCaptureEnabled"
+        case suppressAllowListError = "suppressAllowListError"
     }
 }
 
@@ -139,7 +140,7 @@ extension Config {
             self.initialConfigURL = initialConfigURL
         }
 
-        if let channelCaptureEnabled = proxyConfig.channelCaptureEnabled {
+        if let channelCaptureEnabled = proxyConfig.isChannelCaptureEnabled {
             self.isChannelCaptureEnabled = channelCaptureEnabled
         }
 
@@ -157,6 +158,10 @@ extension Config {
 
         if let allowList = proxyConfig.urlAllowListScopeJavaScriptInterface {
             self.urlAllowListScopeJavaScriptInterface = allowList
+        }
+
+        if let suppressError = proxyConfig.suppressAllowListError {
+            self.suppressAllowListError = suppressError
         }
     }
 }

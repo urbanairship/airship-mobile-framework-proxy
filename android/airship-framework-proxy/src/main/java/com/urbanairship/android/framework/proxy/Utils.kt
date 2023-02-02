@@ -142,17 +142,22 @@ public object Utils {
     @JvmStatic
     public fun featureNames(@PrivacyManager.Feature features: Int): List<String> {
         val result: MutableList<String> = ArrayList()
+
+        if (features == PrivacyManager.FEATURE_ALL) {
+            return featureMap.keys.filter {
+                it != "none" && it != "all"
+            }.toList()
+        }
+
+        if (features == PrivacyManager.FEATURE_NONE) {
+            return emptyList()
+        }
+
         for ((key, value) in featureMap) {
             if (value == PrivacyManager.FEATURE_ALL) {
-                if (features == value) {
-                    return listOf(key)
-                }
                 continue
             }
             if (value == PrivacyManager.FEATURE_NONE) {
-                if (features == value) {
-                    return listOf(key)
-                }
                 continue
             }
             if (value and features == value) {

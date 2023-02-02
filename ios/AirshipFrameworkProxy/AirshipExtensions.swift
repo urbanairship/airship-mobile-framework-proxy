@@ -68,6 +68,17 @@ extension Features: Codable {
 
     var names: [String] {
         var names: [String] = []
+        if (self == .all) {
+            return Features.nameMap.keys.filter { key in
+                key != "none" && key != "all"
+            }
+        }
+
+        if (self == []) {
+            return []
+        }
+
+
         Features.nameMap.forEach { key, value in
             if (value != [] || value != .all) {
                 if (self.contains(value)) {
