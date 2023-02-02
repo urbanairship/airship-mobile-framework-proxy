@@ -60,13 +60,4 @@ jobs:
 
       - name: Build SDK
         run: |
-          cd ios
-          pod install
-          xcodebuild -scheme AirshipFrameworkProxy build
-          cd -
-        
-      - name: Pod lint
-        run: |
-          cd ios
-          exec pod lib lint AirshipFrameworkProxy.podspec --verbose --platforms=ios --fail-fast --skip-tests
-          cd -
+          exec pod lib lint AirshipFrameworkProxy.podspec --verbose --platforms=ios
