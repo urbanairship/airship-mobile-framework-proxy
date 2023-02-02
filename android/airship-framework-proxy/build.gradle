@@ -1,8 +1,8 @@
 plugins {
-    id 'com.android.library'
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.android.library
     id 'maven-publish'
     id 'signing'
-    id 'kotlin-android'
 }
 
 group = 'com.urbanairship.android'
@@ -10,6 +10,8 @@ description = "Airship Mobile Framework Proxy"
 version = rootProject.adapterVersion
 
 android {
+    namespace 'com.urbanairship.android.framework.proxy'
+
     compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {
@@ -27,8 +29,6 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
         freeCompilerArgs = ["-Xexplicit-api=strict"]
     }
-
-    namespace 'com.urbanairship.android.framework.proxy'
 }
 
 dependencies {
@@ -46,6 +46,7 @@ dependencies {
     testImplementation(libs.androidx.test.rules)
     testImplementation(libs.robolectric.core)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
 }
 
 task sourcesJar(type: Jar) {
