@@ -42,13 +42,11 @@ jobs:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: >-
-          cd android
-          ./gradlew
+          cd android && ./gradlew
           publishProductionPublicationToSonatypeRepository
           --stacktrace
           --max-workers 1
           closeAndReleaseSonatypeStagingRepository
-          cd -
           
   ios:
     runs-on: macOS-12
