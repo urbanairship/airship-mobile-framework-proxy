@@ -10,8 +10,7 @@ public data class ProxyConfig(
     val defaultEnvironment: Environment?,
     val productionEnvironment: Environment?,
     val developmentEnvironment: Environment?,
-    @Site
-    val site: String?,
+    @Site val site: String?,
     val inProduction: Boolean?,
     val initialConfigUrl: String?,
     val urlAllowList: List<String>?,
@@ -20,13 +19,11 @@ public data class ProxyConfig(
     val suppressAllowListError: Boolean?,
     val isChannelCaptureEnabled: Boolean?,
     val isChannelCreationDelayEnabled: Boolean?,
-    @Feature
-    val enabledFeatures: Int?,
+    @Feature val enabledFeatures: Int?,
     val androidConfig: Android?
 ) : JsonSerializable {
 
-    public constructor(config: JsonMap) : this(
-        defaultEnvironment = config.get("default")?.map?.let { Environment(it) },
+    public constructor(config: JsonMap) : this(defaultEnvironment = config.get("default")?.map?.let { Environment(it) },
         productionEnvironment = config.get("production")?.map?.let { Environment(it) },
         developmentEnvironment = config.get("development")?.map?.let { Environment(it) },
         site = config.get("site")?.string?.let { Utils.parseSite(it) },
@@ -39,66 +36,56 @@ public data class ProxyConfig(
         isChannelCreationDelayEnabled = config.get("isChannelCreationDelayEnabled")?.boolean,
         suppressAllowListError = config.get("suppressAllowListError")?.boolean,
         enabledFeatures = config.get("enabledFeatures")?.let { Utils.parseFeatures(it) },
-        androidConfig = config.get("android")?.map?.let { Android(it) }
-    )
+        androidConfig = config.get("android")?.map?.let { Android(it) })
 
     override fun toJsonValue(): JsonValue {
         return JsonMap.newBuilder()
             .put("default", defaultEnvironment)
             .put("production", productionEnvironment)
             .put("development", developmentEnvironment)
-            .put("site", site)
+            .put("site", site?.let { Utils.siteString(site) })
+            .putOpt("initialConfigUrl", initialConfigUrl)
             .putOpt("urlAllowList", urlAllowList)
             .putOpt("urlAllowListScopeJavaScriptInterface", urlAllowListScopeJavaScriptInterface)
             .putOpt("urlAllowListScopeOpenUrl", urlAllowListScopeOpenUrl)
             .putOpt("suppressAllowListError", suppressAllowListError)
             .putOpt("isChannelCaptureEnabled", isChannelCaptureEnabled)
             .putOpt("isChannelCreationDelayEnabled", isChannelCreationDelayEnabled)
-            .putOpt("enabledFeatures", enabledFeatures)
+            .putOpt("enabledFeatures", enabledFeatures?.let { Utils.featureNames(it) })
             .putOpt("android", androidConfig)
             .build()
             .toJsonValue()
     }
 
     public data class Environment(
-        val appKey: String?,
-        val appSecret: String?,
-        val logLevel: Int?
+        val appKey: String?, val appSecret: String?, val logLevel: Int?
     ) : JsonSerializable {
 
-        override fun toJsonValue(): JsonValue =
-            JsonMap.newBuilder()
-                .putOpt("appKey", appKey)
-                .putOpt("appSecret", appSecret)
-                .putOpt("logLevel", logLevel?.let { Utils.logLevelString(it) })
-                .build()
-                .toJsonValue()
+        override fun toJsonValue(): JsonValue = JsonMap.newBuilder()
+            .putOpt("appKey", appKey)
+            .putOpt("appSecret", appSecret)
+            .putOpt("logLevel", logLevel?.let { Utils.logLevelString(it) })
+            .build()
+            .toJsonValue()
 
-        public constructor(config: JsonMap) : this(
-            appKey = config.get("appKey")?.string,
+        public constructor(config: JsonMap) : this(appKey = config.get("appKey")?.string,
             appSecret = config.get("appSecret")?.string,
-            logLevel = config.get("logLevel")?.string?.let { Utils.parseLogLevel(it) }
-        )
+            logLevel = config.get("logLevel")?.string?.let { Utils.parseLogLevel(it) })
     }
 
     public data class Android(
-        val appStoreUri: String?,
-        val fcmFirebaseAppName: String?,
-        val notificationConfig: NotificationConfig?
+        val appStoreUri: String?, val fcmFirebaseAppName: String?, val notificationConfig: NotificationConfig?
     ) : JsonSerializable {
 
-        override fun toJsonValue(): JsonValue =
-            JsonMap.newBuilder()
-                .putOpt("appStoreUri", appStoreUri)
-                .putOpt("fcmFirebaseAppName", fcmFirebaseAppName)
-                .putOpt("notificationConfig", notificationConfig)
-                .build()
-                .toJsonValue()
+        override fun toJsonValue(): JsonValue = JsonMap.newBuilder()
+            .putOpt("appStoreUri", appStoreUri)
+            .putOpt("fcmFirebaseAppName", fcmFirebaseAppName)
+            .putOpt("notificationConfig", notificationConfig)
+            .build()
+            .toJsonValue()
 
-        internal constructor(config: JsonMap) : this(
-            appStoreUri = config.get("appStoreUri")?.string,
+        internal constructor(config: JsonMap) : this(appStoreUri = config.get("appStoreUri")?.string,
             fcmFirebaseAppName = config.get("fcmFirebaseAppName")?.string,
-            notificationConfig = config.get("notificationConfig")?.map?.let { NotificationConfig(it) }
-        )
+            notificationConfig = config.get("notificationConfig")?.map?.let { NotificationConfig(it) })
     }
 }

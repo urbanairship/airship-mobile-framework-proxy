@@ -111,13 +111,13 @@ extension Config {
         if let level = proxyConfig.productionEnvironment?.logLevel {
             self.productionLogLevel  = level.airshipLogLevel
         } else if let level = proxyConfig.defaultEnvironment?.logLevel {
-            self.productionLogLevel  = level.airshipLogLevel
+            self.productionLogLevel = level.airshipLogLevel
         }
 
         if let level = proxyConfig.developmentEnvironment?.logLevel {
-            self.developmentLogLevel  = level.airshipLogLevel
+            self.developmentLogLevel = level.airshipLogLevel
         } else if let level = proxyConfig.defaultEnvironment?.logLevel {
-            self.developmentLogLevel  = level.airshipLogLevel
+            self.developmentLogLevel = level.airshipLogLevel
         }
 
         if let inProduction = proxyConfig.inProduction {
@@ -140,8 +140,8 @@ extension Config {
             self.initialConfigURL = initialConfigURL
         }
 
-        if let channelCaptureEnabled = proxyConfig.isChannelCaptureEnabled {
-            self.isChannelCaptureEnabled = channelCaptureEnabled
+        if let isChannelCaptureEnabled = proxyConfig.isChannelCaptureEnabled {
+            self.isChannelCaptureEnabled = isChannelCaptureEnabled
         }
 
         if let enabledFeatures = proxyConfig.enabledFeatures {

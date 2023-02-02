@@ -70,13 +70,19 @@ public object Utils {
 
     @AirshipConfigOptions.Site
     public fun parseSite(value: String): String {
-        return when (value) {
+        return when (value.lowercase()) {
             "eu" -> AirshipConfigOptions.SITE_EU
             "us" -> AirshipConfigOptions.SITE_US
             else -> {
                 throw IllegalArgumentException("Invalid site: $value")
             }
         }
+    }
+
+
+    @AirshipConfigOptions.Site
+    public fun siteString(site: String): String {
+       return site.lowercase()
     }
 
     /**

@@ -129,10 +129,12 @@ internal fun AirshipConfigOptions.Builder.applyProxyConfig(proxyConfig: ProxyCon
     proxyConfig?.site?.let { this.setSite(it) }
     proxyConfig?.inProduction?.let { this.setInProduction(it) }
     proxyConfig?.isChannelCreationDelayEnabled?.let { this.setChannelCreationDelayEnabled(it) }
+    proxyConfig?.isChannelCaptureEnabled?.let { this.setChannelCaptureEnabled(it) }
     proxyConfig?.initialConfigUrl?.let { this.setInitialConfigUrl(it) }
     proxyConfig?.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
     proxyConfig?.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
     proxyConfig?.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
+    proxyConfig?.suppressAllowListError?.let { this.setSuppressAllowListError(it) }
     proxyConfig?.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
     proxyConfig?.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
     proxyConfig?.enabledFeatures?.let { this.setEnabledFeatures(it) }
