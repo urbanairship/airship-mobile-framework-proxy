@@ -22,7 +22,6 @@ public open class BaseNotificationProvider(
     private val notificationConfig: NotificationConfig?
         get() {
             return preferences.notificationConfig
-                ?: preferences.airshipConfig?.androidConfig?.notificationConfig
         }
 
     override fun getDefaultNotificationChannelId(): String {

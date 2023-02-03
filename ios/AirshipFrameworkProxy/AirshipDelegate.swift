@@ -83,7 +83,7 @@ class AirshipDelegate: NSObject,
             )
         }
 
-        return false
+        return true
     }
 
     func receivedDeepLink(

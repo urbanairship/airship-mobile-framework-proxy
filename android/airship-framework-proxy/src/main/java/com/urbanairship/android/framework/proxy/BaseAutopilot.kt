@@ -9,6 +9,8 @@ import androidx.annotation.XmlRes
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
+import com.urbanairship.android.framework.proxy.Utils.getHexColor
+import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
@@ -80,7 +82,7 @@ public abstract class BaseAutopilot : Autopilot() {
 
         val builder = createConfigBuilder(context)
         AirshipProxy.shared(context).proxyStore.airshipConfig?.let {
-            builder.applyProxyConfig(it)
+            builder.applyProxyConfig(context, it)
         }
 
         val configOptions = builder.build()
@@ -107,7 +109,7 @@ public abstract class BaseAutopilot : Autopilot() {
     public abstract fun onMigrateData(context: Context, proxyStore: ProxyStore)
 }
 
-internal fun AirshipConfigOptions.Builder.applyProxyConfig(proxyConfig: ProxyConfig) {
+internal fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxyConfig: ProxyConfig) {
     proxyConfig?.developmentEnvironment?.let {
         this.setDevelopmentAppKey(it.appKey)
             .setDevelopmentAppSecret(it.appSecret)
@@ -138,4 +140,19 @@ internal fun AirshipConfigOptions.Builder.applyProxyConfig(proxyConfig: ProxyCon
     proxyConfig?.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
     proxyConfig?.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
     proxyConfig?.enabledFeatures?.let { this.setEnabledFeatures(it) }
+
+    proxyConfig?.androidConfig?.notificationConfig?.let { notificationConfig ->
+        notificationConfig.icon?.let {
+            val resourceId = getNamedResource(context, it, "drawable")
+            this.setNotificationIcon(resourceId)
+        }
+
+        notificationConfig.largeIcon?.let {
+            val resourceId = getNamedResource(context, it, "drawable")
+            this.setNotificationLargeIcon(resourceId)
+        }
+
+        notificationConfig.defaultChannelId?.let {  this.setNotificationChannel(it) }
+        notificationConfig.accentColor?.let { this.setNotificationAccentColor(getHexColor(it, 0)) }
+    }
 }
