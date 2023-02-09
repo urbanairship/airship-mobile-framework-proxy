@@ -33,20 +33,52 @@ public struct ProxyConfig: Codable {
         }
     }
 
-    public let defaultEnvironment: Environment?
-    public let productionEnvironment: Environment?
-    public let developmentEnvironment: Environment?
-    public let inProduction: Bool?
-    public let ios: PlatformConfig?
-    public let site: Site?
-    public let isChannelCreationDelayEnabled: Bool?
-    public let enabledFeatures: Features?
-    public let urlAllowListScopeOpenURL: [String]?
-    public let urlAllowListScopeJavaScriptInterface: [String]?
-    public let urlAllowList: [String]?
-    public let initialConfigURL: String?
-    public let isChannelCaptureEnabled: Bool?
-    public let suppressAllowListError: Bool?
+    public var defaultEnvironment: Environment?
+    public var productionEnvironment: Environment?
+    public var developmentEnvironment: Environment?
+    public var inProduction: Bool?
+    public var ios: PlatformConfig?
+    public var site: Site?
+    public var isChannelCreationDelayEnabled: Bool?
+    public var enabledFeatures: Features?
+    public var urlAllowListScopeOpenURL: [String]?
+    public var urlAllowListScopeJavaScriptInterface: [String]?
+    public var urlAllowList: [String]?
+    public var initialConfigURL: String?
+    public var isChannelCaptureEnabled: Bool?
+    public var suppressAllowListError: Bool?
+    
+    public init(
+        defaultEnvironment: Environment? = nil,
+        productionEnvironment: Environment? = nil,
+        developmentEnvironment: Environment? = nil,
+        inProduction: Bool? = nil,
+        ios: PlatformConfig? = nil,
+        site: Site? = nil,
+        isChannelCreationDelayEnabled: Bool? = nil,
+        enabledFeatures: Features? = nil,
+        urlAllowListScopeOpenURL: [String]? = nil,
+        urlAllowListScopeJavaScriptInterface: [String]? = nil,
+        urlAllowList: [String]? = nil,
+        initialConfigURL: String? = nil,
+        isChannelCaptureEnabled: Bool? = nil,
+        suppressAllowListError: Bool? = nil
+    ) {
+        self.defaultEnvironment = defaultEnvironment
+        self.productionEnvironment = productionEnvironment
+        self.developmentEnvironment = developmentEnvironment
+        self.inProduction = inProduction
+        self.ios = ios
+        self.site = site
+        self.isChannelCreationDelayEnabled = isChannelCreationDelayEnabled
+        self.enabledFeatures = enabledFeatures
+        self.urlAllowListScopeOpenURL = urlAllowListScopeOpenURL
+        self.urlAllowListScopeJavaScriptInterface = urlAllowListScopeJavaScriptInterface
+        self.urlAllowList = urlAllowList
+        self.initialConfigURL = initialConfigURL
+        self.isChannelCaptureEnabled = isChannelCaptureEnabled
+        self.suppressAllowListError = suppressAllowListError
+    }
 
     private enum CodingKeys: String, CodingKey {
         case defaultEnvironment = "default"

@@ -208,7 +208,7 @@ public object Utils {
 
         message.title?.let { notification["title"] = it }
         message.alert?.let { notification["alert"] = it }
-        message.summary?.let { notification["summary"] = it }
+        message.summary?.let { notification["subtitle"] = it }
         notificationId?.let {
             notification["notificationId"] = getNotificationId(it, notificationTag)
         }
