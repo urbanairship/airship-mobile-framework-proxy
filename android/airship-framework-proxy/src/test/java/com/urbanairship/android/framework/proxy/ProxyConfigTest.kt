@@ -51,7 +51,7 @@ public class ProxyConfigTest {
         {
            "development":{
               "appKey":"development-some-app-key",
-              "appSecret":"development-some-app-secret"Z
+              "appSecret":"development-some-app-secret"
            }
         }
     """
