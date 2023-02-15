@@ -7,11 +7,14 @@ import UserNotifications
 @objc
 public class AirshipPushProxy: NSObject {
 
+    public var presentationOptionOverrides: ((PresentationOptionsOverridesRequest) -> Void)?
+    
     private let proxyStore: ProxyStore
     private let pushProvider: () throws -> AirshipPush
     private var push: AirshipPush {
         get throws { try pushProvider() }
     }
+    
 
     init(
         proxyStore: ProxyStore,
@@ -140,6 +143,51 @@ public class AirshipPushProxy: NSObject {
                 continuation.resume(returning: result)
             }
         }
+    }
+        
+    @MainActor
+    func presentationOptions(notification: UNNotification) async -> UNNotificationPresentationOptions? {
+        guard let overrides = self.presentationOptionOverrides else {
+            return nil
+        }
+        
+        return await withCheckedContinuation{ continuation  in
+            let payload = PushUtils.contentPayload(
+                notification.request.content.userInfo,
+                notificationID: notification.request.identifier
+            )
+            let request = PresentationOptionsOverridesRequest(pushPayload: payload) { options in
+                continuation.resume(returning: options)
+            }
+            
+            overrides(request)
+        }
+    }
+}
+
+
+public class PresentationOptionsOverridesRequest {
+    private let onResult: (UNNotificationPresentationOptions?) -> Void
+    public let pushPayload: [String: Any]
+    init(pushPayload: [String: Any], onResult: @escaping (UNNotificationPresentationOptions?) -> Void) {
+        self.pushPayload = pushPayload
+        self.onResult = onResult
+    }
+    
+    public func result(optionNames: [Any]?) {
+        guard
+            let names = optionNames,
+            let options = try? UNNotificationPresentationOptions.parse(names)
+        else {
+            self.onResult(nil)
+            return
+        }
+        
+        self.onResult(options)
+    }
+    
+    public func result(options: UNNotificationPresentationOptions?) {
+        self.onResult(options)
     }
 }
 
