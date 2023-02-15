@@ -96,6 +96,8 @@ class AirshipDelegate: NSObject,
             )
         }
     }
+    
+    
 
     func messageCenterInboxUpdated() {
         Task {
@@ -182,7 +184,8 @@ class AirshipDelegate: NSObject,
         }
     }
 
-    func notificationAuthorizedSettingsDidChange(_ authorizedSettings: UAAuthorizedNotificationSettings
+    func notificationAuthorizedSettingsDidChange(
+        _ authorizedSettings: UAAuthorizedNotificationSettings
     ) {
         Task {
             await self.eventEmitter.addEvent(
@@ -192,4 +195,16 @@ class AirshipDelegate: NSObject,
             )
         }
     }
+   
+    func extendPresentationOptions(
+        _ options: UNNotificationPresentationOptions,
+        notification: UNNotification,
+        completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        Task {
+            let overrides = await AirshipProxy.shared.push.presentationOptions(notification:notification)
+            completionHandler(overrides ?? options)
+        }
+    }
 }
+
