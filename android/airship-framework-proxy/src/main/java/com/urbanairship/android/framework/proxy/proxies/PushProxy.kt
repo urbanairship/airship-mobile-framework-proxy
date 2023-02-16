@@ -20,12 +20,20 @@ import com.urbanairship.permission.PermissionsManager
 import com.urbanairship.push.PushManager
 import com.urbanairship.push.PushMessage
 
+public interface SuspendingPredicate<T> {
+    public suspend fun apply(value: T): Boolean
+}
+
+
 public class PushProxy internal constructor(
     private val context: Context,
     private val store: ProxyStore,
     private val permissionsManagerProvider: () -> PermissionsManager,
     private val pushProvider: () -> PushManager
 ) {
+
+    public val foregroundNotificationDisplayPredicate: SuspendingPredicate<Map<String, Any>>? = null
+
     public fun setNotificationConfig(config: JsonValue) {
         setNotificationConfig(NotificationConfig(config.optMap()))
     }
