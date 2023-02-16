@@ -4,8 +4,10 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.PendingResult
+import com.urbanairship.Predicate
 import com.urbanairship.android.framework.proxy.BaseNotificationProvider
 import com.urbanairship.android.framework.proxy.NotificationConfig
 import com.urbanairship.android.framework.proxy.ProxyLogger
@@ -19,6 +21,14 @@ import com.urbanairship.permission.PermissionStatus
 import com.urbanairship.permission.PermissionsManager
 import com.urbanairship.push.PushManager
 import com.urbanairship.push.PushMessage
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.Executor
+
+public interface ForegroundNotificationDisplayListener {
+    public suspend fun shouldDisplayInForeground(message: Map<String, Any>): Boolean
+}
 
 public class PushProxy internal constructor(
     private val context: Context,
@@ -26,6 +36,18 @@ public class PushProxy internal constructor(
     private val permissionsManagerProvider: () -> PermissionsManager,
     private val pushProvider: () -> PushManager
 ) {
+
+    public val listener: ForegroundNotificationDisplayListener? = null
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val foregroundDisplayPredicate: Predicate<PushMessage> = Predicate { message ->
+        listener?.let { listener ->
+            runBlocking {
+                listener.shouldDisplayInForeground(Utils.notificationMap(message))
+            }
+        } ?: true
+    }
+
     public fun setNotificationConfig(config: JsonValue) {
         setNotificationConfig(NotificationConfig(config.optMap()))
     }
