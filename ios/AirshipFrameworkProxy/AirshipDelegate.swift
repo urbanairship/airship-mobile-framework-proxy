@@ -195,14 +195,17 @@ class AirshipDelegate: NSObject,
             )
         }
     }
-   
+
+    @MainActor
     func extendPresentationOptions(
         _ options: UNNotificationPresentationOptions,
         notification: UNNotification,
         completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         Task {
-            let overrides = await AirshipProxy.shared.push.presentationOptions(notification:notification)
+            let overrides = await AirshipProxy.shared.push.presentationOptions(
+                notification: notification
+            )
             completionHandler(overrides ?? options)
         }
     }
