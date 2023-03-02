@@ -1,5 +1,7 @@
 package com.urbanairship.android.framework.proxy
 
+import android.provider.Settings.Global
+import com.urbanairship.UAirship
 import com.urbanairship.actions.DeepLinkListener
 import com.urbanairship.android.framework.proxy.events.ChannelCreatedEvent
 import com.urbanairship.android.framework.proxy.events.DeepLinkEvent
@@ -11,6 +13,7 @@ import com.urbanairship.android.framework.proxy.events.NotificationOptInEvent
 import com.urbanairship.android.framework.proxy.events.NotificationResponseEvent
 import com.urbanairship.android.framework.proxy.events.PushReceivedEvent
 import com.urbanairship.android.framework.proxy.events.PushTokenReceivedEvent
+import com.urbanairship.app.GlobalActivityMonitor
 import com.urbanairship.channel.AirshipChannelListener
 import com.urbanairship.messagecenter.InboxListener
 import com.urbanairship.messagecenter.MessageCenter
@@ -39,6 +42,11 @@ internal class AirshipListener(
     InboxListener,
     OnPermissionStatusChangedListener {
 
+    private val isAppForegrounded: Boolean
+        get() {
+            return GlobalActivityMonitor.shared(UAirship.getApplicationContext()).isAppForegrounded
+        }
+
     override fun onShowMessageCenter(messageId: String?): Boolean {
         return if (proxyStore.isAutoLaunchMessageCenterEnabled) {
             false
@@ -59,7 +67,7 @@ internal class AirshipListener(
 
     override fun onPushReceived(message: PushMessage, notificationPosted: Boolean) {
         if (!notificationPosted) {
-            eventEmitter.addEvent(PushReceivedEvent(message))
+            eventEmitter.addEvent(PushReceivedEvent(message, isAppForegrounded))
         }
     }
 
@@ -68,7 +76,7 @@ internal class AirshipListener(
     }
 
     override fun onNotificationPosted(notificationInfo: NotificationInfo) {
-        eventEmitter.addEvent(PushReceivedEvent(notificationInfo))
+        eventEmitter.addEvent(PushReceivedEvent(notificationInfo, isAppForegrounded))
     }
 
     override fun onNotificationOpened(notificationInfo: NotificationInfo): Boolean {
