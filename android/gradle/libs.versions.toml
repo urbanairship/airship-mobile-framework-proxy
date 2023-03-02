@@ -56,6 +56,7 @@ airship-core = { module = "com.urbanairship.android:urbanairship-core", version.
 airship-message-center = { module = "com.urbanairship.android:urbanairship-message-center", version.ref = "airship"}
 airship-preference-center = { module = "com.urbanairship.android:urbanairship-preference-center", version.ref = "airship"}
 airship-automation = { module = "com.urbanairship.android:urbanairship-automation", version.ref = "airship"}
+airship-fcm = { module = "com.urbanairship.android:urbanairship-fcm", version.ref = "airship"}
 
 # Testing
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
