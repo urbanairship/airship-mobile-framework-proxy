@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.annotation.XmlRes
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
+import com.urbanairship.Predicate
 import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.Utils.getHexColor
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
@@ -15,6 +16,7 @@ import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
+import kotlinx.coroutines.runBlocking
 
 /**
  * Module's autopilot to customize Urban Airship.
@@ -49,7 +51,13 @@ public abstract class BaseAutopilot : Autopilot() {
         // Set our custom notification provider
         val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)
         airship.pushManager.notificationProvider = notificationProvider
-
+        airship.pushManager.foregroundNotificationDisplayPredicate = Predicate { message ->
+            AirshipProxy.shared(context).push.foregroundNotificationDisplayPredicate?.let { predicate ->
+                runBlocking {
+                    predicate.apply(Utils.notificationMap(message))
+                }
+            } ?: true
+        }
         loadCustomNotificationChannels(context, airship)
         loadCustomNotificationButtonGroups(context, airship)
     }

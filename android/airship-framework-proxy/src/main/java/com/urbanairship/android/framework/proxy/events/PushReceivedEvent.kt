@@ -14,32 +14,45 @@ import com.urbanairship.push.PushMessage
 internal class PushReceivedEvent : Event {
 
     override val body: Map<String, Any>
-    override val type = EventType.PUSH_RECEIVED
+    override val type: EventType
 
+    constructor(body: Map<String, Any>, isForeground: Boolean) {
+        this.body = body
+
+        this.type = if (isForeground) {
+            EventType.FOREGROUND_PUSH_RECEIVED
+        } else {
+            EventType.BACKGROUND_PUSH_RECEIVED
+        }
+    }
     /**
      * Default constructor.
      *
      * @param message The push message.
+     * @param isForeground If received in the foreground or not.
      */
-    constructor(message: PushMessage) {
-        this.body = mapOf(
+    constructor(message: PushMessage, isForeground: Boolean) : this(
+        mapOf(
             "pushPayload" to Utils.notificationMap(message)
-        )
-    }
+        ),
+        isForeground
+    )
 
     /**
      * Default constructor.
      *
      * @param notificationInfo The posted notification info.
+     * @param isForeground If received in the foreground or not.
      */
-    constructor(notificationInfo: NotificationInfo) {
-        this.body = mapOf(
+    constructor(notificationInfo: NotificationInfo, isForeground: Boolean) : this(
+        mapOf(
             "pushPayload" to Utils.notificationMap(
                 notificationInfo.message,
                 notificationInfo.notificationId,
                 notificationInfo.notificationTag
             )
-        )
-    }
+        ),
+        isForeground
+    )
 
 }
