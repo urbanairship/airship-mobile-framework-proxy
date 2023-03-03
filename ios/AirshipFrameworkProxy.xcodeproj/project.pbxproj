@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		40CAE09E0AB0AF4ECECDDB1B /* libPods-AirshipFrameworkProxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4CFD22298C5CD200D131A8 /* libPods-AirshipFrameworkProxy.a */; };
+		01C90495760BF45BE0229EE5 /* libPods-AirshipFrameworkProxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4163F9ED63D4A127AD8028B6 /* libPods-AirshipFrameworkProxy.a */; };
 		6E142E55296E3A8800F71E23 /* AirshipFrameworkProxy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E142E4C296E3A8800F71E23 /* AirshipFrameworkProxy.framework */; };
 		6E142E5A296E3A8800F71E23 /* FeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E59296E3A8800F71E23 /* FeatureTests.swift */; };
 		6E142E5B296E3A8800F71E23 /* AirshipFrameworkProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E142E4F296E3A8800F71E23 /* AirshipFrameworkProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -35,7 +35,6 @@
 		6E4CFD25298C79FF00D131A8 /* ProxyConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CFD24298C79FF00D131A8 /* ProxyConfigTests.swift */; };
 		6EFB83DA2979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB83D92979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift */; };
 		CBDC84C94122140C5C77A4A8 /* libPods-AirshipFrameworkProxyTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B2D9912B2F674F92359C40A /* libPods-AirshipFrameworkProxyTests.a */; };
-		F52B547438A2AFFE231B4881 /* libPods-AirshipFrameworkProxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C39B66064DB5DC0206E8993 /* libPods-AirshipFrameworkProxy.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,7 +49,7 @@
 
 /* Begin PBXFileReference section */
 		342489CA8E66E2228D874781 /* Pods-AirshipFrameworkProxyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipFrameworkProxyTests.release.xcconfig"; path = "Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests.release.xcconfig"; sourceTree = "<group>"; };
-		4CFDEFB527BD77663BECC3AC /* Pods-AirshipFrameworkProxy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipFrameworkProxy.release.xcconfig"; path = "Target Support Files/Pods-AirshipFrameworkProxy/Pods-AirshipFrameworkProxy.release.xcconfig"; sourceTree = "<group>"; };
+		4163F9ED63D4A127AD8028B6 /* libPods-AirshipFrameworkProxy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AirshipFrameworkProxy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B2D9912B2F674F92359C40A /* libPods-AirshipFrameworkProxyTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AirshipFrameworkProxyTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E142E4C296E3A8800F71E23 /* AirshipFrameworkProxy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AirshipFrameworkProxy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E142E4F296E3A8800F71E23 /* AirshipFrameworkProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AirshipFrameworkProxy.h; sourceTree = "<group>"; };
@@ -77,12 +76,11 @@
 		6E142E95296F852300F71E23 /* AirshipContactProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipContactProxy.swift; sourceTree = "<group>"; };
 		6E142E96296F852300F71E23 /* AirshipProxyEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipProxyEvent.swift; sourceTree = "<group>"; };
 		6E142E97296F852300F71E23 /* AirshipPreferenceCenterProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipPreferenceCenterProxy.swift; sourceTree = "<group>"; };
-		6E4CFD22298C5CD200D131A8 /* libPods-AirshipFrameworkProxy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libPods-AirshipFrameworkProxy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E4CFD24298C79FF00D131A8 /* ProxyConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigTests.swift; sourceTree = "<group>"; };
 		6EFB83D92979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopedSubscriptionListOperation.swift; sourceTree = "<group>"; };
-		7C39B66064DB5DC0206E8993 /* libPods-AirshipFrameworkProxy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AirshipFrameworkProxy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E3390ECA282C5227FDD2452 /* Pods-AirshipFrameworkProxy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipFrameworkProxy.release.xcconfig"; path = "Target Support Files/Pods-AirshipFrameworkProxy/Pods-AirshipFrameworkProxy.release.xcconfig"; sourceTree = "<group>"; };
+		A7AAE7884EB71BFDA583427D /* Pods-AirshipFrameworkProxy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipFrameworkProxy.debug.xcconfig"; path = "Target Support Files/Pods-AirshipFrameworkProxy/Pods-AirshipFrameworkProxy.debug.xcconfig"; sourceTree = "<group>"; };
 		EE85F2DA868976BBC12EE7A8 /* Pods-AirshipFrameworkProxyTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipFrameworkProxyTests.debug.xcconfig"; path = "Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests.debug.xcconfig"; sourceTree = "<group>"; };
-		FC1D7402ACBBD71CD5050040 /* Pods-AirshipFrameworkProxy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipFrameworkProxy.debug.xcconfig"; path = "Target Support Files/Pods-AirshipFrameworkProxy/Pods-AirshipFrameworkProxy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,8 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F52B547438A2AFFE231B4881 /* libPods-AirshipFrameworkProxy.a in Frameworks */,
-				40CAE09E0AB0AF4ECECDDB1B /* libPods-AirshipFrameworkProxy.a in Frameworks */,
+				01C90495760BF45BE0229EE5 /* libPods-AirshipFrameworkProxy.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -177,10 +174,10 @@
 		E795D17A6D8B67EA12AE176D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				FC1D7402ACBBD71CD5050040 /* Pods-AirshipFrameworkProxy.debug.xcconfig */,
-				4CFDEFB527BD77663BECC3AC /* Pods-AirshipFrameworkProxy.release.xcconfig */,
 				EE85F2DA868976BBC12EE7A8 /* Pods-AirshipFrameworkProxyTests.debug.xcconfig */,
 				342489CA8E66E2228D874781 /* Pods-AirshipFrameworkProxyTests.release.xcconfig */,
+				A7AAE7884EB71BFDA583427D /* Pods-AirshipFrameworkProxy.debug.xcconfig */,
+				9E3390ECA282C5227FDD2452 /* Pods-AirshipFrameworkProxy.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -188,9 +185,8 @@
 		FD4A1FFB313754F25789ED17 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6E4CFD22298C5CD200D131A8 /* libPods-AirshipFrameworkProxy.a */,
-				7C39B66064DB5DC0206E8993 /* libPods-AirshipFrameworkProxy.a */,
 				5B2D9912B2F674F92359C40A /* libPods-AirshipFrameworkProxyTests.a */,
+				4163F9ED63D4A127AD8028B6 /* libPods-AirshipFrameworkProxy.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -213,12 +209,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6E142E5E296E3A8800F71E23 /* Build configuration list for PBXNativeTarget "AirshipFrameworkProxy" */;
 			buildPhases = (
-				E0E6309882C988F4ED221803 /* [CP] Check Pods Manifest.lock */,
+				D6015984BC4825E4416EFDA6 /* [CP] Check Pods Manifest.lock */,
 				6E142E47296E3A8800F71E23 /* Headers */,
 				6E142E48296E3A8800F71E23 /* Sources */,
 				6E142E49296E3A8800F71E23 /* Frameworks */,
 				6E142E4A296E3A8800F71E23 /* Resources */,
-				7D29FC8BC45E039043A543E0 /* [CP] Copy Pods Resources */,
+				5D1ED050B9879D1CFDA730DF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -237,7 +233,7 @@
 				6E142E50296E3A8800F71E23 /* Sources */,
 				6E142E51296E3A8800F71E23 /* Frameworks */,
 				6E142E52296E3A8800F71E23 /* Resources */,
-				45A3654D6C2C90D691BA7731 /* [CP] Copy Pods Resources */,
+				D8B6D8C9497749F53E7694E6 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -305,24 +301,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		45A3654D6C2C90D691BA7731 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7D29FC8BC45E039043A543E0 /* [CP] Copy Pods Resources */ = {
+		5D1ED050B9879D1CFDA730DF /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -361,7 +340,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		E0E6309882C988F4ED221803 /* [CP] Check Pods Manifest.lock */ = {
+		D6015984BC4825E4416EFDA6 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -381,6 +360,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D8B6D8C9497749F53E7694E6 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -557,7 +553,7 @@
 		};
 		6E142E5F296E3A8800F71E23 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FC1D7402ACBBD71CD5050040 /* Pods-AirshipFrameworkProxy.debug.xcconfig */;
+			baseConfigurationReference = A7AAE7884EB71BFDA583427D /* Pods-AirshipFrameworkProxy.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -588,7 +584,7 @@
 		};
 		6E142E60296E3A8800F71E23 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4CFDEFB527BD77663BECC3AC /* Pods-AirshipFrameworkProxy.release.xcconfig */;
+			baseConfigurationReference = 9E3390ECA282C5227FDD2452 /* Pods-AirshipFrameworkProxy.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;

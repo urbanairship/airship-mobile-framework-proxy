@@ -1,7 +1,7 @@
 target 'AirshipFrameworkProxy' do
-  pod 'Airship', '16.11.1'
-  pod 'Airship/PreferenceCenter', '16.11.1'
-  pod 'Airship/MessageCenter', '16.11.1'
+  pod 'Airship', '16.11.2'
+  pod 'Airship/PreferenceCenter', '16.11.2'
+  pod 'Airship/MessageCenter', '16.11.2'
 end
 
 target 'AirshipFrameworkProxyTests' do
