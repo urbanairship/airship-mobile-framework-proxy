@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        adapterVersion = '2.0.0'
+        adapterVersion = '2.0.1'
         // Android SDK versions
         compileSdkVersion = 33
         targetSdkVersion = 33

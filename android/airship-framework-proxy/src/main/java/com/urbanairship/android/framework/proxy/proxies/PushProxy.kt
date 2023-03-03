@@ -32,7 +32,7 @@ public class PushProxy internal constructor(
     private val pushProvider: () -> PushManager
 ) {
 
-    public val foregroundNotificationDisplayPredicate: SuspendingPredicate<Map<String, Any>>? = null
+    public var foregroundNotificationDisplayPredicate: SuspendingPredicate<Map<String, Any>>? = null
 
     public fun setNotificationConfig(config: JsonValue) {
         setNotificationConfig(NotificationConfig(config.optMap()))
