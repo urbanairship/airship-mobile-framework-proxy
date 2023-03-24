@@ -19,7 +19,7 @@ kotlinx-coroutines = '1.6.4'
 androidx-annotation = '1.4.0'
 
 # Firebase
-airship = '16.9.0'
+airship = '16.9.1'
 
 # Test
 google-truth = '1.1.3'
