@@ -43,7 +43,7 @@ public class AirshipChannelProxy: NSObject {
         let instance = try self.channel
         return try await withCheckedThrowingContinuation { continuation in
             instance.fetchSubscriptionLists { lists, error in
-                if let error {
+                if let error = error {
                     continuation.resume(throwing: error)
                     return
                 }
