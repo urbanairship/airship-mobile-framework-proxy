@@ -7,7 +7,7 @@ plugins {
 
 group = 'com.urbanairship.android'
 description = "Airship Mobile Framework Proxy"
-version = rootProject.adapterVersion
+version = libs.versions.airshipProxy.get()
 
 android {
     namespace 'com.urbanairship.android.framework.proxy'
@@ -25,7 +25,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-     kotlinOptions {
+    kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
         freeCompilerArgs = ["-Xexplicit-api=strict"]
     }
