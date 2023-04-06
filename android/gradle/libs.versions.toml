@@ -1,5 +1,9 @@
 [versions]
 
+# Airship
+airshipProxy = '2.0.3'
+airship = '16.9.1'
+
 # Gradle plugins
 androidGradlePlugin = '7.3.0'
 nexusPublishPlugin = '1.1.0'
@@ -17,9 +21,6 @@ kotlinx-coroutines = '1.6.4'
 
 # Androidx
 androidx-annotation = '1.4.0'
-
-# Firebase
-airship = '16.9.1'
 
 # Test
 google-truth = '1.1.3'
