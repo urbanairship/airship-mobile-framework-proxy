@@ -29,8 +29,7 @@ public class EventEmitter {
      */
     public fun addEvent(event: Event) {
         synchronized(lock) {
-            pendingEvents.putIfAbsent(event.type, mutableListOf())
-            pendingEvents[event.type]?.add(event)
+            pendingEvents.getOrPut(event.type) { mutableListOf() }.add(event)
             scope.launch {
                 _pendingEventsUpdates.emit(event.type)
             }
