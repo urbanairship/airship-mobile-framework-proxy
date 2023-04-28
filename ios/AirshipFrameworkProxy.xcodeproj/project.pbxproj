@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		01C90495760BF45BE0229EE5 /* libPods-AirshipFrameworkProxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4163F9ED63D4A127AD8028B6 /* libPods-AirshipFrameworkProxy.a */; };
+		6E07689629FC48450014E2A9 /* AttributeOperationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E07689529FC48450014E2A9 /* AttributeOperationTest.swift */; };
 		6E142E55296E3A8800F71E23 /* AirshipFrameworkProxy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E142E4C296E3A8800F71E23 /* AirshipFrameworkProxy.framework */; };
 		6E142E5A296E3A8800F71E23 /* FeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E59296E3A8800F71E23 /* FeatureTests.swift */; };
 		6E142E5B296E3A8800F71E23 /* AirshipFrameworkProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E142E4F296E3A8800F71E23 /* AirshipFrameworkProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -51,6 +52,7 @@
 		342489CA8E66E2228D874781 /* Pods-AirshipFrameworkProxyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipFrameworkProxyTests.release.xcconfig"; path = "Target Support Files/Pods-AirshipFrameworkProxyTests/Pods-AirshipFrameworkProxyTests.release.xcconfig"; sourceTree = "<group>"; };
 		4163F9ED63D4A127AD8028B6 /* libPods-AirshipFrameworkProxy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AirshipFrameworkProxy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B2D9912B2F674F92359C40A /* libPods-AirshipFrameworkProxyTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AirshipFrameworkProxyTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E07689529FC48450014E2A9 /* AttributeOperationTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributeOperationTest.swift; sourceTree = "<group>"; };
 		6E142E4C296E3A8800F71E23 /* AirshipFrameworkProxy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AirshipFrameworkProxy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E142E4F296E3A8800F71E23 /* AirshipFrameworkProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AirshipFrameworkProxy.h; sourceTree = "<group>"; };
 		6E142E54296E3A8800F71E23 /* AirshipFrameworkProxyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AirshipFrameworkProxyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -149,6 +151,7 @@
 			children = (
 				6E142E59296E3A8800F71E23 /* FeatureTests.swift */,
 				6E4CFD24298C79FF00D131A8 /* ProxyConfigTests.swift */,
+				6E07689529FC48450014E2A9 /* AttributeOperationTest.swift */,
 			);
 			path = AirshipFrameworkProxyTests;
 			sourceTree = "<group>";
@@ -417,6 +420,7 @@
 			files = (
 				6E4CFD25298C79FF00D131A8 /* ProxyConfigTests.swift in Sources */,
 				6E142E5A296E3A8800F71E23 /* FeatureTests.swift in Sources */,
+				6E07689629FC48450014E2A9 /* AttributeOperationTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
