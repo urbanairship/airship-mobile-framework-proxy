@@ -94,6 +94,7 @@ class AirshipDelegate: NSObject,
             await self.eventEmitter.addEvent(
                 DeepLinkEvent(deepLink)
             )
+            completionHandler()
         }
     }
     
