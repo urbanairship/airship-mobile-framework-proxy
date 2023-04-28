@@ -20,11 +20,11 @@ public data class AttributeOperation(
     public val action: AttributeOperationAction
 ) {
     public constructor(json: JsonMap) : this(
-        attribute = json.require("group").requireString(),
-        value = json.require("value"),
-        valueType = AttributeValueType.valueOf(
-            json.require("value").requireString().uppercase()
-        ),
+        attribute = json.require("key").requireString(),
+        value = json.get("value"),
+        valueType = json.opt("type").string?.let {
+            AttributeValueType.valueOf(it.uppercase())
+        },
         action = AttributeOperationAction.valueOf(
             json.require("action").requireString().uppercase()
         )

@@ -3,7 +3,7 @@
 import Foundation
 import AirshipKit
 
-public struct AttributeOperation: Decodable {
+public struct AttributeOperation: Decodable, Equatable {
     enum Action: String, Decodable {
         case setAttribute = "set"
         case removeAttribute = "remove"
