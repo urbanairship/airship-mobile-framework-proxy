@@ -42,7 +42,7 @@ internal fun AttributeOperation.applyOperation(editor: AttributeEditor) {
                 )
                 AttributeValueType.STRING -> editor.setAttribute(
                     attribute,
-                    Date(requireNotNull(value).requireString())
+                    requireNotNull(value).requireString()
                 )
                 AttributeValueType.NUMBER -> editor.setAttribute(
                     attribute,
