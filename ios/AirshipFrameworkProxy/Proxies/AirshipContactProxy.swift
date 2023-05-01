@@ -121,11 +121,11 @@ public class AirshipContactProxy: NSObject {
     public func editSubscriptionLists(
         operations: [ScopedSubscriptionListOperation]
     ) throws {
-        let editor = try self.contact.editSubscriptionLists()
-        try operations.forEach { operation in
-            try operation.apply(editor: editor)
+        try self.contact.editSubscriptionLists { editor in
+            operations.forEach { operation in
+                operation.apply(editor: editor)
+            }
         }
-        editor.apply()
     }
 }
 
@@ -134,7 +134,7 @@ protocol AirshipContactProtocol: AnyObject {
     func fetchSubscriptionLists(
         completionHandler: @escaping ([String: ChannelScopes]?, Error?) -> Void) -> Disposable
 
-    func editSubscriptionLists() -> ScopedSubscriptionListEditor
+    func editSubscriptionLists(_ editorBlock: (ScopedSubscriptionListEditor) -> Void)
 
     func editAttributes() -> AttributesEditor
 

@@ -33,7 +33,7 @@ public struct ScopedSubscriptionListOperation: Decodable, Equatable {
         self.scope = try ChannelScope.fromString(container.decode(String.self, forKey: .scope))
     }
 
-    func apply(editor: ScopedSubscriptionListEditor) throws {
+    func apply(editor: ScopedSubscriptionListEditor) {
         switch(action) {
         case .subscribe:
             editor.subscribe(listID, scope: scope)
