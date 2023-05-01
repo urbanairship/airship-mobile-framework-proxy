@@ -98,7 +98,7 @@ class AttributeOperationTest: XCTestCase {
     func testApplyRemove() throws {
         let editor = TestEditor()
         let operation = AttributeOperation(action: .removeAttribute, attribute: "some attribute", value: nil, valueType: nil)
-        operation.apply(editor: editor)
+        try operation.apply(editor: editor)
 
         XCTAssertEqual(editor.removes, ["some attribute"])
         XCTAssertTrue(editor.sets.isEmpty)
@@ -113,7 +113,7 @@ class AttributeOperationTest: XCTestCase {
             valueType: .string
         )
 
-        operation.apply(editor: editor)
+        try operation.apply(editor: editor)
         XCTAssertEqual(editor.sets, ["some attribute": "neat"])
         XCTAssertTrue(editor.removes.isEmpty)
     }
@@ -127,7 +127,7 @@ class AttributeOperationTest: XCTestCase {
             valueType: .number
         )
 
-        operation.apply(editor: editor)
+        try operation.apply(editor: editor)
         XCTAssertEqual(editor.sets, ["some attribute": 100.1])
         XCTAssertTrue(editor.removes.isEmpty)
     }
@@ -141,7 +141,7 @@ class AttributeOperationTest: XCTestCase {
             valueType: .date
         )
 
-        operation.apply(editor: editor)
+        try operation.apply(editor: editor)
         XCTAssertEqual(editor.sets, ["some attribute": Date(timeIntervalSince1970: 1682681877)])
         XCTAssertTrue(editor.removes.isEmpty)
     }
@@ -149,29 +149,36 @@ class AttributeOperationTest: XCTestCase {
     func testApplyInvalidString() throws {
         let editor = TestEditor()
 
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "number string attribute",
+                value: .number(10.0),
+                valueType: .string
+            ).apply(editor: editor)
+            XCTFail("should throw")
+        } catch {}
 
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "number string attribute",
-            value: .number(10.0),
-            valueType: .string
-        ).apply(editor: editor)
-
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "null string attribute",
-            value: .null,
-            valueType: .string
-        ).apply(editor: editor)
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "null string attribute",
+                value: .null,
+                valueType: .string
+            ).apply(editor: editor)
+            XCTFail("should throw")
+        } catch {}
 
 
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "dictionary string attribute",
-            value: try! AirshipJSON.wrap(["cool": "beans"]),
-            valueType: .string
-        ).apply(editor: editor)
-
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "dictionary string attribute",
+                value: try! AirshipJSON.wrap(["cool": "beans"]),
+                valueType: .string
+            ).apply(editor: editor)
+            XCTFail("should throw")
+        } catch {}
 
         XCTAssertTrue(editor.sets.isEmpty)
         XCTAssertTrue(editor.removes.isEmpty)
@@ -181,28 +188,36 @@ class AttributeOperationTest: XCTestCase {
         let editor = TestEditor()
 
 
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "string number attribute",
-            value: .string("hello"),
-            valueType: .number
-        ).apply(editor: editor)
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "string number attribute",
+                value: .string("hello"),
+                valueType: .number
+            ).apply(editor: editor)
+            XCTFail("should throw")
+        } catch {}
 
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "null number attribute",
-            value: .null,
-            valueType: .number
-        ).apply(editor: editor)
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "null number attribute",
+                value: .null,
+                valueType: .number
+            ).apply(editor: editor)
+            XCTFail("should throw")
+        } catch {}
 
 
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "dictionary number attribute",
-            value: try! AirshipJSON.wrap(["cool": "beans"]),
-            valueType: .number
-        ).apply(editor: editor)
-
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "dictionary number attribute",
+                value: try! AirshipJSON.wrap(["cool": "beans"]),
+                valueType: .number
+            ).apply(editor: editor)
+            XCTFail("should throw")
+        } catch {}
 
         XCTAssertTrue(editor.sets.isEmpty)
         XCTAssertTrue(editor.removes.isEmpty)
@@ -212,27 +227,35 @@ class AttributeOperationTest: XCTestCase {
         let editor = TestEditor()
 
 
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "string date attribute",
-            value: .string("1682681877000"),
-            valueType: .date
-        ).apply(editor: editor)
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "string date attribute",
+                value: .string("1682681877000"),
+                valueType: .date
+            ).apply(editor: editor)
+            XCTFail("should throw")
+        } catch {}
 
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "null date attribute",
-            value: .null,
-            valueType: .date
-        ).apply(editor: editor)
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "null date attribute",
+                value: .null,
+                valueType: .date
+            ).apply(editor: editor)
+            XCTFail("should throw")
+        } catch {}
 
 
-        AttributeOperation(
-            action: .setAttribute,
-            attribute: "dictionary date attribute",
-            value: try! AirshipJSON.wrap(["cool": "beans"]),
-            valueType: .date
-        ).apply(editor: editor)
+        do {
+            try AttributeOperation(
+                action: .setAttribute,
+                attribute: "dictionary date attribute",
+                value: try! AirshipJSON.wrap(["cool": "beans"]),
+                valueType: .date
+            ).apply(editor: editor)
+        } catch {}
 
 
         XCTAssertTrue(editor.sets.isEmpty)

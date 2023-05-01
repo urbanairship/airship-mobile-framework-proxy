@@ -27,7 +27,7 @@ public struct AttributeOperation: Decodable, Equatable {
         case valueType = "type"
     }
 
-    func apply(editor: AttributeOperationEditor) {
+    func apply(editor: AttributeOperationEditor) throws {
         switch(action) {
         case .removeAttribute:
             editor.remove(attribute)
@@ -37,13 +37,13 @@ public struct AttributeOperation: Decodable, Equatable {
                 if let value = value?.unWrap() as? Double {
                     editor.set(double: value, attribute: attribute)
                 } else {
-                    AirshipLogger.error("Failed to parse double: \(self)")
+                    throw AirshipErrors.error("Failed to parse double: \(self)")
                 }
             case .string:
                 if let value = value?.unWrap() as? String {
                     editor.set(string: value, attribute: attribute)
                 } else {
-                    AirshipLogger.error("Failed to parse string: \(self)")
+                    throw AirshipErrors.error("Failed to parse string: \(self)")
                 }
             case .date:
                 if let value = value?.unWrap() as? Double {
@@ -52,10 +52,10 @@ public struct AttributeOperation: Decodable, Equatable {
                         attribute: attribute
                     )
                 } else {
-                    AirshipLogger.error("Failed to parse date: \(self)")
+                    throw AirshipErrors.error("Failed to parse date: \(self)")
                 }
             case .none:
-                AirshipLogger.error("Missing attribute value: \(self)")
+                throw AirshipErrors.error("Missing attribute type: \(self)")
             }
         }
     }

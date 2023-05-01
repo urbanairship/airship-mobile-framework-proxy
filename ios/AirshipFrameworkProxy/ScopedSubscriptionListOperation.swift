@@ -3,15 +3,22 @@
 import Foundation
 import AirshipKit
 
-public struct ScopedSubscriptionListOperation: Decodable {
+public struct ScopedSubscriptionListOperation: Decodable, Equatable {
     enum Action: String, Codable {
         case subscribe
         case unsubscribe
     }
 
-    let action: Action
-    let listID: String
-    let scope: String
+    private let action: Action
+    private let listID: String
+    private let scope: ChannelScope
+
+    init(action: Action, listID: String, scope: ChannelScope) {
+        self.action = action
+        self.listID = listID
+        self.scope = scope
+    }
+
 
     private enum CodingKeys: String, CodingKey {
         case action = "action"
@@ -19,14 +26,14 @@ public struct ScopedSubscriptionListOperation: Decodable {
         case scope = "scope"
     }
 
-    func apply(editor: ScopedSubscriptionListEditor) {
-        guard 
-              let scope = try? ChannelScope.fromString(scope)
-        else {
-            AirshipLogger.error("Invalid subscription list operation: \(self)")
-            return
-        }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.action = try container.decode(ScopedSubscriptionListOperation.Action.self, forKey: .action)
+        self.listID = try container.decode(String.self, forKey: .listID)
+        self.scope = try ChannelScope.fromString(container.decode(String.self, forKey: .scope))
+    }
 
+    func apply(editor: ScopedSubscriptionListEditor) throws {
         switch(action) {
         case .subscribe:
             editor.subscribe(listID, scope: scope)
