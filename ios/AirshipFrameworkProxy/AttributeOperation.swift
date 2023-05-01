@@ -27,12 +27,7 @@ public struct AttributeOperation: Decodable, Equatable {
         case valueType = "type"
     }
 
-    func apply(editor: AttributesEditor) {
-        guard attribute.isEmpty else {
-            AirshipLogger.error("Invalid attribute operation: \(self)")
-            return
-        }
-
+    func apply(editor: AttributeOperationEditor) {
         switch(action) {
         case .removeAttribute:
             editor.remove(attribute)
@@ -53,7 +48,7 @@ public struct AttributeOperation: Decodable, Equatable {
             case .date:
                 if let value = value?.unWrap() as? Double {
                     editor.set(
-                        date: Date(timeIntervalSince1970: value),
+                        date: Date(timeIntervalSince1970: value / 1000.0),
                         attribute: attribute
                     )
                 } else {
@@ -65,3 +60,12 @@ public struct AttributeOperation: Decodable, Equatable {
         }
     }
 }
+
+protocol AttributeOperationEditor {
+    func remove(_ attribute: String)
+    func set(date: Date, attribute: String)
+    func set(double: Double, attribute: String)
+    func set(string: String, attribute: String)
+}
+
+extension AttributesEditor: AttributeOperationEditor {}
