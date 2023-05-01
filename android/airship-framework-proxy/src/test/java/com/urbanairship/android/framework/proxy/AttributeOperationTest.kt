@@ -1,11 +1,16 @@
 
 package com.urbanairship.android.framework.proxy
 
+import com.urbanairship.channel.AttributeEditor
 import com.urbanairship.json.JsonValue
+import io.mockk.confirmVerified
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.*
 
 @RunWith(RobolectricTestRunner::class)
 public class AttributeOperationTest {
@@ -97,5 +102,148 @@ public class AttributeOperationTest {
         )
 
         assertEquals(expected, parsed)
+    }
+
+    @Test
+    public fun testApplyString() {
+        val editor = mockk<AttributeEditor>(relaxed = true)
+
+        val operation  = AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.wrapOpt("neat"),
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.STRING
+        )
+
+        operation.applyOperation(editor)
+
+        verify { editor.setAttribute("some attribute", "neat") }
+        confirmVerified(editor)
+    }
+
+    @Test
+    public fun testApplyNumber() {
+        val editor = mockk<AttributeEditor>(relaxed = true)
+
+        val operation  = AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.wrapOpt(100.1),
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.NUMBER
+        )
+
+        operation.applyOperation(editor)
+
+        verify { editor.setAttribute("some attribute", 100.1) }
+        confirmVerified(editor)
+    }
+
+    @Test
+    public fun testApplyDate() {
+        val editor = mockk<AttributeEditor>(relaxed = true)
+
+        val operation  = AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.wrapOpt(1682681877000),
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.DATE
+        )
+
+        operation.applyOperation(editor)
+
+        verify { editor.setAttribute("some attribute", Date(1682681877000)) }
+        confirmVerified(editor)
+    }
+
+    @Test
+    public fun testApplyRemove() {
+        val editor = mockk<AttributeEditor>(relaxed = true)
+
+        val operation = AttributeOperation(
+            attribute = "some attribute",
+            value = null,
+            action = AttributeOperationAction.REMOVE,
+            valueType = null
+        )
+
+        operation.applyOperation(editor)
+
+        verify { editor.removeAttribute("some attribute") }
+        confirmVerified(editor)
+    }
+
+    @Test(expected = java.lang.Exception::class)
+    public fun testApplyInvalidString() {
+        val editor = mockk<AttributeEditor>()
+
+        AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.wrapOpt(1682681877000),
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.STRING
+        ).applyOperation(editor)
+    }
+
+
+    @Test(expected = java.lang.Exception::class)
+    public fun testApplyNullString() {
+        val editor = mockk<AttributeEditor>()
+
+        AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.NULL,
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.STRING
+        ).applyOperation(editor)
+    }
+
+    @Test(expected = java.lang.Exception::class)
+    public fun testApplyInvalidNumber() {
+        val editor = mockk<AttributeEditor>()
+
+        AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.wrapOpt("nope"),
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.NUMBER
+        ).applyOperation(editor)
+    }
+
+
+    @Test(expected = java.lang.Exception::class)
+    public fun testApplyNullNumber() {
+        val editor = mockk<AttributeEditor>()
+
+        AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.NULL,
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.NUMBER
+        ).applyOperation(editor)
+    }
+
+    @Test(expected = java.lang.Exception::class)
+    public fun testApplyInvalidDate() {
+        val editor = mockk<AttributeEditor>()
+
+        AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.wrapOpt("nope"),
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.DATE
+        ).applyOperation(editor)
+    }
+
+
+    @Test(expected = java.lang.Exception::class)
+    public fun testApplyNullDate() {
+        val editor = mockk<AttributeEditor>()
+
+        AttributeOperation(
+            attribute = "some attribute",
+            value = JsonValue.NULL,
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.DATE
+        ).applyOperation(editor)
     }
 }
