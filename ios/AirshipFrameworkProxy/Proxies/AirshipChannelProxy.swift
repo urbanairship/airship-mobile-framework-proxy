@@ -93,11 +93,11 @@ public class AirshipChannelProxy: NSObject {
 
 
     public func editAttributes(operations: [AttributeOperation]) throws {
-        try self.channel.editAttributes { editor in
-            operations.forEach { operation in
-                operation.apply(editor: editor)
-            }
+        let editor = try self.channel.editAttributes()
+        try operations.forEach { operation in
+            try operation.apply(editor: editor)
         }
+        editor.apply()
     }
 
     @objc

@@ -27,12 +27,7 @@ public struct AttributeOperation: Decodable, Equatable {
         case valueType = "type"
     }
 
-    func apply(editor: AttributesEditor) {
-        guard attribute.isEmpty else {
-            AirshipLogger.error("Invalid attribute operation: \(self)")
-            return
-        }
-
+    func apply(editor: AttributeOperationEditor) throws {
         switch(action) {
         case .removeAttribute:
             editor.remove(attribute)
@@ -42,26 +37,35 @@ public struct AttributeOperation: Decodable, Equatable {
                 if let value = value?.unWrap() as? Double {
                     editor.set(double: value, attribute: attribute)
                 } else {
-                    AirshipLogger.error("Failed to parse double: \(self)")
+                    throw AirshipErrors.error("Failed to parse double: \(self)")
                 }
             case .string:
                 if let value = value?.unWrap() as? String {
                     editor.set(string: value, attribute: attribute)
                 } else {
-                    AirshipLogger.error("Failed to parse string: \(self)")
+                    throw AirshipErrors.error("Failed to parse string: \(self)")
                 }
             case .date:
                 if let value = value?.unWrap() as? Double {
                     editor.set(
-                        date: Date(timeIntervalSince1970: value),
+                        date: Date(timeIntervalSince1970: value / 1000.0),
                         attribute: attribute
                     )
                 } else {
-                    AirshipLogger.error("Failed to parse date: \(self)")
+                    throw AirshipErrors.error("Failed to parse date: \(self)")
                 }
             case .none:
-                AirshipLogger.error("Missing attribute value: \(self)")
+                throw AirshipErrors.error("Missing attribute type: \(self)")
             }
         }
     }
 }
+
+protocol AttributeOperationEditor {
+    func remove(_ attribute: String)
+    func set(date: Date, attribute: String)
+    func set(double: Double, attribute: String)
+    func set(string: String, attribute: String)
+}
+
+extension AttributesEditor: AttributeOperationEditor {}
