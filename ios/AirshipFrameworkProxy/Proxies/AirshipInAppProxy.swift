@@ -6,15 +6,25 @@ import AirshipKit
 @objc
 public class AirshipInAppProxy: NSObject {
 
+    private let proxyStore: ProxyStore
     private let inAppProvider: () throws -> AirshipInAppProtocol
     private var inApp: AirshipInAppProtocol {
         get throws { try inAppProvider() }
     }
 
-    init(inAppProvider: @escaping () throws -> any AirshipInAppProtocol) {
+    init(
+        proxyStore: ProxyStore,
+        inAppProvider: @escaping () throws -> any AirshipInAppProtocol
+    ) {
+        self.proxyStore = proxyStore
         self.inAppProvider = inAppProvider
     }
 
+    public func setAutoPauseOnLaunch(_ enabled: Bool) throws {
+        self.proxyStore.autoPauseOnLaunch = enabled
+        try setPaused(enabled)
+    }
+    
     @objc(isPausedWithError:)
     public func _isPaused() throws -> NSNumber {
         return try NSNumber(value: self.inApp.isPaused)

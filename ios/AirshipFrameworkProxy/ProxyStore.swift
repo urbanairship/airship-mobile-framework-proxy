@@ -17,6 +17,7 @@ public class ProxyStore {
     private let configKey = "config"
     private let foregroundPresentationOptionsKey = "foregroundPresentationOptions"
     private let autoDisplayMessageCenterKey = "autoDisplayMessageCenter"
+    private let autoPauseInAppKey = "autoPauseInApp"
 
     public var config: ProxyConfig? {
         get {
@@ -61,6 +62,19 @@ public class ProxyStore {
         }
     }
 
+    public var autoPauseOnLaunch: Bool {
+        get {
+            return readValue(autoPauseInAppKey) ?? false
+        }
+
+        set {
+            writeValue(
+                newValue,
+                forKey: autoPauseInAppKey
+            )
+        }
+    }
+    
     private func preferenceCenterKey(
         _ preferenceCenterID: String
     ) -> String {

@@ -77,7 +77,9 @@ public class AirshipProxy: NSObject {
             try AirshipProxy.ensureAirshipReady()
             return PreferenceCenter.shared
         }
-        self.inApp = AirshipInAppProxy {
+        self.inApp = AirshipInAppProxy (
+            proxyStore: proxyStore
+        ) {
             try AirshipProxy.ensureAirshipReady()
             return InAppAutomation.shared
         }
@@ -208,6 +210,10 @@ public class AirshipProxy: NSObject {
             self.airshipDelegate.channelCreated()
         }
 
+        if self.proxyStore.autoPauseOnLaunch {
+            try self.inApp.setPaused(true);
+        }
+        
         self.delegate?.onAirshipReady()
 
         Airship.push.defaultPresentationOptions = self.proxyStore.foregroundPresentationOptions
@@ -232,4 +238,3 @@ public class AirshipProxy: NSObject {
         )
     }
 }
-
