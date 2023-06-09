@@ -210,9 +210,7 @@ public class AirshipProxy: NSObject {
             self.airshipDelegate.channelCreated()
         }
 
-        if self.proxyStore.autoPauseOnLaunch {
-            try self.inApp.setPaused(true);
-        }
+        try self.inApp.setPaused(self.proxyStore.autoPauseOnLaunch);
         
         self.delegate?.onAirshipReady()
 
