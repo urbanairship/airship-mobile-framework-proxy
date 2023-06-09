@@ -42,7 +42,7 @@ public class AirshipProxy(
         UAirship.shared().contact
     }
 
-    public val inApp: InAppProxy = InAppProxy {
+    public val inApp: InAppProxy = InAppProxy(proxyStore) {
         ensureTakeOff()
         InAppAutomation.shared()
     }

@@ -1,9 +1,18 @@
 package com.urbanairship.android.framework.proxy.proxies
 
+import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.automation.InAppAutomation
 import java.util.concurrent.TimeUnit
 
-public class InAppProxy internal constructor(private val inAppProvider: () -> InAppAutomation) {
+public class InAppProxy internal constructor(
+    private val proxyStore: ProxyStore,
+    private val inAppProvider: () -> InAppAutomation
+) {
+
+    public fun setAutoPauseOnLaunch(enabled: Boolean) {
+        proxyStore.isAutoPauseOnLaunch = enabled
+        setPaused(enabled)
+    }
 
     public fun setPaused(paused: Boolean) {
         inAppProvider().isPaused = paused
