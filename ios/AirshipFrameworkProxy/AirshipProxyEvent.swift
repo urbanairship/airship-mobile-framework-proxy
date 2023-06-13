@@ -44,7 +44,7 @@ struct MessageCenterUpdatedEvent: AirshipProxyEvent {
     init(messageCount: UInt, unreadCount: Int) {
         self.body = [
             "messageCount": messageCount,
-            "unreadCount": unreadCount
+            "messageUnreadCount": unreadCount
         ]
     }
 }
