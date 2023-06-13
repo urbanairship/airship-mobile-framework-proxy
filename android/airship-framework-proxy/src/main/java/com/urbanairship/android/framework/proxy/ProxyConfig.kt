@@ -20,6 +20,7 @@ public data class ProxyConfig(
     val isChannelCaptureEnabled: Boolean?,
     val isChannelCreationDelayEnabled: Boolean?,
     @Feature val enabledFeatures: Int?,
+    val autoPauseInAppAutomationOnLaunch: Boolean?,
     val androidConfig: Android?
 ) : JsonSerializable {
 
@@ -36,6 +37,7 @@ public data class ProxyConfig(
         isChannelCreationDelayEnabled = config.get("isChannelCreationDelayEnabled")?.boolean,
         suppressAllowListError = config.get("suppressAllowListError")?.boolean,
         enabledFeatures = config.get("enabledFeatures")?.let { Utils.parseFeatures(it) },
+        autoPauseInAppAutomationOnLaunch = config.get("autoPauseInAppAutomationOnLaunch")?.boolean,
         androidConfig = config.get("android")?.map?.let { Android(it) })
 
     override fun toJsonValue(): JsonValue {
@@ -52,6 +54,7 @@ public data class ProxyConfig(
             .putOpt("isChannelCaptureEnabled", isChannelCaptureEnabled)
             .putOpt("isChannelCreationDelayEnabled", isChannelCreationDelayEnabled)
             .putOpt("enabledFeatures", enabledFeatures?.let { Utils.featureNames(it) })
+            .putOpt("autoPauseInAppAutomationOnLaunch", autoPauseInAppAutomationOnLaunch)
             .putOpt("android", androidConfig)
             .build()
             .toJsonValue()

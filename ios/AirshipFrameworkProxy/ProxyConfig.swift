@@ -47,6 +47,7 @@ public struct ProxyConfig: Codable {
     public var initialConfigURL: String?
     public var isChannelCaptureEnabled: Bool?
     public var suppressAllowListError: Bool?
+    public var autoPauseInAppAutomationOnLaunch: Bool?
     
     public init(
         defaultEnvironment: Environment? = nil,
@@ -62,7 +63,8 @@ public struct ProxyConfig: Codable {
         urlAllowList: [String]? = nil,
         initialConfigURL: String? = nil,
         isChannelCaptureEnabled: Bool? = nil,
-        suppressAllowListError: Bool? = nil
+        suppressAllowListError: Bool? = nil,
+        autoPauseInAppAutomationOnLaunch: Bool? = nil
     ) {
         self.defaultEnvironment = defaultEnvironment
         self.productionEnvironment = productionEnvironment
@@ -78,6 +80,7 @@ public struct ProxyConfig: Codable {
         self.initialConfigURL = initialConfigURL
         self.isChannelCaptureEnabled = isChannelCaptureEnabled
         self.suppressAllowListError = suppressAllowListError
+        self.autoPauseInAppAutomationOnLaunch = autoPauseInAppAutomationOnLaunch
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -95,6 +98,7 @@ public struct ProxyConfig: Codable {
         case initialConfigURL = "initialConfigUrl"
         case isChannelCaptureEnabled = "isChannelCaptureEnabled"
         case suppressAllowListError = "suppressAllowListError"
+        case autoPauseInAppAutomationOnLaunch = "autoPauseInAppAutomationOnLaunch"
     }
 }
 
@@ -194,6 +198,10 @@ extension Config {
 
         if let suppressError = proxyConfig.suppressAllowListError {
             self.suppressAllowListError = suppressError
+        }
+        
+        if let autoPauseInAppAutomation = proxyConfig.autoPauseInAppAutomationOnLaunch {
+            self.autoPauseInAppAutomationOnLaunch = autoPauseInAppAutomation
         }
     }
 }
