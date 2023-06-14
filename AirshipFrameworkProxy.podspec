@@ -15,8 +15,8 @@ Pod::Spec.new do |s|
    s.requires_arc            = true
    s.swift_version           = "5.0"
    s.source_files            = "ios/AirshipFrameworkProxy/**/*.{h,m,swift}"
-   s.dependency                'Airship', "16.12.0"
-   s.dependency                "Airship/MessageCenter", "16.12.0"
-   s.dependency                "Airship/PreferenceCenter", "16.12.0"
+   s.dependency                'Airship', "16.12.1"
+   s.dependency                "Airship/MessageCenter", "16.12.1"
+   s.dependency                "Airship/PreferenceCenter", "16.12.1"
    
 end
