@@ -148,6 +148,7 @@ internal fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, pro
     proxyConfig?.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
     proxyConfig?.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
     proxyConfig?.enabledFeatures?.let { this.setEnabledFeatures(it) }
+    proxyConfig?.autoPauseInAppAutomationOnLaunch?.let { this.setAutoPauseInAppAutomationOnLaunch(it) }
 
     proxyConfig?.androidConfig?.notificationConfig?.let { notificationConfig ->
         notificationConfig.icon?.let {
