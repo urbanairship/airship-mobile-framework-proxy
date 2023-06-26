@@ -3,8 +3,7 @@
 import Foundation
 import AirshipKit
 
-@objc
-public class AirshipContactProxy: NSObject {
+public class AirshipContactProxy {
 
     private let contactProvider: () throws -> AirshipContactProtocol
     private var contact: AirshipContactProtocol {
@@ -15,7 +14,6 @@ public class AirshipContactProxy: NSObject {
         self.contactProvider = contactProvider
     }
 
-    @objc
     public func identify(_ namedUser: String) throws {
         let namedUser = namedUser.trimmingCharacters(
             in: CharacterSet.whitespacesAndNewlines
@@ -28,49 +26,28 @@ public class AirshipContactProxy: NSObject {
         }
     }
 
-    @objc
     public func reset() throws {
         try self.contact.reset()
     }
 
-    public func getNamedUser() throws -> String? {
-        return try self.contact.namedUserID
+    public func getNamedUser() async throws -> String? {
+        return try await self.contact.namedUserID
     }
 
-    @objc(getNamedUserOrEmptyWithError:)
-    public func _getNamedUser() throws -> String {
-        return try getNamedUser() ?? ""
-    }
-
-    @objc
     public func getSubscriptionLists() async throws -> [String: [String]] {
-        let instance = try self.contact
-        return try await withCheckedThrowingContinuation { continuation in
-            instance.fetchSubscriptionLists { lists, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
+        let lists = try await self.contact.fetchSubscriptionLists()
 
-                var converted: [String : [String]] = [:]
-                for identifier in lists?.keys ?? Dictionary<String, ChannelScopes>().keys {
-                    let scopes = lists?[identifier]
-                    var scopesArray: [String] = []
-                    if let values = scopes?.values {
-                        for scope in values {
-                            scopesArray.append(scope.stringValue)
-                        }
-                    }
-                    converted[identifier] = scopesArray
-                }
+        var converted: [String : [String]] = [:]
 
-                continuation.resume(returning: converted)
+        lists.forEach { (key, value) in
+            converted[key] = value.map { scope in
+                scope.stringValue
             }
         }
-
+        
+        return converted
     }
 
-    @objc
     public func editTagGroups(json: Any) throws {
         let data = try JSONUtils.data(json)
         let operations = try JSONDecoder().decode(
@@ -107,7 +84,6 @@ public class AirshipContactProxy: NSObject {
         editor.apply()
     }
 
-    @objc
     public func editSubscriptionLists(json: Any) throws {
         let data = try JSONUtils.data(json)
         let operations = try JSONDecoder().decode(
@@ -129,25 +105,3 @@ public class AirshipContactProxy: NSObject {
     }
 }
 
-protocol AirshipContactProtocol: AnyObject {
-    @discardableResult
-    func fetchSubscriptionLists(
-        completionHandler: @escaping ([String: ChannelScopes]?, Error?) -> Void) -> Disposable
-
-    func editSubscriptionLists(_ editorBlock: (ScopedSubscriptionListEditor) -> Void)
-
-    func editAttributes() -> AttributesEditor
-
-    func editTagGroups(_ editorBlock: (TagGroupsEditor) -> Void)
-
-    func identify(_ namedUserID: String)
-
-    func reset()
-
-    var namedUserID: String? { get }
-
-}
-
-extension Contact: AirshipContactProtocol {
-
-}

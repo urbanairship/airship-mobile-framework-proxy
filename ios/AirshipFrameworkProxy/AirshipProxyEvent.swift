@@ -41,7 +41,7 @@ struct MessageCenterUpdatedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .messageCenterUpdated
     let body: [String: Any]
 
-    init(messageCount: UInt, unreadCount: Int) {
+    init(messageCount: Int, unreadCount: Int) {
         self.body = [
             "messageCount": messageCount,
             "messageUnreadCount": unreadCount
@@ -80,6 +80,7 @@ struct NotificationResponseEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .notificationResponseReceived
     let body: [String : Any]
 
+    @MainActor
     init(response: UNNotificationResponse) {
         var body: [String: Any] = [:]
         body["pushPayload"] = PushUtils.contentPayload(

@@ -3,8 +3,7 @@
 import Foundation
 import AirshipKit
 
-@objc
-public class AirshipLocaleProxy: NSObject {
+public class AirshipLocaleProxy {
 
     private let localeProvider: () throws -> AirshipLocaleProtocol
     private var locale: AirshipLocaleProtocol {
@@ -15,7 +14,6 @@ public class AirshipLocaleProxy: NSObject {
         self.localeProvider = localeProvider
     }
 
-    @objc
     public func setCurrentLocale(_ localeIdentifier: String?) throws {
         if let localeIdentifier = localeIdentifier {
             try self.locale.currentLocale = Locale(
@@ -27,12 +25,10 @@ public class AirshipLocaleProxy: NSObject {
 
     }
 
-    @objc
     public func getCurrentLocale() throws -> String {
         return try self.locale.currentLocale.identifier
     }
 
-    @objc
     public func clearLocale() throws {
         try self.locale.clearLocale()
     }
@@ -44,6 +40,6 @@ protocol AirshipLocaleProtocol: AnyObject {
     var currentLocale: Locale { get set }
 }
 
-extension LocaleManager: AirshipLocaleProtocol {
+extension AirshipLocaleManager: AirshipLocaleProtocol {
     
 }

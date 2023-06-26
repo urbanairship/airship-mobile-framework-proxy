@@ -8,12 +8,11 @@ public enum AirshipProxyError: Error {
 
 public protocol AirshipProxyDelegate {
     func migrateData(store: ProxyStore)
-    func loadDefaultConfig() -> Config
+    func loadDefaultConfig() -> AirshipConfig
     func onAirshipReady()
 }
 
-@objc
-public class AirshipProxy: NSObject {
+public class AirshipProxy {
 
     public var delegate: AirshipProxyDelegate?
     private var migrateCalled: Bool = false
@@ -21,28 +20,17 @@ public class AirshipProxy: NSObject {
     private let proxyStore: ProxyStore
     private let airshipDelegate: AirshipDelegate
 
-    @objc
     public let locale: AirshipLocaleProxy
-    @objc
     public let push: AirshipPushProxy
-    @objc
     public let channel: AirshipChannelProxy
-    @objc
     public let messageCenter: AirshipMessageCenterProxy
-    @objc
     public let preferenceCenter: AirshipPreferenceCenterProxy
-    @objc
     public let inApp: AirshipInAppProxy
-    @objc
     public let contact: AirshipContactProxy
-    @objc
     public let analytics: AirshipAnalyticsProxy
-    @objc
     public let action: AirshipActionProxy
-    @objc
     public let privacyManager: AirshipPrivacyManagerProxy
 
-    @objc
     public static let shared: AirshipProxy = AirshipProxy()
 
     init(
@@ -103,22 +91,10 @@ public class AirshipProxy: NSObject {
         }
 
         self.airshipDelegate = AirshipDelegate(proxyStore: proxyStore)
-        super.init()
     }
 
-    @objc(takeOffWithJSON:launchOptions:withError:)
-    public func _takeOff(
-        json: Any,
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) throws -> NSNumber {
-        return try NSNumber(
-            value: self.takeOff(
-                json: json,
-                launchOptions: launchOptions
-            )
-        )
-    }
 
+    @MainActor
     public func takeOff(
         json: Any,
         launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -132,6 +108,7 @@ public class AirshipProxy: NSObject {
 
     }
 
+    @MainActor
     public func takeOff(
         config: ProxyConfig,
         launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -153,7 +130,7 @@ public class AirshipProxy: NSObject {
         }
     }
 
-    @objc
+    @MainActor
     public func attemptTakeOff(
         launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) throws {
@@ -168,7 +145,7 @@ public class AirshipProxy: NSObject {
 
         AirshipLogger.debug("attemptTakeOff: \(String(describing: launchOptions))")
 
-        let airshipConfig: Config = delegate?.loadDefaultConfig() ?? Config.default()
+        let airshipConfig: AirshipConfig = delegate?.loadDefaultConfig() ?? AirshipConfig.default()
         airshipConfig.requireInitialRemoteConfigEnabled = true
 
         if let config = self.proxyStore.config {
@@ -193,7 +170,7 @@ public class AirshipProxy: NSObject {
         MessageCenter.shared.displayDelegate = self.airshipDelegate
 
         NotificationCenter.default.addObserver(
-            forName: NSNotification.Name.UAInboxMessageListUpdated,
+            forName: MessageCenterInbox.messageListUpdatedEvent,
             object: nil,
             queue: .main
         ) { _ in
@@ -201,7 +178,7 @@ public class AirshipProxy: NSObject {
         }
 
         NotificationCenter.default.addObserver(
-            forName: Channel.channelCreatedEvent,
+            forName: AirshipChannel.channelCreatedEvent,
             object: nil,
             queue: .main
         ) { _ in

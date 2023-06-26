@@ -3,64 +3,42 @@
 import Foundation
 import AirshipKit
 
-@objc
-public class AirshipChannelProxy: NSObject {
-    private let channelProvider: () throws -> ChannelProtocol
-    private var channel: ChannelProtocol {
+public class AirshipChannelProxy {
+    private let channelProvider: () throws -> AirshipChannelProtocol
+    private var channel: AirshipChannelProtocol {
         get throws { try channelProvider() }
     }
 
-    init(channelProvider: @escaping () throws -> ChannelProtocol) {
+    init(channelProvider: @escaping () throws -> AirshipChannelProtocol) {
         self.channelProvider = channelProvider
     }
 
-    @objc
     public func enableChannelCreation() throws -> Void {
         try self.channel.enableChannelCreation()
     }
 
-    @objc
     public func addTags(_ tags: [String]) throws {
         try self.channel.editTags { editor in
             editor.add(tags)
         }
     }
 
-    @objc
     public func removeTags(_ tags: [String]) throws {
         try self.channel.editTags { editor in
             editor.remove(tags)
         }
     }
 
-    @objc
     public func getTags() throws -> [String] {
         return try self.channel.tags
     }
 
-    @objc
     public func getSubscriptionLists() async throws -> [String] {
-        let instance = try self.channel
-        return try await withCheckedThrowingContinuation { continuation in
-            instance.fetchSubscriptionLists { lists, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-                continuation.resume(returning: lists ?? [])
-            }
-        }
-
+        return try await self.channel.fetchSubscriptionLists()
     }
-
 
     public func getChannelId() throws -> String? {
         return try self.channel.identifier
-    }
-
-    @objc(getChannelIdOrEmptyWithError:)
-    public func _getChannelId() throws -> String {
-        return try getChannelId() ?? ""
     }
 
     @objc
@@ -81,7 +59,6 @@ public class AirshipChannelProxy: NSObject {
         }
     }
 
-    @objc
     public func editAttributes(json: Any) throws {
         let data = try JSONUtils.data(json)
         let operations = try JSONDecoder().decode(
@@ -100,7 +77,6 @@ public class AirshipChannelProxy: NSObject {
         editor.apply()
     }
 
-    @objc
     public func editSubscriptionLists(json: Any) throws {
         let data = try JSONUtils.data(json)
         let operations = try JSONDecoder().decode(

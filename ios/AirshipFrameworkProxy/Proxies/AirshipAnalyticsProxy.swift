@@ -3,8 +3,7 @@
 import Foundation
 import AirshipKit
 
-@objc
-public class AirshipAnalyticsProxy: NSObject {
+public class AirshipAnalyticsProxy {
 
     private let analyticsProvider: () throws -> AirshipAnalyticsProtocol
     private var analytics: AirshipAnalyticsProtocol {
@@ -15,7 +14,6 @@ public class AirshipAnalyticsProxy: NSObject {
         self.analyticsProvider = analyticsProvider
     }
 
-    @objc
     public func addEvent(_ json: Any) throws {
         guard
             let event = json as? [String: Any],
@@ -57,12 +55,10 @@ public class AirshipAnalyticsProxy: NSObject {
         try analytics.addCustomEvent(event: customEvent)
     }
 
-    @objc
     public func trackScreen(_ screen: String?) throws {
         try self.analytics.trackScreen(screen)
     }
 
-    @objc
     public func associateIdentifier(
         identifier: String?,
         key: String
@@ -79,11 +75,9 @@ protocol AirshipAnalyticsProtocol: AnyObject {
     func trackScreen(_ screen: String?)
     func associateIdentifier(identifier: String?, key: String)
     func addCustomEvent(event: CustomEvent)
-
 }
 
-extension Analytics: AirshipAnalyticsProtocol {
-
+extension AirshipAnalytics: AirshipAnalyticsProtocol {
     func associateIdentifier(identifier: String?, key: String) {
         let identifiers = self.currentAssociatedDeviceIdentifiers()
         identifiers.set(identifier: identifier, key: key)

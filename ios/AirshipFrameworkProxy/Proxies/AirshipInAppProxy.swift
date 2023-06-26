@@ -3,8 +3,7 @@
 import Foundation
 import AirshipKit
 
-@objc
-public class AirshipInAppProxy: NSObject {
+public class AirshipInAppProxy {
 
     private let inAppProvider: () throws -> AirshipInAppProtocol
     private var inApp: AirshipInAppProtocol {
@@ -13,11 +12,6 @@ public class AirshipInAppProxy: NSObject {
 
     init(inAppProvider: @escaping () throws -> any AirshipInAppProtocol) {
         self.inAppProvider = inAppProvider
-    }
-
-    @objc(isPausedWithError:)
-    public func _isPaused() throws -> NSNumber {
-        return try NSNumber(value: self.inApp.isPaused)
     }
 
     public func isPaused() throws -> Bool {
@@ -29,16 +23,10 @@ public class AirshipInAppProxy: NSObject {
         try self.inApp.isPaused = paused
     }
 
-    @objc(getDisplayIntervalWithError:)
-    public func _getDisplayInterval() throws -> NSNumber {
-        return try NSNumber(value: self.inApp.displayInterval * 1000)
-    }
-
     public func getDisplayInterval() throws -> Int {
         return Int(try self.inApp.displayInterval * 1000)
     }
 
-    @objc
     public func setDisplayInterval(_ displayInterval: Int) throws {
         let seconds = Double(displayInterval)/1000.0
         try self.inApp.displayInterval = seconds
