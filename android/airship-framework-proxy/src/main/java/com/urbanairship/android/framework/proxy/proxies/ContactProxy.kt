@@ -27,7 +27,7 @@ public class ContactProxy internal constructor(private val contactProvider: () -
 
     public fun getSubscriptionLists(): PendingResult<Map<String, List<String>>> {
         val pendingResult = PendingResult<Map<String, List<String>>>()
-        contactProvider().subscriptionLists.addResultCallback { result ->
+        contactProvider().fetchSubscriptionListsPendingResult().addResultCallback { result ->
             pendingResult.result = result?.mapValues { entry ->
                 entry.value.map { it.toString() }
             }

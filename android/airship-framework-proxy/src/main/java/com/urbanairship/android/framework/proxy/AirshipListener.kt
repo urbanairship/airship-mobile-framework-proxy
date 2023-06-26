@@ -116,9 +116,6 @@ internal class AirshipListener(
         eventEmitter.addEvent(ChannelCreatedEvent(channelId))
     }
 
-    override fun onChannelUpdated(channelId: String) {
-    }
-
     override fun onInboxUpdated() {
         eventEmitter.addEvent(
             MessageCenterUpdatedEvent(

@@ -106,7 +106,14 @@ public abstract class BaseAutopilot : Autopilot() {
 
     public open fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder {
         return AirshipConfigOptions.newBuilder()
-            .applyDefaultProperties(context)
+            .let {
+                try {
+                    it.tryApplyDefaultProperties(context)
+                } catch (e: Exception) {
+                    ProxyLogger.verbose("Failed to load config from properties file: " + e.message)
+                }
+                it
+            }
             .setRequireInitialRemoteConfigEnabled(true)
     }
 
@@ -144,7 +151,6 @@ internal fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, pro
     proxyConfig?.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
     proxyConfig?.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
     proxyConfig?.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
-    proxyConfig?.suppressAllowListError?.let { this.setSuppressAllowListError(it) }
     proxyConfig?.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
     proxyConfig?.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
     proxyConfig?.enabledFeatures?.let { this.setEnabledFeatures(it) }

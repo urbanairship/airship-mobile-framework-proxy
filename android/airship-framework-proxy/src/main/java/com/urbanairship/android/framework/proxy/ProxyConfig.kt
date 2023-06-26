@@ -16,7 +16,6 @@ public data class ProxyConfig(
     val urlAllowList: List<String>?,
     val urlAllowListScopeJavaScriptInterface: List<String>?,
     val urlAllowListScopeOpenUrl: List<String>?,
-    val suppressAllowListError: Boolean?,
     val isChannelCaptureEnabled: Boolean?,
     val isChannelCreationDelayEnabled: Boolean?,
     @Feature val enabledFeatures: Int?,
@@ -35,7 +34,6 @@ public data class ProxyConfig(
         urlAllowListScopeOpenUrl = config.get("urlAllowListScopeOpenUrl")?.list?.mapNotNull { it.string },
         isChannelCaptureEnabled = config.get("isChannelCaptureEnabled")?.boolean,
         isChannelCreationDelayEnabled = config.get("isChannelCreationDelayEnabled")?.boolean,
-        suppressAllowListError = config.get("suppressAllowListError")?.boolean,
         enabledFeatures = config.get("enabledFeatures")?.let { Utils.parseFeatures(it) },
         autoPauseInAppAutomationOnLaunch = config.get("autoPauseInAppAutomationOnLaunch")?.boolean,
         androidConfig = config.get("android")?.map?.let { Android(it) })
@@ -50,7 +48,6 @@ public data class ProxyConfig(
             .putOpt("urlAllowList", urlAllowList)
             .putOpt("urlAllowListScopeJavaScriptInterface", urlAllowListScopeJavaScriptInterface)
             .putOpt("urlAllowListScopeOpenUrl", urlAllowListScopeOpenUrl)
-            .putOpt("suppressAllowListError", suppressAllowListError)
             .putOpt("isChannelCaptureEnabled", isChannelCaptureEnabled)
             .putOpt("isChannelCreationDelayEnabled", isChannelCreationDelayEnabled)
             .putOpt("enabledFeatures", enabledFeatures?.let { Utils.featureNames(it) })

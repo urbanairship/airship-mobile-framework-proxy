@@ -23,11 +23,9 @@ public object Utils {
         "in_app_automation" to PrivacyManager.FEATURE_IN_APP_AUTOMATION,
         "message_center" to PrivacyManager.FEATURE_MESSAGE_CENTER,
         "push" to PrivacyManager.FEATURE_PUSH,
-        "chat" to PrivacyManager.FEATURE_CHAT,
         "analytics" to PrivacyManager.FEATURE_ANALYTICS,
         "tags_and_attributes" to PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES,
         "contacts" to PrivacyManager.FEATURE_CONTACTS,
-        "location" to PrivacyManager.FEATURE_LOCATION,
         "all" to PrivacyManager.FEATURE_ALL
     )
 
