@@ -4,6 +4,8 @@ package com.urbanairship.android.framework.proxy.events
 
 import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.json.JsonMap
+import com.urbanairship.json.jsonMapOf
 
 /**
  * Inbox updated event.
@@ -14,7 +16,7 @@ import com.urbanairship.android.framework.proxy.EventType
 internal class MessageCenterUpdatedEvent(unreadCount: Int, count: Int) : Event {
     override val type = EventType.MESSAGE_CENTER_UPDATED
 
-    override val body: Map<String, Any> = mapOf(
+    override val body: JsonMap = jsonMapOf(
         "messageUnreadCount" to unreadCount,
         "messageCount" to count
     )

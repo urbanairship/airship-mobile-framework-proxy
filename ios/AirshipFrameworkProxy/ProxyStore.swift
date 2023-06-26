@@ -17,6 +17,7 @@ public class ProxyStore {
     private let configKey = "config"
     private let foregroundPresentationOptionsKey = "foregroundPresentationOptions"
     private let autoDisplayMessageCenterKey = "autoDisplayMessageCenter"
+    private let lastNotificationStatusKey = "lastNotificationStatus"
 
     public var config: ProxyConfig? {
         get {
@@ -57,6 +58,19 @@ public class ProxyStore {
             writeValue(
                 newValue,
                 forKey: autoDisplayMessageCenterKey
+            )
+        }
+    }
+
+    public var lastNotificationStatus: NotificationStatus? {
+        get {
+            return readCodable(lastNotificationStatusKey)
+        }
+
+        set {
+            writeCodable(
+                newValue,
+                forKey: lastNotificationStatusKey
             )
         }
     }

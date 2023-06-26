@@ -23,6 +23,7 @@ import com.urbanairship.push.NotificationListener
 import com.urbanairship.push.PushListener
 import com.urbanairship.push.PushMessage
 import com.urbanairship.push.PushNotificationStatus
+import com.urbanairship.push.PushNotificationStatusListener
 import com.urbanairship.push.PushTokenListener
 
 internal class AirshipListener(
@@ -36,7 +37,8 @@ internal class AirshipListener(
     NotificationListener,
     DeepLinkListener,
     AirshipChannelListener,
-    InboxListener {
+    InboxListener
+{
 
     private val isAppForegrounded: Boolean
         get() {
@@ -119,12 +121,5 @@ internal class AirshipListener(
                 MessageCenter.shared().inbox.count
             )
         )
-    }
-
-    fun onNotificationStatus(notificationStatus: PushNotificationStatus) {
-        if (proxyStore.lastNotificationStatus != notificationStatus) {
-            proxyStore.lastNotificationStatus = notificationStatus
-            eventEmitter.addEvent(NotificationStatusEvent(notificationStatus))
-        }
     }
 }

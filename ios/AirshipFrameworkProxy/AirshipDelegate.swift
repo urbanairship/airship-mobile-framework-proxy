@@ -25,7 +25,7 @@ class AirshipDelegate: NSObject,
     func displayMessageCenter(messageID: String) {
         Task { @MainActor in
             guard !self.proxyStore.autoDisplayMessageCenter else {
-                DefaultMessageCenter.shared.display(messageID: messageID)
+                DefaultMessageCenterUI.shared.display(messageID: messageID)
                 return
             }
 
@@ -42,7 +42,7 @@ class AirshipDelegate: NSObject,
 
         Task { @MainActor in
             guard !self.proxyStore.autoDisplayMessageCenter else {
-                DefaultMessageCenter.shared.display()
+                DefaultMessageCenterUI.shared.display()
                 return
             }
 
@@ -54,7 +54,7 @@ class AirshipDelegate: NSObject,
 
     func dismissMessageCenter() {
         Task { @MainActor in
-            DefaultMessageCenter.shared.dismiss()
+            DefaultMessageCenterUI.shared.dismiss()
         }
     }
 
@@ -178,7 +178,7 @@ class AirshipDelegate: NSObject,
     ) {
         Task {
             await self.eventEmitter.addEvent(
-                NotificationOptInStatusChangedEvent(
+                AuthorizedNotificationOptionsChangedEvent(
                     authorizedSettings: authorizedSettings
                 )
             )
@@ -200,62 +200,3 @@ class AirshipDelegate: NSObject,
     }
 }
 
-public class DefaultMessageCenter {
-    static let shared: DefaultMessageCenter = DefaultMessageCenter()
-    private var currentDisplay: Disposable?
-    private var controller: MessageCenterController = MessageCenterController()
-
-    @MainActor
-    func dismiss() {
-        self.currentDisplay?.dispose()
-    }
-
-    @MainActor
-    func display(messageID: String? = nil) {
-        guard let scene = try? AirshipUtils.findWindowScene() else {
-            AirshipLogger.error(
-                "Unable to display message center, missing scene."
-            )
-            return
-        }
-
-        controller.navigate(messageID: messageID)
-
-        currentDisplay?.dispose()
-
-        AirshipLogger.debug("Opening default message center UI")
-
-        self.currentDisplay = open(
-            scene: scene,
-            theme: MessageCenter.shared.theme
-        )
-    }
-
-    @MainActor
-    private func open(
-        scene: UIWindowScene,
-        theme: MessageCenterTheme?
-    ) -> Disposable {
-        var window: UIWindow? = UIWindow(windowScene: scene)
-
-        let disposable = Disposable {
-            window?.windowLevel = .normal
-            window?.isHidden = true
-            window = nil
-        }
-
-        let viewController = MessageCenterViewControllerFactory.make(
-            theme: theme,
-            controller: self.controller
-        ) {
-            disposable.dispose()
-        }
-
-        window?.isHidden = false
-        window?.windowLevel = .alert
-        window?.makeKeyAndVisible()
-        window?.rootViewController = viewController
-
-        return disposable
-    }
-}

@@ -13,6 +13,7 @@ import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.Utils.getHexColor
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
@@ -20,6 +21,8 @@ import com.urbanairship.push.pushNotificationStatusFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -39,6 +42,7 @@ public abstract class BaseAutopilot : Autopilot() {
         ProxyLogger.setLogLevel(airship.airshipConfigOptions.logLevel)
         val context = UAirship.getApplicationContext()
 
+        val proxyStore = AirshipProxy.shared(context).proxyStore
         val airshipListener = AirshipListener(
             AirshipProxy.shared(context).proxyStore,
             EventEmitter.shared()
@@ -55,10 +59,17 @@ public abstract class BaseAutopilot : Autopilot() {
         airship.deepLinkListener = airshipListener
 
         dispatcher.launch {
-            airship.pushManager.pushNotificationStatusFlow.collect { status ->
-               airshipListener.onNotificationStatus(status)
-            }
+            airship.pushManager.pushNotificationStatusFlow
+                .map { NotificationStatus(it) }
+                .filter { it != proxyStore.lastNotificationStatus }
+                .collect {
+                    proxyStore.lastNotificationStatus = it
+                    EventEmitter.shared().addEvent(
+                        NotificationStatusEvent(it)
+                    )
+                }
         }
+
 
         // Set our custom notification provider
         val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)
@@ -179,7 +190,7 @@ internal fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, pro
             this.setNotificationLargeIcon(resourceId)
         }
 
-        notificationConfig.defaultChannelId?.let {  this.setNotificationChannel(it) }
+        notificationConfig.defaultChannelId?.let { this.setNotificationChannel(it) }
         notificationConfig.accentColor?.let { this.setNotificationAccentColor(getHexColor(it, 0)) }
     }
 }

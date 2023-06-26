@@ -39,22 +39,11 @@ public class ProxyStore internal constructor(private val context: Context) {
         get() = getJson(AIRSHIP_CONFIG) { ProxyConfig(it.optMap()) }
         set(value) = setJson(AIRSHIP_CONFIG, value)
 
-    public var lastNotificationStatus: PushNotificationStatus?
+    public var lastNotificationStatus: NotificationStatus?
         get() = getJson(NOTIFICATION_STATUS) {
-            val map = it.optMap()
-            PushNotificationStatus(
-                isUserNotificationsEnabled = map.requireField("isUserNotificationsEnabled"),
-                areNotificationsAllowed = map.requireField("areNotificationsAllowed"),
-                isPushPrivacyFeatureEnabled = map.requireField("isPushPrivacyFeatureEnabled"),
-                isPushTokenRegistered = map.requireField("isPushTokenRegistered")
-            )
+           NotificationStatus(it)
         }
-        set(status) = setJson(NOTIFICATION_STATUS, jsonMapOf(
-            "isUserNotificationsEnabled" to status?.isUserNotificationsEnabled,
-            "areNotificationsAllowed" to status?.areNotificationsAllowed,
-            "isPushPrivacyFeatureEnabled" to status?.isPushPrivacyFeatureEnabled,
-            "isPushTokenRegistered" to status?.isPushTokenRegistered
-        ))
+        set(status) = setJson(NOTIFICATION_STATUS, status)
 
     public var isAutoLaunchMessageCenterEnabled: Boolean
         get() = getBoolean(AUTO_LAUNCH_MESSAGE_CENTER, true)

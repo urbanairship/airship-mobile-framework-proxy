@@ -4,6 +4,8 @@ package com.urbanairship.android.framework.proxy.events
 
 import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.json.JsonMap
+import com.urbanairship.json.jsonMapOf
 
 /**
  * Registration event.
@@ -14,5 +16,5 @@ internal class ChannelCreatedEvent(channelId: String) : Event {
 
     override val type = EventType.CHANNEL_CREATED
 
-    override val body: Map<String, Any> = mapOf("channelId" to channelId)
+    override val body: JsonMap = jsonMapOf("channelId" to channelId)
 }

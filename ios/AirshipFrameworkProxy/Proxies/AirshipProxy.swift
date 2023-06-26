@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import AirshipKit
 
 public enum AirshipProxyError: Error {
@@ -16,6 +17,7 @@ public class AirshipProxy {
 
     public var delegate: AirshipProxyDelegate?
     private var migrateCalled: Bool = false
+    private var subscriptions: Set<AnyCancellable> = Set()
 
     private let proxyStore: ProxyStore
     private let airshipDelegate: AirshipDelegate
@@ -168,6 +170,22 @@ public class AirshipProxy {
         Airship.push.pushNotificationDelegate = self.airshipDelegate
         PreferenceCenter.shared.openDelegate = self.airshipDelegate
         MessageCenter.shared.displayDelegate = self.airshipDelegate
+
+        Airship.push.notificationStatusPublisher
+            .map { status in
+                NotificationStatus(airshipStatus: status)
+            }
+            .filter { [proxyStore] status in
+                status != proxyStore.lastNotificationStatus
+            }
+            .sink { status in
+                Task {
+                    await AirshipProxyEventEmitter.shared.addEvent(
+                        NotificationStatusChangedEvent(status: status)
+                    )
+                }
+            }
+            .store(in: &self.subscriptions)
 
         NotificationCenter.default.addObserver(
             forName: MessageCenterInbox.messageListUpdatedEvent,

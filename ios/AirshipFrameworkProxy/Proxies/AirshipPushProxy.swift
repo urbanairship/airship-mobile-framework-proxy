@@ -55,21 +55,17 @@ public class AirshipPushProxy {
         self.proxyStore.foregroundPresentationOptions = options
     }
 
-    public func getNotificationStatus() throws -> [String: Any] {
-        let push = try self.push
-        let isSystemEnabled = push.authorizedNotificationSettings != []
+    public func getNotificationStatus() async throws -> [String: Any] {
+        let status = try await self.push.notificationStatus
+        return NotificationStatus(airshipStatus: status).toMap
+    }
 
-        let result: [String: Any] = [
-            "airshipOptIn": push.isPushNotificationsOptedIn,
-            "airshipEnabled": push.userPushNotificationsEnabled,
-            "systemEnabled": isSystemEnabled,
-            "ios": [
-                "authorizedSettings": push.authorizedNotificationSettings.names,
-                "authorizedStatus": try push.authorizationStatus.name
-            ] as [String : Any]
-        ]
+    public func getAuthorizedNotificationOptions() throws -> [String] {
+        return try self.push.authorizedNotificationSettings.names
+    }
 
-        return result
+    public func getAuthroizedNotificationStatus() throws -> String {
+        return try self.push.authorizationStatus.name
     }
 
     @objc
@@ -180,6 +176,8 @@ protocol AirshipPushProtocol: AnyObject {
     var autobadgeEnabled: Bool { get set }
     var isPushNotificationsOptedIn: Bool { get}
     func enableUserPushNotifications() async -> Bool
+    var notificationStatus: AirshipNotificationStatus { get async }
+
 }
 
 

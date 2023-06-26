@@ -11,7 +11,8 @@ public enum AirshipProxyEventType: CaseIterable {
 
     case notificationResponseReceived
     case pushReceived
-    case notificationOptInStatusChanged
+    case notificationStatusChanged
+    case authorizedNotificationOptionsChanged
 }
 
 public protocol AirshipProxyEvent {
@@ -124,8 +125,21 @@ struct PushTokenReceivedEvent: AirshipProxyEvent {
 }
 
 
-struct NotificationOptInStatusChangedEvent: AirshipProxyEvent {
-    let type: AirshipProxyEventType = .notificationOptInStatusChanged
+struct NotificationStatusChangedEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .notificationStatusChanged
+
+    let body: [String: Any]
+
+    init(
+        status: NotificationStatus
+    ) {
+        self.body = status.toMap
+    }
+}
+
+
+struct AuthorizedNotificationOptionsChangedEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .authorizedNotificationOptionsChanged
 
     let body: [String: Any]
 
@@ -133,10 +147,7 @@ struct NotificationOptInStatusChangedEvent: AirshipProxyEvent {
         authorizedSettings: UAAuthorizedNotificationSettings
     ) {
         self.body = [
-            "optIn": authorizedSettings != [],
-            "ios": [
-                "authroizedSettings": authorizedSettings.names
-            ]
+            "authorizedOptions": authorizedSettings.names
         ]
     }
 
