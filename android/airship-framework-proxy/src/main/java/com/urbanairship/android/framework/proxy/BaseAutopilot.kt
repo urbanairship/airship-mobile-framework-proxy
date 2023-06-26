@@ -16,6 +16,11 @@ import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
+import com.urbanairship.push.pushNotificationStatusFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -25,6 +30,8 @@ public abstract class BaseAutopilot : Autopilot() {
 
     private var configOptions: AirshipConfigOptions? = null
     private var firstReady: Boolean = false
+
+    private val dispatcher = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
@@ -46,7 +53,12 @@ public abstract class BaseAutopilot : Autopilot() {
         airship.pushManager.addPushTokenListener(airshipListener)
         airship.pushManager.notificationListener = airshipListener
         airship.deepLinkListener = airshipListener
-        airship.permissionsManager.addOnPermissionStatusChangedListener(airshipListener)
+
+        dispatcher.launch {
+            airship.pushManager.pushNotificationStatusFlow.collect { status ->
+               airshipListener.onNotificationStatus(status)
+            }
+        }
 
         // Set our custom notification provider
         val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)
