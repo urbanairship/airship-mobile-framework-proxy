@@ -4,8 +4,13 @@ package com.urbanairship.android.framework.proxy
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.urbanairship.android.framework.proxy.proxies.PushProxy
 import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
+import com.urbanairship.json.jsonMapOf
+import com.urbanairship.json.optionalField
+import com.urbanairship.json.requireField
+import com.urbanairship.push.PushNotificationStatus
 
 /**
  * Stores shared preferences and checks preference-dependent state.
@@ -34,9 +39,11 @@ public class ProxyStore internal constructor(private val context: Context) {
         get() = getJson(AIRSHIP_CONFIG) { ProxyConfig(it.optMap()) }
         set(value) = setJson(AIRSHIP_CONFIG, value)
 
-    public var optInStatus: Boolean
-        get() = getBoolean(NOTIFICATIONS_OPT_IN, false)
-        set(optIn) = setBoolean(NOTIFICATIONS_OPT_IN, optIn)
+    public var lastNotificationStatus: NotificationStatus?
+        get() = getJson(NOTIFICATION_STATUS) {
+           NotificationStatus(it)
+        }
+        set(status) = setJson(NOTIFICATION_STATUS, status)
 
     public var isAutoLaunchMessageCenterEnabled: Boolean
         get() = getBoolean(AUTO_LAUNCH_MESSAGE_CENTER, true)
@@ -101,7 +108,7 @@ public class ProxyStore internal constructor(private val context: Context) {
 
     internal companion object {
         private const val SHARED_PREFERENCES_FILE = "com.urbanairship.android.framework.proxy"
-        private const val NOTIFICATIONS_OPT_IN = "NOTIFICATIONS_OPT_IN"
+        private const val NOTIFICATION_STATUS = "NOTIFICATION_STATUS"
         private const val AUTO_LAUNCH_MESSAGE_CENTER = "AUTO_LAUNCH_MESSAGE_CENTER"
         private const val AIRSHIP_CONFIG = "AIRSHIP_CONFIG"
         private const val NOTIFICATION_CONFIG = "NOTIFICATION_CONFIG"

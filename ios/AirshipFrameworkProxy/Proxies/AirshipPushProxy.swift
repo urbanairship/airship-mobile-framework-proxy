@@ -4,58 +4,42 @@ import Foundation
 import AirshipKit
 import UserNotifications
 
-@objc
-public class AirshipPushProxy: NSObject {
+public class AirshipPushProxy {
 
     public var presentationOptionOverrides: ((PresentationOptionsOverridesRequest) -> Void)?
     
     private let proxyStore: ProxyStore
-    private let pushProvider: () throws -> AirshipPush
-    private var push: AirshipPush {
+    private let pushProvider: () throws -> AirshipPushProtocol
+    private var push: AirshipPushProtocol {
         get throws { try pushProvider() }
     }
-    
 
     init(
         proxyStore: ProxyStore,
-        pushProvider: @escaping () throws -> any AirshipPush
+        pushProvider: @escaping () throws -> AirshipPushProtocol
     ) {
         self.proxyStore = proxyStore
         self.pushProvider = pushProvider
     }
 
-
-    @objc
     public func setUserNotificationsEnabled(
         _ enabled: Bool
     ) throws -> Void {
         try self.push.userPushNotificationsEnabled = enabled
     }
 
-    @objc(isUserNotificationsEnabledWithError:)
-    public func _isUserNotificationsEnabled() throws -> NSNumber {
-        return try NSNumber(value: self.push.userPushNotificationsEnabled)
-    }
-
     public func isUserNotificationsEnabled() throws -> Bool {
         return try self.push.userPushNotificationsEnabled
     }
 
-    @objc
     public func enableUserPushNotifications() async throws -> Bool {
-        return try await self.push.enableUserNotifications()
-    }
-
-    @objc(getRegistrationTokenOrEmptyWithError:)
-    public func _getRegistrationToken() throws -> String {
-        return try getRegistrationToken() ?? ""
+        return try await self.push.enableUserPushNotifications()
     }
 
     public func getRegistrationToken() throws -> String? {
         return try self.push.deviceToken
     }
 
-    @objc
     public func setNotificationOptions(
         names:[String]
     ) throws {
@@ -63,7 +47,6 @@ public class AirshipPushProxy: NSObject {
         try self.push.notificationOptions = options
     }
 
-    @objc
     public func setForegroundPresentationOptions(
         names:[String]
     ) throws {
@@ -72,22 +55,17 @@ public class AirshipPushProxy: NSObject {
         self.proxyStore.foregroundPresentationOptions = options
     }
 
-    @objc
-    public func getNotificationStatus() throws -> [String: Any] {
-        let push = try self.push
-        let isSystemEnabled = push.authorizedNotificationSettings != []
+    public func getNotificationStatus() async throws -> [String: Any] {
+        let status = try await self.push.notificationStatus
+        return NotificationStatus(airshipStatus: status).toMap
+    }
 
-        let result: [String: Any] = [
-            "airshipOptIn": push.isPushNotificationsOptedIn,
-            "airshipEnabled": push.userPushNotificationsEnabled,
-            "systemEnabled": isSystemEnabled,
-            "ios": [
-                "authorizedSettings": push.authorizedNotificationSettings.names,
-                "authorizedStatus": try push.authorizationStatus.name
-            ]
-        ]
+    public func getAuthorizedNotificationOptions() throws -> [String] {
+        return try self.push.authorizedNotificationSettings.names
+    }
 
-        return result
+    public func getAuthroizedNotificationStatus() throws -> String {
+        return try self.push.authorizationStatus.name
     }
 
     @objc
@@ -104,17 +82,11 @@ public class AirshipPushProxy: NSObject {
         return try self.push.autobadgeEnabled
     }
 
-    @objc
     public func setBadgeNumber(_ badgeNumber: Int) throws {
         try self.push.badgeNumber = badgeNumber
     }
 
-    @objc(getBadgeNumberWithError:)
-    public func _getBadgeNumber() throws -> NSNumber {
-        return try NSNumber(value: self.getBadgeNumber())
-    }
-
-    public func getBadgeNumber() throws -> Int {
+    public func getBadgeNumber() async throws -> Int {
         return try self.push.badgeNumber
     }
 
@@ -192,10 +164,8 @@ public class PresentationOptionsOverridesRequest {
 }
 
 
-protocol AirshipPush: AnyObject {
+protocol AirshipPushProtocol: AnyObject {
     var userPushNotificationsEnabled: Bool { get set }
-    var extendedPushNotificationPermissionEnabled: Bool { get set }
-    var requestExplicitPermissionWhenEphemeral: Bool { get set }
     var deviceToken: String? { get }
     var notificationOptions: UANotificationOptions { get set }
     var authorizedNotificationSettings: UAAuthorizedNotificationSettings { get }
@@ -205,15 +175,10 @@ protocol AirshipPush: AnyObject {
     var badgeNumber: Int { get set }
     var autobadgeEnabled: Bool { get set }
     var isPushNotificationsOptedIn: Bool { get}
-    func enableUserNotifications() async -> Bool
+    func enableUserPushNotifications() async -> Bool
+    var notificationStatus: AirshipNotificationStatus { get async }
+
 }
 
-extension Push: AirshipPush {
-    func enableUserNotifications() async -> Bool {
-        return await withCheckedContinuation { continuation in
-            self.enableUserPushNotifications { result in
-                continuation.resume(returning: result)
-            }
-        }
-    }
-}
+
+extension AirshipPush : AirshipPushProtocol {}

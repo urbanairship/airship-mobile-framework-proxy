@@ -9,8 +9,6 @@ public enum AirshipActionProxyError: Error {
     case actionRejectedArguments
 }
 
-
-@objc
 public class AirshipActionProxy: NSObject {
 
     private let actionRunnerProvider: () throws -> AirshipActionRunnerProtocol
@@ -22,45 +20,40 @@ public class AirshipActionProxy: NSObject {
         self.actionRunnerProvider = actionRunnerProvider
     }
 
-    @objc
     public func runAction(
         _ name: String,
-        actionValue value: Any?
+        value: AirshipJSON?
     ) async throws -> Any? {
-        let actionResult = try await self.actionRunner.runAction(
+        let result = try await self.actionRunner.runAction(
             name,
             value: value
         )
 
-        switch (actionResult.status) {
-        case .completed:
-            return actionResult.value
+        switch (result) {
+        case .completed(let actionResult):
+            return actionResult
         case .actionNotFound:
             throw AirshipActionProxyError.actionNotFound
         case .argumentsRejected:
             throw AirshipActionProxyError.actionRejectedArguments
-        case .error: fallthrough
-        @unknown default:
-            throw AirshipActionProxyError.actionError(actionResult.error)
+        case .error(let actionError):
+            throw AirshipActionProxyError.actionError(actionError)
         }
     }
 }
 
 protocol AirshipActionRunnerProtocol: AnyObject {
-    func runAction(_ name: String, value: Any?) async -> ActionResult
+    func runAction(_ name: String, value: AirshipJSON?) async -> ActionResult
 }
 
 
 class AirshipActionRunner: AirshipActionRunnerProtocol {
-    func runAction(_ name: String, value: Any?) async -> ActionResult {
-        return await withCheckedContinuation { continuation in
-            ActionRunner.run(
-                name,
-                value: value,
-                situation: Situation.manualInvocation
-            ) { actionResult in
-                continuation.resume(returning: actionResult)
-            }
-        }
+    func runAction(_ name: String, value: AirshipJSON?) async -> ActionResult {
+        return await ActionRunner.run(
+            actionName: name,
+            arguments: ActionArguments(
+                value: value ?? .null
+            )
+        )
     }
 }

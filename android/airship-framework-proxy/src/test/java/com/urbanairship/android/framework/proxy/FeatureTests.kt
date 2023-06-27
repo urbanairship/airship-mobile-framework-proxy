@@ -18,11 +18,9 @@ public class FeatureTests {
                 "in_app_automation",
                 "message_center",
                 "push",
-                "chat",
                 "analytics",
                 "tags_and_attributes",
                 "contacts",
-                "location"
             ).sorted(),
             names.sorted()
         )

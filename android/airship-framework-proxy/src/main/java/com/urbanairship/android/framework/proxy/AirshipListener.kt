@@ -1,6 +1,5 @@
 package com.urbanairship.android.framework.proxy
 
-import android.provider.Settings.Global
 import com.urbanairship.UAirship
 import com.urbanairship.actions.DeepLinkListener
 import com.urbanairship.android.framework.proxy.events.ChannelCreatedEvent
@@ -9,23 +8,22 @@ import com.urbanairship.android.framework.proxy.events.DisplayMessageCenterEvent
 import com.urbanairship.android.framework.proxy.events.DisplayPreferenceCenterEvent
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.MessageCenterUpdatedEvent
-import com.urbanairship.android.framework.proxy.events.NotificationOptInEvent
 import com.urbanairship.android.framework.proxy.events.NotificationResponseEvent
+import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PushReceivedEvent
 import com.urbanairship.android.framework.proxy.events.PushTokenReceivedEvent
 import com.urbanairship.app.GlobalActivityMonitor
 import com.urbanairship.channel.AirshipChannelListener
 import com.urbanairship.messagecenter.InboxListener
 import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.permission.OnPermissionStatusChangedListener
-import com.urbanairship.permission.Permission
-import com.urbanairship.permission.PermissionStatus
 import com.urbanairship.preferencecenter.PreferenceCenter
 import com.urbanairship.push.NotificationActionButtonInfo
 import com.urbanairship.push.NotificationInfo
 import com.urbanairship.push.NotificationListener
 import com.urbanairship.push.PushListener
 import com.urbanairship.push.PushMessage
+import com.urbanairship.push.PushNotificationStatus
+import com.urbanairship.push.PushNotificationStatusListener
 import com.urbanairship.push.PushTokenListener
 
 internal class AirshipListener(
@@ -39,8 +37,8 @@ internal class AirshipListener(
     NotificationListener,
     DeepLinkListener,
     AirshipChannelListener,
-    InboxListener,
-    OnPermissionStatusChangedListener {
+    InboxListener
+{
 
     private val isAppForegrounded: Boolean
         get() {
@@ -116,9 +114,6 @@ internal class AirshipListener(
         eventEmitter.addEvent(ChannelCreatedEvent(channelId))
     }
 
-    override fun onChannelUpdated(channelId: String) {
-    }
-
     override fun onInboxUpdated() {
         eventEmitter.addEvent(
             MessageCenterUpdatedEvent(
@@ -126,15 +121,5 @@ internal class AirshipListener(
                 MessageCenter.shared().inbox.count
             )
         )
-    }
-
-    override fun onPermissionStatusChanged(permission: Permission, status: PermissionStatus) {
-        if (permission == Permission.DISPLAY_NOTIFICATIONS) {
-            val isOptIn = status == PermissionStatus.GRANTED
-            if (proxyStore.optInStatus != isOptIn) {
-                proxyStore.optInStatus = isOptIn
-                eventEmitter.addEvent(NotificationOptInEvent(isOptIn))
-            }
-        }
     }
 }

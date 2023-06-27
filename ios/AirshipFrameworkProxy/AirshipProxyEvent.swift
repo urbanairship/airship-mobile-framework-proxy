@@ -11,7 +11,8 @@ public enum AirshipProxyEventType: CaseIterable {
 
     case notificationResponseReceived
     case pushReceived
-    case notificationOptInStatusChanged
+    case notificationStatusChanged
+    case authorizedNotificationOptionsChanged
 }
 
 public protocol AirshipProxyEvent {
@@ -41,7 +42,7 @@ struct MessageCenterUpdatedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .messageCenterUpdated
     let body: [String: Any]
 
-    init(messageCount: UInt, unreadCount: Int) {
+    init(messageCount: Int, unreadCount: Int) {
         self.body = [
             "messageCount": messageCount,
             "messageUnreadCount": unreadCount
@@ -80,6 +81,7 @@ struct NotificationResponseEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .notificationResponseReceived
     let body: [String : Any]
 
+    @MainActor
     init(response: UNNotificationResponse) {
         var body: [String: Any] = [:]
         body["pushPayload"] = PushUtils.contentPayload(
@@ -123,8 +125,21 @@ struct PushTokenReceivedEvent: AirshipProxyEvent {
 }
 
 
-struct NotificationOptInStatusChangedEvent: AirshipProxyEvent {
-    let type: AirshipProxyEventType = .notificationOptInStatusChanged
+struct NotificationStatusChangedEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .notificationStatusChanged
+
+    let body: [String: Any]
+
+    init(
+        status: NotificationStatus
+    ) {
+        self.body = status.toMap
+    }
+}
+
+
+struct AuthorizedNotificationOptionsChangedEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .authorizedNotificationOptionsChanged
 
     let body: [String: Any]
 
@@ -132,10 +147,7 @@ struct NotificationOptInStatusChangedEvent: AirshipProxyEvent {
         authorizedSettings: UAAuthorizedNotificationSettings
     ) {
         self.body = [
-            "optIn": authorizedSettings != [],
-            "ios": [
-                "authroizedSettings": authorizedSettings.names
-            ]
+            "authorizedOptions": authorizedSettings.names
         ]
     }
 

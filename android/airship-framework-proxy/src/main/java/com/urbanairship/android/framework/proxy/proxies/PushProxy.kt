@@ -8,11 +8,10 @@ import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.PendingResult
 import com.urbanairship.android.framework.proxy.BaseNotificationProvider
 import com.urbanairship.android.framework.proxy.NotificationConfig
+import com.urbanairship.android.framework.proxy.NotificationStatus
 import com.urbanairship.android.framework.proxy.ProxyLogger
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.android.framework.proxy.Utils
-import com.urbanairship.json.JsonMap
-import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 import com.urbanairship.permission.Permission
 import com.urbanairship.permission.PermissionStatus
@@ -23,7 +22,6 @@ import com.urbanairship.push.PushMessage
 public interface SuspendingPredicate<T> {
     public suspend fun apply(value: T): Boolean
 }
-
 
 public class PushProxy internal constructor(
     private val context: Context,
@@ -59,23 +57,8 @@ public class PushProxy internal constructor(
 
     public fun getNotificationStatus(): NotificationStatus {
         return NotificationStatus(
-            pushProvider().isOptIn,
-            pushProvider().userNotificationsEnabled,
-            NotificationManagerCompat.from(context).areNotificationsEnabled()
+            pushProvider().pushNotificationStatus,
         )
-    }
-
-    public data class NotificationStatus(
-        public val airshipOptIn: Boolean,
-        public val airshipEnabled: Boolean,
-        public val systemEnabled: Boolean
-    ) : JsonSerializable {
-        override fun toJsonValue(): JsonValue = JsonMap.newBuilder()
-            .putOpt("airshipOptIn", airshipOptIn)
-            .putOpt("airshipEnabled", airshipEnabled)
-            .putOpt("systemEnabled", systemEnabled)
-            .build()
-            .toJsonValue()
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

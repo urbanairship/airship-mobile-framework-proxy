@@ -1,6 +1,6 @@
 
 Pod::Spec.new do |s|
-   s.version                 = "2.1.1"
+   s.version                 = "3.0.0"
    s.name                    = "AirshipFrameworkProxy"
    s.summary                 = "Airship iOS mobile framework proxy"
    s.documentation_url       = "https://docs.airship.com/platform/mobile"
@@ -11,12 +11,10 @@ Pod::Spec.new do |s|
    s.source                  = { :git => "https://github.com/urbanairship/airship-mobile-framework-proxy.git", :tag => s.version.to_s }
 
    s.module_name             = "AirshipFrameworkProxy"
-   s.ios.deployment_target   = "13.0"
+   s.ios.deployment_target   = "14.0"
    s.requires_arc            = true
    s.swift_version           = "5.0"
    s.source_files            = "ios/AirshipFrameworkProxy/**/*.{h,m,swift}"
-   s.dependency                'Airship', "16.12.1"
-   s.dependency                "Airship/MessageCenter", "16.12.1"
-   s.dependency                "Airship/PreferenceCenter", "16.12.1"
+   s.dependency                'Airship', "17.0.1"
    
 end

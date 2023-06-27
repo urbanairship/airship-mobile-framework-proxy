@@ -3,8 +3,7 @@
 import Foundation
 import AirshipKit
 
-@objc
-public class AirshipPrivacyManagerProxy: NSObject {
+public class AirshipPrivacyManagerProxy {
 
     private let privacyManagerProvider: () throws -> AirshipPrivacyManagerProtocol
     private var privacyManager: AirshipPrivacyManagerProtocol {
@@ -17,89 +16,74 @@ public class AirshipPrivacyManagerProxy: NSObject {
         self.privacyManagerProvider = privacyManagerProvider
     }
 
-    @objc
     public func setEnabled(
         featureNames: [String]
     ) throws {
-        let features = try Features.parse(featureNames)
+        let features = try AirshipFeature.parse(featureNames)
         try self.privacyManager.enabledFeatures = features
     }
 
-    @objc
     public func setEnabled(
-        features: Features
+        features: AirshipFeature
     ) throws {
         try self.privacyManager.enabledFeatures = features
     }
 
-    @objc
     public func getEnabledNames(
     ) throws -> [String] {
         return try self.privacyManager.enabledFeatures.names
     }
 
     public func getEnabled(
-    ) throws -> Features {
+    ) throws -> AirshipFeature {
         return try self.privacyManager.enabledFeatures
     }
 
-    @objc
     public func enable(
         featureNames: [String]
     ) throws {
-        let features = try Features.parse(featureNames)
+        let features = try AirshipFeature.parse(featureNames)
         try self.privacyManager.enableFeatures(
             features
         )
     }
 
-    @objc
     public func enable(
-        features: Features
+        features: AirshipFeature
     ) throws {
         try self.privacyManager.enableFeatures(
             features
         )
     }
 
-
-    @objc
     public func disable(
         featureNames: [String]
     ) throws {
-        let features = try Features.parse(featureNames)
+        let features = try AirshipFeature.parse(featureNames)
         try self.privacyManager.disableFeatures(
             features
         )
     }
 
-    @objc
     public func disable(
-        _ features: Features
+        _ features: AirshipFeature
     ) throws {
         try self.privacyManager.disableFeatures(
             features
         )
-    }
-
-    @objc(isEnabledFeatureNames:error:)
-    public func _isEnabled(
-        featuresNames: [String]
-    ) throws -> NSNumber {
-        return try NSNumber(value: isEnabled(featuresNames: featuresNames))
     }
 
     public func isEnabled(
         featuresNames: [String]
     ) throws -> Bool {
-        let features = try Features.parse(featuresNames)
+        let features = try AirshipFeature.parse(featuresNames)
         return try self.privacyManager.isEnabled(
             features
         )
     }
 
     public func isEnabled(
-        features: Features
+        features: AirshipFeature
     ) throws -> Bool {
         return try self.privacyManager.isEnabled(
             features
@@ -108,10 +92,10 @@ public class AirshipPrivacyManagerProxy: NSObject {
 }
 
 protocol AirshipPrivacyManagerProtocol: AnyObject {
-    var enabledFeatures: Features { get set}
-    func enableFeatures(_ features: Features)
-    func disableFeatures(_ features: Features)
-    func isEnabled(_ feature: Features) -> Bool
+    var enabledFeatures: AirshipFeature { get set}
+    func enableFeatures(_ features: AirshipFeature)
+    func disableFeatures(_ features: AirshipFeature)
+    func isEnabled(_ feature: AirshipFeature) -> Bool
 }
 
-extension PrivacyManager: AirshipPrivacyManagerProtocol {}
+extension AirshipPrivacyManager: AirshipPrivacyManagerProtocol {}

@@ -2,6 +2,8 @@
 
 package com.urbanairship.android.framework.proxy
 
+import com.urbanairship.json.JsonMap
+
 public enum class EventType {
     CHANNEL_CREATED,
     DEEP_LINK_RECEIVED,
@@ -13,7 +15,7 @@ public enum class EventType {
     BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED,
     FOREGROUND_PUSH_RECEIVED,
     BACKGROUND_PUSH_RECEIVED,
-    NOTIFICATION_OPT_IN_CHANGED
+    NOTIFICATION_STATUS_CHANGED
 }
 
 /**
@@ -29,5 +31,5 @@ public interface Event {
     /**
      * The event body.
      */
-    public val body: Map<String, Any>
+    public val body: JsonMap
 }

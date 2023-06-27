@@ -13,9 +13,17 @@ import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.Utils.getHexColor
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
+import com.urbanairship.push.pushNotificationStatusFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -26,12 +34,15 @@ public abstract class BaseAutopilot : Autopilot() {
     private var configOptions: AirshipConfigOptions? = null
     private var firstReady: Boolean = false
 
+    private val dispatcher = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
 
         ProxyLogger.setLogLevel(airship.airshipConfigOptions.logLevel)
         val context = UAirship.getApplicationContext()
 
+        val proxyStore = AirshipProxy.shared(context).proxyStore
         val airshipListener = AirshipListener(
             AirshipProxy.shared(context).proxyStore,
             EventEmitter.shared()
@@ -46,7 +57,19 @@ public abstract class BaseAutopilot : Autopilot() {
         airship.pushManager.addPushTokenListener(airshipListener)
         airship.pushManager.notificationListener = airshipListener
         airship.deepLinkListener = airshipListener
-        airship.permissionsManager.addOnPermissionStatusChangedListener(airshipListener)
+
+        dispatcher.launch {
+            airship.pushManager.pushNotificationStatusFlow
+                .map { NotificationStatus(it) }
+                .filter { it != proxyStore.lastNotificationStatus }
+                .collect {
+                    proxyStore.lastNotificationStatus = it
+                    EventEmitter.shared().addEvent(
+                        NotificationStatusEvent(it)
+                    )
+                }
+        }
+
 
         // Set our custom notification provider
         val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)
@@ -106,7 +129,14 @@ public abstract class BaseAutopilot : Autopilot() {
 
     public open fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder {
         return AirshipConfigOptions.newBuilder()
-            .applyDefaultProperties(context)
+            .let {
+                try {
+                    it.tryApplyDefaultProperties(context)
+                } catch (e: Exception) {
+                    ProxyLogger.verbose("Failed to load config from properties file: " + e.message)
+                }
+                it
+            }
             .setRequireInitialRemoteConfigEnabled(true)
     }
 
@@ -144,7 +174,6 @@ internal fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, pro
     proxyConfig?.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
     proxyConfig?.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
     proxyConfig?.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
-    proxyConfig?.suppressAllowListError?.let { this.setSuppressAllowListError(it) }
     proxyConfig?.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
     proxyConfig?.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
     proxyConfig?.enabledFeatures?.let { this.setEnabledFeatures(it) }
@@ -161,7 +190,7 @@ internal fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, pro
             this.setNotificationLargeIcon(resourceId)
         }
 
-        notificationConfig.defaultChannelId?.let {  this.setNotificationChannel(it) }
+        notificationConfig.defaultChannelId?.let { this.setNotificationChannel(it) }
         notificationConfig.accentColor?.let { this.setNotificationAccentColor(getHexColor(it, 0)) }
     }
 }

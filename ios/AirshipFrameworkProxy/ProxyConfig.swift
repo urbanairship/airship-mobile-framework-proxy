@@ -40,7 +40,7 @@ public struct ProxyConfig: Codable {
     public var ios: PlatformConfig?
     public var site: Site?
     public var isChannelCreationDelayEnabled: Bool?
-    public var enabledFeatures: Features?
+    public var enabledFeatures: AirshipFeature?
     public var urlAllowListScopeOpenURL: [String]?
     public var urlAllowListScopeJavaScriptInterface: [String]?
     public var urlAllowList: [String]?
@@ -57,7 +57,7 @@ public struct ProxyConfig: Codable {
         ios: PlatformConfig? = nil,
         site: Site? = nil,
         isChannelCreationDelayEnabled: Bool? = nil,
-        enabledFeatures: Features? = nil,
+        enabledFeatures: AirshipFeature? = nil,
         urlAllowListScopeOpenURL: [String]? = nil,
         urlAllowListScopeJavaScriptInterface: [String]? = nil,
         urlAllowList: [String]? = nil,
@@ -97,15 +97,14 @@ public struct ProxyConfig: Codable {
         case urlAllowList = "urlAllowList"
         case initialConfigURL = "initialConfigUrl"
         case isChannelCaptureEnabled = "isChannelCaptureEnabled"
-        case suppressAllowListError = "suppressAllowListError"
         case autoPauseInAppAutomationOnLaunch = "autoPauseInAppAutomationOnLaunch"
     }
 }
 
 extension ProxyConfig.LogLevel {
-    var airshipLogLevel: LogLevel {
+    var airshipLogLevel: AirshipLogLevel {
         switch(self) {
-        case .verbose: return .trace
+        case .verbose: return .verbose
         case .debug: return .debug
         case .info: return .info
         case .warning: return .warn
@@ -123,7 +122,7 @@ extension ProxyConfig.Site {
     }
 }
 
-extension Config {
+extension AirshipConfig {
 
     func applyProxyConfig(proxyConfig: ProxyConfig) {
         if let appKey = proxyConfig.defaultEnvironment?.appKey,
@@ -195,14 +194,9 @@ extension Config {
         if let allowList = proxyConfig.urlAllowListScopeJavaScriptInterface {
             self.urlAllowListScopeJavaScriptInterface = allowList
         }
-
-        if let suppressError = proxyConfig.suppressAllowListError {
-            self.suppressAllowListError = suppressError
-        }
         
         if let autoPauseInAppAutomation = proxyConfig.autoPauseInAppAutomationOnLaunch {
             self.autoPauseInAppAutomationOnLaunch = autoPauseInAppAutomation
         }
     }
 }
-

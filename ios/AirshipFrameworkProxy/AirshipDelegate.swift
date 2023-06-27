@@ -22,19 +22,13 @@ class AirshipDelegate: NSObject,
         self.eventEmitter = eventEmitter
     }
     
-    func displayMessageCenter(
-        forMessageID messageID: String,
-        animated: Bool
-    ) {
-        guard !self.proxyStore.autoDisplayMessageCenter else {
-            MessageCenter.shared.defaultUI.displayMessageCenter(
-                forMessageID: messageID,
-                animated: animated
-            )
-            return
-        }
+    func displayMessageCenter(messageID: String) {
+        Task { @MainActor in
+            guard !self.proxyStore.autoDisplayMessageCenter else {
+                DefaultMessageCenterUI.shared.display(messageID: messageID)
+                return
+            }
 
-        Task {
             await self.eventEmitter.addEvent(
                 DisplayMessageCenterEvent(
                     messageID: messageID
@@ -43,25 +37,25 @@ class AirshipDelegate: NSObject,
         }
     }
 
-    func displayMessageCenter(animated: Bool) {
-        guard !self.proxyStore.autoDisplayMessageCenter else {
-            MessageCenter.shared.defaultUI.displayMessageCenter(
-                animated: animated
-            )
-            return
-        }
+    func displayMessageCenter() {
 
-        Task {
+
+        Task { @MainActor in
+            guard !self.proxyStore.autoDisplayMessageCenter else {
+                DefaultMessageCenterUI.shared.display()
+                return
+            }
+
             await self.eventEmitter.addEvent(
                 DisplayMessageCenterEvent()
             )
         }
     }
 
-    func dismissMessageCenter(animated: Bool) {
-        MessageCenter.shared.defaultUI.dismissMessageCenter(
-            animated: animated
-        )
+    func dismissMessageCenter() {
+        Task { @MainActor in
+            DefaultMessageCenterUI.shared.dismiss()
+        }
     }
 
     func openPreferenceCenter(
@@ -87,26 +81,20 @@ class AirshipDelegate: NSObject,
     }
 
     func receivedDeepLink(
-        _ deepLink: URL,
-        completionHandler: @escaping () -> Void
-    ) {
-        Task {
-            await self.eventEmitter.addEvent(
-                DeepLinkEvent(deepLink)
-            )
-            completionHandler()
-        }
+        _ deepLink: URL
+    ) async {
+        await self.eventEmitter.addEvent(
+            DeepLinkEvent(deepLink)
+        )
     }
-    
     
 
     func messageCenterInboxUpdated() {
         Task {
-            let messageList = MessageCenter.shared.messageList
             await self.eventEmitter.addEvent(
                 MessageCenterUpdatedEvent(
-                    messageCount: messageList.messageCount(),
-                    unreadCount: messageList.unreadCount
+                    messageCount: await MessageCenter.shared.inbox.messages.count,
+                    unreadCount: await MessageCenter.shared.inbox.unreadCount
                 )
             )
         }
@@ -175,7 +163,7 @@ class AirshipDelegate: NSObject,
     }
 
     func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
-        let token = Utils.deviceTokenStringFromDeviceToken(deviceToken)
+        let token = AirshipUtils.deviceTokenStringFromDeviceToken(deviceToken)
         Task {
             await self.eventEmitter.addEvent(
                 PushTokenReceivedEvent(
@@ -190,7 +178,7 @@ class AirshipDelegate: NSObject,
     ) {
         Task {
             await self.eventEmitter.addEvent(
-                NotificationOptInStatusChangedEvent(
+                AuthorizedNotificationOptionsChangedEvent(
                     authorizedSettings: authorizedSettings
                 )
             )

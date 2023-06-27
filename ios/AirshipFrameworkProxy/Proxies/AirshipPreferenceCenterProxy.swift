@@ -3,8 +3,7 @@
 import Foundation
 import AirshipKit
 
-@objc
-public class AirshipPreferenceCenterProxy: NSObject {
+public class AirshipPreferenceCenterProxy {
 
     private let proxyStore: ProxyStore
 
@@ -21,12 +20,10 @@ public class AirshipPreferenceCenterProxy: NSObject {
         self.preferenceCenterProvider = preferenceCenterProvider
     }
 
-    @objc
     public func displayPreferenceCenter(preferenceCenterID: String) throws {
         try self.preferenceCenter.open(preferenceCenterID)
     }
 
-    @objc
     public func setAutoLaunchPreferenceCenter(
         _ autoLaunch: Bool,
         preferenceCenterID: String
@@ -37,33 +34,26 @@ public class AirshipPreferenceCenterProxy: NSObject {
         )
     }
 
-    @objc
     public func getPreferenceCenterConfig(
         preferenceCenterID: String
     ) async throws -> [String: Any] {
-        return try await self.preferenceCenter.getPreferenceCenterConfig(
+        let config = try await self.preferenceCenter.jsonConfig(
             preferenceCenterID: preferenceCenterID
         )
+
+        guard
+            let converted = try JSONSerialization.jsonObject(with: config) as? [String: Any]
+        else {
+            throw AirshipErrors.error("Invalid preference config")
+        }
+
+        return converted
     }
 }
 
 protocol AirshipPreferenceCenterProtocol: AnyObject {
     func open(_ preferenceCenterID: String)
-    func getPreferenceCenterConfig(
-        preferenceCenterID: String
-    ) async -> [String: Any]
+    func jsonConfig(preferenceCenterID: String) async throws -> Data
 }
 
-extension PreferenceCenter : AirshipPreferenceCenterProtocol {
-    func getPreferenceCenterConfig(
-        preferenceCenterID: String
-    ) async -> [String : Any] {
-        return await withCheckedContinuation { continuation in
-            jsonConfig(
-                preferenceCenterID: preferenceCenterID
-            ) { config in
-                continuation.resume(returning: config)
-            }
-        }
-    }
-}
+extension PreferenceCenter: AirshipPreferenceCenterProtocol {}

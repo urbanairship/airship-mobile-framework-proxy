@@ -33,6 +33,7 @@ struct PushUtils {
         return pushPayload
     }
 
+    @MainActor
     static func findAction(_ notificationResponse: UNNotificationResponse) -> UNNotificationAction? {
         return Airship.push.combinedCategories.first(where: { (category) -> Bool in
             return category.identifier == notificationResponse.notification.request.content.categoryIdentifier

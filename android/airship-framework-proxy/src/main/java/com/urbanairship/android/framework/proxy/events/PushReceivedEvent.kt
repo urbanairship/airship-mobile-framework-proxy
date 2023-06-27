@@ -5,6 +5,8 @@ package com.urbanairship.android.framework.proxy.events
 import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.Utils
+import com.urbanairship.json.JsonMap
+import com.urbanairship.json.jsonMapOf
 import com.urbanairship.push.NotificationInfo
 import com.urbanairship.push.PushMessage
 
@@ -13,10 +15,10 @@ import com.urbanairship.push.PushMessage
  */
 internal class PushReceivedEvent : Event {
 
-    override val body: Map<String, Any>
+    override val body: JsonMap
     override val type: EventType
 
-    constructor(body: Map<String, Any>, isForeground: Boolean) {
+    constructor(body: JsonMap, isForeground: Boolean) {
         this.body = body
 
         this.type = if (isForeground) {
@@ -32,7 +34,7 @@ internal class PushReceivedEvent : Event {
      * @param isForeground If received in the foreground or not.
      */
     constructor(message: PushMessage, isForeground: Boolean) : this(
-        mapOf(
+        jsonMapOf(
             "pushPayload" to Utils.notificationMap(message)
         ),
         isForeground
@@ -45,7 +47,7 @@ internal class PushReceivedEvent : Event {
      * @param isForeground If received in the foreground or not.
      */
     constructor(notificationInfo: NotificationInfo, isForeground: Boolean) : this(
-        mapOf(
+        jsonMapOf(
             "pushPayload" to Utils.notificationMap(
                 notificationInfo.message,
                 notificationInfo.notificationId,

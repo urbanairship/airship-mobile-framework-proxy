@@ -52,12 +52,10 @@ extension UAAuthorizedNotificationSettings {
     }
 }
 
-extension Features: Codable {
-    static let nameMap: [String: Features] = [
+extension AirshipFeature: Codable {
+    static let nameMap: [String: AirshipFeature] = [
         "push": .push,
-        "chat": .chat,
         "contacts": .contacts,
-        "location": .location,
         "message_center": .messageCenter,
         "analytics": .analytics,
         "tags_and_attributes": .tagsAndAttributes,
@@ -69,7 +67,7 @@ extension Features: Codable {
     var names: [String] {
         var names: [String] = []
         if (self == .all) {
-            return Features.nameMap.keys.filter { key in
+            return AirshipFeature.nameMap.keys.filter { key in
                 key != "none" && key != "all"
             }
         }
@@ -78,7 +76,7 @@ extension Features: Codable {
             return []
         }
 
-        Features.nameMap.forEach { key, value in
+        AirshipFeature.nameMap.forEach { key, value in
             if (value != [] && value != .all) {
                 if (self.contains(value)) {
                     names.append(key)
@@ -89,16 +87,16 @@ extension Features: Codable {
         return names
     }
 
-    static func parse(_ names: [Any]) throws -> Features {
+    static func parse(_ names: [Any]) throws -> AirshipFeature {
         guard let names = names as? [String] else {
             throw AirshipErrors.error("Invalid feature \(names)")
         }
 
-        var features: Features = []
+        var features: AirshipFeature = []
 
         try names.forEach { name in
             guard
-                let feature = Features.nameMap[name.lowercased()]
+                let feature = AirshipFeature.nameMap[name.lowercased()]
             else {
                 throw AirshipErrors.error("Invalid feature \(name)")
             }
@@ -117,7 +115,7 @@ extension Features: Codable {
         let container = try decoder.singleValueContainer()
 
         if let names: [String] = try? container.decode([String].self) {
-            self = try Features.parse(names)
+            self = try AirshipFeature.parse(names)
         } else {
             throw AirshipErrors.error("Failed to parse features")
         }

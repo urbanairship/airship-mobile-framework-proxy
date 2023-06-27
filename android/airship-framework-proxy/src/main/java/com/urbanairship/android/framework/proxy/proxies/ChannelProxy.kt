@@ -30,7 +30,7 @@ public class ChannelProxy internal constructor(private val channelProvider: () -
     }
 
     public fun getSubscriptionLists(): PendingResult<Set<String>> {
-        return channelProvider().getSubscriptionLists(true)
+        return channelProvider().fetchSubscriptionListsPendingResult()
     }
 
     public fun editSubscriptionLists(operations: JsonValue) {
