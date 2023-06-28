@@ -6,7 +6,7 @@ import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.NotificationStatus
 import com.urbanairship.json.JsonMap
-import com.urbanairship.push.PushNotificationStatus
+import com.urbanairship.json.jsonMapOf
 
 /**
  * Notification status event.
@@ -15,5 +15,7 @@ import com.urbanairship.push.PushNotificationStatus
  */
 internal class NotificationStatusEvent(private val status: NotificationStatus) : Event {
     override val type = EventType.NOTIFICATION_STATUS_CHANGED
-    override val body: JsonMap = status.toJsonValue().optMap()
+    override val body: JsonMap = jsonMapOf(
+        "status" to status
+    )
 }

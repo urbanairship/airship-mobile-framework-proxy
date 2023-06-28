@@ -178,7 +178,7 @@ class AirshipDelegate: NSObject,
     ) {
         Task {
             await self.eventEmitter.addEvent(
-                AuthorizedNotificationOptionsChangedEvent(
+                AuthorizedNotificationSettingsChangedEvent(
                     authorizedSettings: authorizedSettings
                 )
             )

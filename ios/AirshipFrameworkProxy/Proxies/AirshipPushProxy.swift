@@ -60,7 +60,7 @@ public class AirshipPushProxy {
         return NotificationStatus(airshipStatus: status).toMap
     }
 
-    public func getAuthorizedNotificationOptions() throws -> [String] {
+    public func getAuthorizedNotificationSettings() throws -> [String] {
         return try self.push.authorizedNotificationSettings.names
     }
 
