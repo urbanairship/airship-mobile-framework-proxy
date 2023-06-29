@@ -37,7 +37,7 @@ public data class NotificationStatus(
             "areNotificationsAllowed" to this.areNotificationsAllowed,
             "isPushPrivacyFeatureEnabled" to this.isPushPrivacyFeatureEnabled,
             "isPushTokenRegistered" to this.isPushTokenRegistered,
-            "isUserOptedIn" to this.isPushTokenRegistered,
-            "isOptedIn" to this.isPushTokenRegistered
+            "isUserOptedIn" to this.isUserOptedIn,
+            "isOptedIn" to this.isOptedIn
     ).toJsonValue()
 }
