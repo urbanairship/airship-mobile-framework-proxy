@@ -82,11 +82,13 @@ public class AirshipPushProxy {
         return try self.push.autobadgeEnabled
     }
 
+    @MainActor
     public func setBadgeNumber(_ badgeNumber: Int) throws {
         try self.push.badgeNumber = badgeNumber
     }
 
-    public func getBadgeNumber() async throws -> Int {
+    @MainActor
+    public func getBadgeNumber() throws -> Int {
         return try self.push.badgeNumber
     }
 
@@ -165,20 +167,17 @@ public class PresentationOptionsOverridesRequest {
 
 
 protocol AirshipPushProtocol: AnyObject {
+    func enableUserPushNotifications() async -> Bool
+    var authorizationStatus: UAAuthorizationStatus { get }
     var userPushNotificationsEnabled: Bool { get set }
     var deviceToken: String? { get }
     var notificationOptions: UANotificationOptions { get set }
     var authorizedNotificationSettings: UAAuthorizedNotificationSettings { get }
-    var authorizationStatus: UAAuthorizationStatus { get }
-    var userPromptedForNotifications: Bool { get }
     var defaultPresentationOptions: UNNotificationPresentationOptions { get set}
+    @MainActor
     var badgeNumber: Int { get set }
     var autobadgeEnabled: Bool { get set }
-    var isPushNotificationsOptedIn: Bool { get}
-    func enableUserPushNotifications() async -> Bool
     var notificationStatus: AirshipNotificationStatus { get async }
-
 }
-
 
 extension AirshipPush : AirshipPushProtocol {}
