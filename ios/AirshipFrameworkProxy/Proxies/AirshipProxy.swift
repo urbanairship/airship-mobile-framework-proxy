@@ -32,6 +32,7 @@ public class AirshipProxy {
     public let analytics: AirshipAnalyticsProxy
     public let action: AirshipActionProxy
     public let privacyManager: AirshipPrivacyManagerProxy
+    public let featureFlagManager: AirshipFeatureFlagManagerProxy
 
     public static let shared: AirshipProxy = AirshipProxy()
 
@@ -90,6 +91,11 @@ public class AirshipProxy {
         self.privacyManager = AirshipPrivacyManagerProxy {
             try AirshipProxy.ensureAirshipReady()
             return Airship.shared.privacyManager
+        }
+
+        self.featureFlagManager = AirshipFeatureFlagManagerProxy {
+            try AirshipProxy.ensureAirshipReady()
+            return FeatureFlagManager.shared
         }
 
         self.airshipDelegate = AirshipDelegate(proxyStore: proxyStore)

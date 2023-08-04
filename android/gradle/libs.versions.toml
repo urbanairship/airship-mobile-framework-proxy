@@ -1,8 +1,8 @@
 [versions]
 
 # Airship
-airshipProxy = '3.0.2'
-airship = '17.0.3'
+airshipProxy = '4.0.0'
+airship = '17.1.0'
 
 # Gradle plugins
 androidGradlePlugin = '7.3.0'
@@ -58,6 +58,7 @@ airship-message-center = { module = "com.urbanairship.android:urbanairship-messa
 airship-preference-center = { module = "com.urbanairship.android:urbanairship-preference-center", version.ref = "airship"}
 airship-automation = { module = "com.urbanairship.android:urbanairship-automation", version.ref = "airship"}
 airship-fcm = { module = "com.urbanairship.android:urbanairship-fcm", version.ref = "airship"}
+airship-feature-flag = { module = "com.urbanairship.android:urbanairship-feature-flag", version.ref = "airship"}
 
 # Testing
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }

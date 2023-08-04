@@ -11,6 +11,7 @@ import com.urbanairship.actions.ActionRunRequestFactory
 import com.urbanairship.android.framework.proxy.ProxyConfig
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.automation.InAppAutomation
+import com.urbanairship.featureflag.FeatureFlagManager
 import com.urbanairship.json.JsonValue
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
@@ -79,6 +80,11 @@ public class AirshipProxy(
             UAirship.shared().pushManager
         }
     )
+
+    public val featureFlagManager: FeatureFlagManagerProxy = FeatureFlagManagerProxy() {
+        ensureTakeOff()
+        FeatureFlagManager.shared()
+    }
 
     public fun takeOff(config: JsonValue): Boolean {
         return takeOff(ProxyConfig(config.optMap()))
