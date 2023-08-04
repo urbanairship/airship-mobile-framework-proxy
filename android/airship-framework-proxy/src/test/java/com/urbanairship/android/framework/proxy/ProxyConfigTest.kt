@@ -27,6 +27,7 @@ public class ProxyConfigTest {
               "logLevel":"error"
            },
            "site":"us",
+           "inProduction": true,
            "initialConfigUrl":"some-url",
            "isChannelCreationDelayEnabled":false,
            "urlAllowListScopeJavaScriptInterface":[

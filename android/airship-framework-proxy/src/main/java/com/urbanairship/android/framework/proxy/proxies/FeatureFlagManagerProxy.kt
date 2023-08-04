@@ -8,7 +8,7 @@ public class FeatureFlagManagerProxy internal constructor(private val featureFla
     public suspend fun flag(name: String): JsonValue {
         val flag = featureFlagManagerProvider().flag(name).getOrThrow()
         return jsonMapOf(
-            "is_eligible" to flag.isEligible,
+            "isEligible" to flag.isEligible,
             "exists" to flag.exists,
             "variables" to flag.variables
         ).toJsonValue()

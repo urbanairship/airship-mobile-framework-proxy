@@ -23,7 +23,8 @@ public data class ProxyConfig(
     val androidConfig: Android?
 ) : JsonSerializable {
 
-    public constructor(config: JsonMap) : this(defaultEnvironment = config.get("default")?.map?.let { Environment(it) },
+    public constructor(config: JsonMap) : this(
+        defaultEnvironment = config.get("default")?.map?.let { Environment(it) },
         productionEnvironment = config.get("production")?.map?.let { Environment(it) },
         developmentEnvironment = config.get("development")?.map?.let { Environment(it) },
         site = config.get("site")?.string?.let { Utils.parseSite(it) },
@@ -36,7 +37,8 @@ public data class ProxyConfig(
         isChannelCreationDelayEnabled = config.get("isChannelCreationDelayEnabled")?.boolean,
         enabledFeatures = config.get("enabledFeatures")?.let { Utils.parseFeatures(it) },
         autoPauseInAppAutomationOnLaunch = config.get("autoPauseInAppAutomationOnLaunch")?.boolean,
-        androidConfig = config.get("android")?.map?.let { Android(it) })
+        androidConfig = config.get("android")?.map?.let { Android(it) }
+    )
 
     override fun toJsonValue(): JsonValue {
         return JsonMap.newBuilder()
@@ -44,6 +46,7 @@ public data class ProxyConfig(
             .put("production", productionEnvironment)
             .put("development", developmentEnvironment)
             .put("site", site?.let { Utils.siteString(site) })
+            .putOpt("inProduction", inProduction)
             .putOpt("initialConfigUrl", initialConfigUrl)
             .putOpt("urlAllowList", urlAllowList)
             .putOpt("urlAllowListScopeJavaScriptInterface", urlAllowListScopeJavaScriptInterface)
