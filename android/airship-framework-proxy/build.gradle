@@ -43,6 +43,7 @@ dependencies {
     api(libs.airship.preference.center)
     api(libs.airship.automation)
     api(libs.airship.fcm)
+    api(libs.airship.feature.flag)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation 'androidx.preference:preference-ktx:1.2.0'
