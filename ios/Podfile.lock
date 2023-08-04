@@ -1,33 +1,33 @@
 PODS:
-  - Airship (17.1.0):
-    - Airship/Automation (= 17.1.0)
-    - Airship/Basement (= 17.1.0)
-    - Airship/Core (= 17.1.0)
-    - Airship/FeatureFlags (= 17.1.0)
-    - Airship/MessageCenter (= 17.1.0)
-    - Airship/PreferenceCenter (= 17.1.0)
-  - Airship/Automation (17.1.0):
+  - Airship (17.1.1):
+    - Airship/Automation (= 17.1.1)
+    - Airship/Basement (= 17.1.1)
+    - Airship/Core (= 17.1.1)
+    - Airship/FeatureFlags (= 17.1.1)
+    - Airship/MessageCenter (= 17.1.1)
+    - Airship/PreferenceCenter (= 17.1.1)
+  - Airship/Automation (17.1.1):
     - Airship/Core
-  - Airship/Basement (17.1.0)
-  - Airship/Core (17.1.0):
+  - Airship/Basement (17.1.1)
+  - Airship/Core (17.1.1):
     - Airship/Basement
-  - Airship/FeatureFlags (17.1.0):
+  - Airship/FeatureFlags (17.1.1):
     - Airship/Core
-  - Airship/MessageCenter (17.1.0):
+  - Airship/MessageCenter (17.1.1):
     - Airship/Core
-  - Airship/PreferenceCenter (17.1.0):
+  - Airship/PreferenceCenter (17.1.1):
     - Airship/Core
 
 DEPENDENCIES:
-  - Airship (= 17.1.0)
+  - Airship (= 17.1.1)
 
 SPEC REPOS:
   trunk:
     - Airship
 
 SPEC CHECKSUMS:
-  Airship: c616e712bc35233dce15f9d3d2fd0ef72e25a22f
+  Airship: 81c517c6556bd3147bfdca29663f106aa06d30e2
 
-PODFILE CHECKSUM: bafd44de7c32d826ef7677403955491b75943bd2
+PODFILE CHECKSUM: 0cf83599400ac5c02722e28359b096184d71826a
 
 COCOAPODS: 1.11.3
