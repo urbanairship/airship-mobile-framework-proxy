@@ -19,8 +19,8 @@ public class EventEmitter {
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val pendingEvents = mutableMapOf<EventType, MutableList<Event>>()
-    private val _pendingEventsUpdates = MutableSharedFlow<EventType>()
-    public val pendingEventListener: SharedFlow<EventType> = _pendingEventsUpdates
+    private val _pendingEventsUpdates = MutableSharedFlow<Event>()
+    public val pendingEventListener: SharedFlow<Event> = _pendingEventsUpdates
 
     /**
      * Adds an event.
@@ -31,7 +31,7 @@ public class EventEmitter {
         synchronized(lock) {
             pendingEvents.getOrPut(event.type) { mutableListOf() }.add(event)
             scope.launch {
-                _pendingEventsUpdates.emit(event.type)
+                _pendingEventsUpdates.emit(event)
             }
         }
     }

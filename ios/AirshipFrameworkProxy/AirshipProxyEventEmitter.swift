@@ -2,13 +2,13 @@ import Foundation
 import Combine
 
 public actor AirshipProxyEventEmitter {
-    private let updateContinuation: AsyncStream<AirshipProxyEventType>.Continuation
-    public let pendingEventTypeAdded: AsyncStream<AirshipProxyEventType>
+    private let updateContinuation: AsyncStream<AirshipProxyEvent>.Continuation
+    public let pendingEventAdded: AsyncStream<AirshipProxyEvent>
     public static let shared = AirshipProxyEventEmitter()
 
     init() {
-        var escapee: AsyncStream<AirshipProxyEventType>.Continuation!
-        self.pendingEventTypeAdded = AsyncStream { continuation in
+        var escapee: AsyncStream<AirshipProxyEvent>.Continuation!
+        self.pendingEventAdded = AsyncStream { continuation in
             escapee = continuation
         }
         self.updateContinuation = escapee
@@ -58,6 +58,6 @@ public actor AirshipProxyEventEmitter {
             eventMap[event.type] = []
         }
         eventMap[event.type]?.append(event)
-        updateContinuation.yield(event.type)
+        updateContinuation.yield(event)
     }
 }
