@@ -7,20 +7,20 @@ import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 
 public data class ProxyConfig(
-    val defaultEnvironment: Environment?,
-    val productionEnvironment: Environment?,
-    val developmentEnvironment: Environment?,
-    @Site val site: String?,
-    val inProduction: Boolean?,
-    val initialConfigUrl: String?,
-    val urlAllowList: List<String>?,
-    val urlAllowListScopeJavaScriptInterface: List<String>?,
-    val urlAllowListScopeOpenUrl: List<String>?,
-    val isChannelCaptureEnabled: Boolean?,
-    val isChannelCreationDelayEnabled: Boolean?,
-    @Feature val enabledFeatures: Int?,
-    val autoPauseInAppAutomationOnLaunch: Boolean?,
-    val androidConfig: Android?
+    val defaultEnvironment: Environment? = null,
+    val productionEnvironment: Environment? = null,
+    val developmentEnvironment: Environment? = null,
+    @Site val site: String? = null,
+    val inProduction: Boolean? = null,
+    val initialConfigUrl: String? = null,
+    val urlAllowList: List<String>? = null,
+    val urlAllowListScopeJavaScriptInterface: List<String>? = null,
+    val urlAllowListScopeOpenUrl: List<String>? = null,
+    val isChannelCaptureEnabled: Boolean? = null,
+    val isChannelCreationDelayEnabled: Boolean? = null,
+    @Feature val enabledFeatures: Int? = null,
+    val autoPauseInAppAutomationOnLaunch: Boolean? = null,
+    val androidConfig: Android? = null
 ) : JsonSerializable {
 
     public constructor(config: JsonMap) : this(

@@ -7,7 +7,6 @@ import com.urbanairship.json.JsonValue
 public class PrivacyManagerProxy internal constructor(
     private val privacyManagerProvider: () -> PrivacyManager
 ) {
-
     public fun setEnabledFeatures(featureNames: List<String>) {
         setEnabledFeatures(
             JsonValue.wrapOpt(featureNames)

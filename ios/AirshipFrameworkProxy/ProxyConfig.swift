@@ -23,6 +23,12 @@ public struct ProxyConfig: Codable {
         public let logLevel: LogLevel?
         public let appKey: String?
         public let appSecret: String?
+
+        init(logLevel: LogLevel?, appKey: String?, appSecret: String?) {
+            self.logLevel = logLevel
+            self.appKey = appKey
+            self.appSecret = appSecret
+        }
     }
 
     public struct PlatformConfig: Codable {
