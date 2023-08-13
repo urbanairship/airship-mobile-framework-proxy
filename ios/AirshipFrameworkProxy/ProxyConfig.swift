@@ -24,7 +24,7 @@ public struct ProxyConfig: Codable {
         public let appKey: String?
         public let appSecret: String?
 
-        init(logLevel: LogLevel?, appKey: String?, appSecret: String?) {
+        public init(logLevel: LogLevel?, appKey: String?, appSecret: String?) {
             self.logLevel = logLevel
             self.appKey = appKey
             self.appSecret = appSecret
