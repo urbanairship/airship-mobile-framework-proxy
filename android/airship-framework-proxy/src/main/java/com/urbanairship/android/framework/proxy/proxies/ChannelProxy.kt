@@ -4,6 +4,7 @@ import com.urbanairship.PendingResult
 import com.urbanairship.android.framework.proxy.AttributeOperation
 import com.urbanairship.android.framework.proxy.SubscriptionListOperation
 import com.urbanairship.android.framework.proxy.TagGroupOperation
+import com.urbanairship.android.framework.proxy.TagOperation
 import com.urbanairship.android.framework.proxy.applyOperation
 import com.urbanairship.channel.AirshipChannel
 import com.urbanairship.json.JsonValue
@@ -23,6 +24,21 @@ public class ChannelProxy internal constructor(private val channelProvider: () -
 
     public fun removeTag(tag: String) {
         channelProvider().editTags().removeTag(tag).apply()
+    }
+
+    public fun editTags(operations: JsonValue) {
+        val parsedOperations = operations.requireList().map {
+            TagOperation(it.requireMap())
+        }
+        editTags(parsedOperations)
+    }
+
+    public fun editTags(operations: List<TagOperation>) {
+        val editor = channelProvider().editTags()
+        operations.forEach { operation ->
+            operation.applyOperation(editor)
+        }
+        editor.apply()
     }
 
     public fun getTags(): Set<String> {
