@@ -3,7 +3,7 @@
 import Foundation
 import AirshipKit
 
-public struct TagOperation: Decodable {
+public struct TagOperation: Decodable, Equatable {
     enum Action: String, Codable {
         case removeTags = "remove"
         case addTags = "add"
@@ -17,7 +17,7 @@ public struct TagOperation: Decodable {
         case tags = "tags"
     }
 
-    func apply(editor: TagEditor) {
+    func apply(editor: TagOperationEditor) {
         switch(action) {
         case .removeTags:
             editor.remove(tags)
@@ -26,3 +26,10 @@ public struct TagOperation: Decodable {
         }
     }
 }
+
+protocol TagOperationEditor {
+    func add(_ tags: [String])
+    func remove(_ tags: [String])
+}
+
+extension TagEditor: TagOperationEditor {}
