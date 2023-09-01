@@ -28,6 +28,24 @@ public class AirshipChannelProxy {
             editor.remove(tags)
         }
     }
+    
+    @objc
+    public func editTags(json: Any) throws {
+        let data = try JSONUtils.data(json)
+        let operations = try JSONDecoder().decode(
+            [TagOperation].self,
+            from: data
+        )
+        try self.editTags(operations: operations)
+    }
+
+    public func editTags(operations: [TagOperation]) throws {
+        try self.channel.editTags { editor in
+            operations.forEach { operation in
+                operation.apply(editor: editor)
+            }
+        }
+    }
 
     public func getTags() throws -> [String] {
         return try self.channel.tags
