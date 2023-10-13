@@ -16,8 +16,11 @@ public class AirshipFeatureFlagManagerProxy {
 
     public func flag(name: String) async throws -> FeatureFlagProxy {
         let flag = try await self.featureFlagManager.flag(name: name)
-        return FeatureFlagProxy(isEligible: flag.isEligible, exists: flag.exists, variables: flag.variables)
-        
+        return FeatureFlagProxy(flag: flag)
+    }
+
+    public func trackInteraction(flag: FeatureFlagProxy) throws {
+        try self.featureFlagManager.trackInteraction(flag: flag.original)
     }
 }
 
@@ -27,6 +30,21 @@ public struct FeatureFlagProxy: Codable {
     let isEligible: Bool
     let exists: Bool
     let variables: AirshipJSON?
+    let original: FeatureFlag
+
+    init(flag: FeatureFlag) {
+        self.isEligible = flag.isEligible
+        self.exists = flag.exists
+        self.variables = flag.variables
+        self.original = flag
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case isEligible
+        case exists
+        case variables
+        case original = "_internal"
+    }
 }
 
 
