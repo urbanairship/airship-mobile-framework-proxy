@@ -37,7 +37,7 @@ public class MessageCenterProxy internal constructor(
     public fun getMessages(): List<MessageCenterMessage> {
         return messageCenterProvider().inbox.messages.map { MessageCenterMessage(it) }
     }
-    
+
     public fun getMessage(messageId: String): MessageCenterMessage {
         return MessageCenterMessage(
             requireNotNull(messageCenterProvider().inbox.getMessage(messageId))
