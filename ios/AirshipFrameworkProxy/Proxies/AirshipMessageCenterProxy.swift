@@ -162,7 +162,7 @@ public struct AirshipMessageCenterMessage: Codable {
         case title = "title"
         case identifier = "id"
         case sentDate = "sentDate"
-        case listIconURL = "listIconURL"
+        case listIconURL = "listIconUrl"
         case isRead = "isRead"
         case extras = "extras"
         case expirationDate = "expirationDate"
