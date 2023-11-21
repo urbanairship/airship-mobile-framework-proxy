@@ -5,6 +5,7 @@ import com.urbanairship.featureflag.FeatureFlagManager
 import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 import com.urbanairship.json.jsonMapOf
+import com.urbanairship.json.requireField
 
 public class FeatureFlagManagerProxy internal constructor(private val featureFlagManagerProvider: () -> FeatureFlagManager) {
     public suspend fun flag(name: String): FeatureFlagProxy {
@@ -22,8 +23,9 @@ public data class FeatureFlagProxy(
 ) : JsonSerializable {
 
     public constructor(jsonValue: JsonValue): this(
-        FeatureFlag.fromJson(jsonValue)
+        FeatureFlag.fromJson(jsonValue.requireMap().requireField("_internal"))
     )
+
     override fun toJsonValue(): JsonValue = jsonMapOf(
         "isEligible" to original.isEligible,
         "exists" to original.exists,
