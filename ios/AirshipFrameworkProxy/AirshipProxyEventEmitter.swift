@@ -5,6 +5,7 @@ public actor AirshipProxyEventEmitter {
     private let updateContinuation: AsyncStream<AirshipProxyEvent>.Continuation
     public let pendingEventAdded: AsyncStream<AirshipProxyEvent>
     public static let shared = AirshipProxyEventEmitter()
+    public nonisolated let eventSubject = PassthroughSubject<AirshipProxyEvent, Never>()
 
     init() {
         var escapee: AsyncStream<AirshipProxyEvent>.Continuation!
@@ -59,5 +60,6 @@ public actor AirshipProxyEventEmitter {
         }
         eventMap[event.type]?.append(event)
         updateContinuation.yield(event)
+        eventSubject.send(event)
     }
 }

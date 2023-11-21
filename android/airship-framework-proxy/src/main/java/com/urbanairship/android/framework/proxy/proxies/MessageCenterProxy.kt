@@ -38,6 +38,12 @@ public class MessageCenterProxy internal constructor(
         return messageCenterProvider().inbox.messages.map { MessageCenterMessage(it) }
     }
 
+    public fun getMessage(messageId: String): MessageCenterMessage {
+        return MessageCenterMessage(
+            requireNotNull(messageCenterProvider().inbox.getMessage(messageId))
+        )
+    }
+
     public fun deleteMessage(messageId: String) {
         requireNotNull(messageCenterProvider().inbox.getMessage(messageId))
             .delete()

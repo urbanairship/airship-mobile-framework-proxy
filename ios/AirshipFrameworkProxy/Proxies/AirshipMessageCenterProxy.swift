@@ -39,19 +39,8 @@ public class AirshipMessageCenterProxy {
         return try await self.messageCenter.messages
     }
 
-    public func getMessagesJSON() async throws -> [Any] {
-        let messages = try await self.messageCenter.messages
-        let data = try JSONEncoder().encode(messages)
-        guard
-            let result = try JSONSerialization.jsonObject(
-                with: data,
-                options: .fragmentsAllowed
-            ) as? [Any]
-        else {
-            throw AirshipErrors.parseError("Invalid message center JSON")
-        }
-
-        return result
+    public func getMessage(messageID: String) async throws -> AirshipMessageCenterMessage {
+        return try await self.messageCenter.message(forID: messageID)
     }
 
     public func getUnreadCount() async throws -> Int {
@@ -89,6 +78,7 @@ protocol MessageCenterProtocol: AnyObject {
     func display()
     func display(messageID: String)
     func dismiss()
+    func message(forID messageID: String) async throws -> AirshipMessageCenterMessage
     var messages: [AirshipMessageCenterMessage] { get async }
     func deleteMessage(messageID: String) async throws
     func markMessageRead(messageID: String) async throws
@@ -108,30 +98,20 @@ extension MessageCenter: MessageCenterProtocol {
     }
 
 
-    var messages: [AirshipMessageCenterMessage] {
-        get async {
-            return await self.inbox.messages.map { message in
-                var expiry: Int?
-                if let expirationDate = message.expirationDate {
-                    expiry = Int(
-                        expirationDate.timeIntervalSince1970 * 1000
-                    )
-                }
-
-                return AirshipMessageCenterMessage(
-                    title: message.title,
-                    identifier: message.id,
-                    sentDate: Int(
-                        message.sentDate.timeIntervalSince1970 * 1000
-                    ),
-                    listIconURL: message.listIcon,
-                    isRead: !message.unread,
-                    extras: try! AirshipJSON.wrap(message.extra),
-                    expirationDate: expiry
-                )
-            }
+    func message(forID messageID: String) async throws -> AirshipMessageCenterMessage {
+        guard let message = await self.inbox.message(forID: messageID) else {
+            throw AirshipMessageCenterProxyError.messageNotFound
         }
 
+        return AirshipMessageCenterMessage(message: message)
+    }
+
+    var messages: [AirshipMessageCenterMessage] {
+        get async {
+            return await self.inbox.messages.map {
+                AirshipMessageCenterMessage(message: $0)
+            }
+        }
     }
 
     func deleteMessage(messageID: String) async throws {
@@ -157,6 +137,26 @@ public struct AirshipMessageCenterMessage: Codable {
     let isRead: Bool
     let extras: AirshipJSON
     let expirationDate: Int?
+
+
+    init(message: MessageCenterMessage) {
+        var expiry: Int?
+        if let expirationDate = message.expirationDate {
+            expiry = Int(
+                expirationDate.timeIntervalSince1970 * 1000
+            )
+        }
+
+        self.title = message.title
+        self.identifier = message.id
+        self.sentDate = Int(
+                message.sentDate.timeIntervalSince1970 * 1000
+            )
+        self.listIconURL = message.listIcon
+        self.isRead = !message.unread
+        self.extras = try! AirshipJSON.wrap(message.extra)
+        self.expirationDate = expiry
+    }
 
     private enum CodingKeys: String, CodingKey {
         case title = "title"
