@@ -12,6 +12,7 @@ env:
 jobs:
   android:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
 
@@ -49,15 +50,10 @@ jobs:
           closeAndReleaseSonatypeStagingRepository
           
   ios:
-    runs-on: macOS-12
+    runs-on: macOS-13-xl
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
-      
-      - uses: actions/cache@v1
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: ${{ runner.os }}-gems-
           
       - name: Install Coreutils
         run: brew install coreutils
