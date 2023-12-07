@@ -35,6 +35,10 @@ public class ContactProxy internal constructor(private val contactProvider: () -
         return pendingResult
     }
 
+    public fun notifyRemoteLogin() {
+        contactProvider().notifyRemoteLogin()
+    }
+
     public fun editSubscriptionLists(operations: JsonValue) {
         val parsedOperations = operations.requireList().map {
             ScopedSubscriptionListOperation(it.requireMap())
