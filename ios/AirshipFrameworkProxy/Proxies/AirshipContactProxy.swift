@@ -30,6 +30,10 @@ public class AirshipContactProxy {
         try self.contact.reset()
     }
 
+    public func notifyRemoteLogin() throws {
+        try self.contact.notifyRemoteLogin()
+    }
+
     public func getNamedUser() async throws -> String? {
         return try await self.contact.namedUserID
     }
