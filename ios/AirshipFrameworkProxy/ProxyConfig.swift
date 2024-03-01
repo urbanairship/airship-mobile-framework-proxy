@@ -33,9 +33,11 @@ public struct ProxyConfig: Codable {
 
     public struct PlatformConfig: Codable {
         public let itunesID: String?
+        public let messageCenterStyleConfig: String?
 
         private enum CodingKeys: String, CodingKey {
             case itunesID = "itunesId"
+            case messageCenterStyleConfig
         }
     }
 
@@ -171,6 +173,10 @@ extension AirshipConfig {
 
         if let itunesID = proxyConfig.ios?.itunesID {
             self.itunesID = itunesID
+        }
+
+        if let messageCenterStyleConfig = proxyConfig.ios?.messageCenterStyleConfig {
+            self.messageCenterStyleConfig = messageCenterStyleConfig
         }
 
         if let site = proxyConfig.site {
