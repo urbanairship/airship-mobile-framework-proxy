@@ -1,13 +1,18 @@
 package com.urbanairship.android.framework.proxy.proxies
 
+import android.content.Intent
+import android.net.Uri
 import com.urbanairship.PendingResult
+import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.MessageCenterMessage
+import com.urbanairship.android.framework.proxy.ProxyLogger
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.messagecenter.MessageCenter
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.security.AccessController.getContext
 
 public class MessageCenterProxy internal constructor(
     private val proxyStore: ProxyStore,
@@ -24,6 +29,25 @@ public class MessageCenterProxy internal constructor(
                 messageCenterProvider().showMessageCenter(messageId)
             } else {
                 messageCenterProvider().showMessageCenter()
+            }
+        }
+    }
+
+    public fun showMessageView(messageId: String) {
+        MainScope().launch {
+            _displayState.emit(true)
+            messageCenterProvider()
+
+            val context = UAirship.getApplicationContext()
+            val intent = Intent(MessageCenter.VIEW_MESSAGE_INTENT_ACTION)
+                .setPackage(UAirship.getApplicationContext().packageName)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+
+            intent.setData(Uri.fromParts("message", messageId, null as String?))
+            try {
+                context.startActivity(intent)
+            } catch(exception: Exception) {
+                ProxyLogger.error(exception)
             }
         }
     }
