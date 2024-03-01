@@ -96,13 +96,21 @@ public class DefaultMessageCenterUI {
 
         let theme = theme ?? MessageCenterTheme()
         let viewController = HostingViewController(
-            rootView: MessageCenterMessageView(
-                messageID: messageID,
-                title: nil
-            ) {
-                disposable.dispose()
-            }
-            .messageCenterTheme(theme)
+            rootView: StandaloneMessageView(
+                dismissAction: {
+                    disposable.dispose()
+
+                }, 
+                content: {
+                    MessageCenterMessageView(
+                        messageID: messageID,
+                        title: nil
+                    ) {
+                        disposable.dispose()
+                    }
+                    .messageCenterTheme(theme)
+                }
+            )
         )
 
 
@@ -129,3 +137,60 @@ where Content: View {
     }
 }
 
+struct StandaloneMessageView<Content: View>: View  {
+    @Environment(\.airshipMessageCenterTheme)
+    private var theme
+
+    let dismissAction: () -> Void
+
+    @ViewBuilder
+    private func makeBackButton() -> some View {
+        Button(action: {
+            self.dismissAction()
+        }) {
+            Image(systemName: "chevron.backward")
+                .scaleEffect(0.68)
+                .font(Font.title.weight(.medium))
+                .foregroundColor(theme.backButtonColor)
+        }
+    }
+
+    let content: () -> Content
+
+    @ViewBuilder
+    func makeContent() -> some View {
+        let content = content()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    makeBackButton()
+                }
+            }
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                content
+            }
+        } else {
+            NavigationView {
+                content
+            }
+            .navigationViewStyle(.stack)
+        }
+    }
+
+    var body: some View {
+        makeContent()
+            .navigationTitle(
+                theme.navigationBarTitle ?? "ua_message_center_title".airshipLocalizedString
+            )
+    }
+}
+
+extension String {
+    var airshipLocalizedString: String {
+        return LocalizationUtils.localizedString(
+            self,
+            withTable: "UrbanAirship",
+            moduleBundle: AirshipCoreResources.bundle
+        ) ?? self
+    }
+}
