@@ -23,6 +23,7 @@ public class AirshipMessageCenterProxy {
         self.messageCenterProvider = messageCenterProvider
     }
 
+    @MainActor
     public func display(messageID: String?) throws {
         if let messageID = messageID {
             try self.messageCenter.display(messageID: messageID)
@@ -31,6 +32,12 @@ public class AirshipMessageCenterProxy {
         }
     }
 
+    @MainActor
+    public func showMessageView(messageID: String) throws {
+        DefaultMessageCenterUI.shared.displayMessageView(messageID: messageID)
+    }
+
+    @MainActor
     public func dismiss() throws {
         try self.messageCenter.dismiss()
     }

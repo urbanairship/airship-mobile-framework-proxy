@@ -79,7 +79,7 @@ public abstract class BaseAutopilot : Autopilot() {
                 runBlocking {
                     predicate.apply(Utils.notificationMap(message))
                 }
-            } ?: true
+            } ?: proxyStore.isForegroundNotificationsEnabled
         }
         loadCustomNotificationChannels(context, airship)
         loadCustomNotificationButtonGroups(context, airship)

@@ -31,6 +31,10 @@ public class PushProxy internal constructor(
 ) {
 
     public var foregroundNotificationDisplayPredicate: SuspendingPredicate<Map<String, Any>>? = null
+    
+    public var isForegroundNotificationsEnabled: Boolean
+        get() = store.isForegroundNotificationsEnabled
+        set(enabled) { store.isForegroundNotificationsEnabled = enabled }
 
     public fun setNotificationConfig(config: JsonValue) {
         setNotificationConfig(NotificationConfig(config.optMap()))

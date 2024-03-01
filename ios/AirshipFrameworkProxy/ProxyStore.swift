@@ -19,6 +19,10 @@ public class ProxyStore {
     private let autoDisplayMessageCenterKey = "autoDisplayMessageCenter"
     private let lastNotificationStatusKey = "lastNotificationStatus"
 
+    public var defaultAutoDisplayMessageCenter: Bool = true
+    public var defaultPresentationOptions: UNNotificationPresentationOptions = []
+
+
     public var config: ProxyConfig? {
         get {
             return readCodable(configKey)
@@ -30,12 +34,11 @@ public class ProxyStore {
 
     public var foregroundPresentationOptions: UNNotificationPresentationOptions {
         get {
-            let value: UInt? = readValue(
-                foregroundPresentationOptionsKey
-            )
+            guard 
+                let value: UInt = readValue(foregroundPresentationOptionsKey)
+            else {
 
-            guard let value = value else {
-                return []
+                return defaultPresentationOptions
             }
 
             return UNNotificationPresentationOptions(rawValue: value)
@@ -51,7 +54,7 @@ public class ProxyStore {
 
     public var autoDisplayMessageCenter: Bool {
         get {
-            return readValue(autoDisplayMessageCenterKey) ?? true
+            return readValue(autoDisplayMessageCenterKey) ?? defaultAutoDisplayMessageCenter
         }
 
         set {
