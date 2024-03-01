@@ -35,6 +35,11 @@ public struct ProxyConfig: Codable {
         public let itunesID: String?
         public let messageCenterStyleConfig: String?
 
+        public init(itunesID: String? = nil, messageCenterStyleConfig: String? = nil) {
+            self.itunesID = itunesID
+            self.messageCenterStyleConfig = messageCenterStyleConfig
+        }
+
         private enum CodingKeys: String, CodingKey {
             case itunesID = "itunesId"
             case messageCenterStyleConfig
