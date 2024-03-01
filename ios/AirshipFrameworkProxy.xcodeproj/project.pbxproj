@@ -36,6 +36,7 @@
 		6E142EC1296F85CD00F71E23 /* TagGroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E6D296E3DEB00F71E23 /* TagGroupOperation.swift */; };
 		6E142EC2296F87DA00F71E23 /* AirshipProxyEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E8D296F852300F71E23 /* AirshipProxyEventEmitter.swift */; };
 		6E4CFD25298C79FF00D131A8 /* ProxyConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CFD24298C79FF00D131A8 /* ProxyConfigTests.swift */; };
+		6E99B36C2B91A03900EF9126 /* QuietTimeSettingsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E99B36B2B91A03900EF9126 /* QuietTimeSettingsTest.swift */; };
 		6EC7553E2A4A449300851ABB /* DefaultMessageCenterUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC7553D2A4A449300851ABB /* DefaultMessageCenterUI.swift */; };
 		6EC755402A4A494C00851ABB /* NotificationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC7553F2A4A494C00851ABB /* NotificationStatus.swift */; };
 		6EFB83DA2979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB83D92979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift */; };
@@ -87,6 +88,7 @@
 		6E142E96296F852300F71E23 /* AirshipProxyEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipProxyEvent.swift; sourceTree = "<group>"; };
 		6E142E97296F852300F71E23 /* AirshipPreferenceCenterProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipPreferenceCenterProxy.swift; sourceTree = "<group>"; };
 		6E4CFD24298C79FF00D131A8 /* ProxyConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigTests.swift; sourceTree = "<group>"; };
+		6E99B36B2B91A03900EF9126 /* QuietTimeSettingsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuietTimeSettingsTest.swift; sourceTree = "<group>"; };
 		6EC7553D2A4A449300851ABB /* DefaultMessageCenterUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultMessageCenterUI.swift; sourceTree = "<group>"; };
 		6EC7553F2A4A494C00851ABB /* NotificationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationStatus.swift; sourceTree = "<group>"; };
 		6EFB83D92979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopedSubscriptionListOperation.swift; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 				6E07689529FC48450014E2A9 /* AttributeOperationTest.swift */,
 				6E07689C2A0038F80014E2A9 /* ScopedSubscriptionListOperationTest.swift */,
 				842981FE2AA10D6600456BDB /* TagOperationTest.swift */,
+				6E99B36B2B91A03900EF9126 /* QuietTimeSettingsTest.swift */,
 			);
 			path = AirshipFrameworkProxyTests;
 			sourceTree = "<group>";
@@ -443,6 +446,7 @@
 				842981FF2AA10D6600456BDB /* TagOperationTest.swift in Sources */,
 				6E07689D2A0038F80014E2A9 /* ScopedSubscriptionListOperationTest.swift in Sources */,
 				6E4CFD25298C79FF00D131A8 /* ProxyConfigTests.swift in Sources */,
+				6E99B36C2B91A03900EF9126 /* QuietTimeSettingsTest.swift in Sources */,
 				6E142E5A296E3A8800F71E23 /* FeatureTests.swift in Sources */,
 				6E07689629FC48450014E2A9 /* AttributeOperationTest.swift in Sources */,
 			);

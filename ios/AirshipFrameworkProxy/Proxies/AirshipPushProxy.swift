@@ -92,6 +92,28 @@ public class AirshipPushProxy {
         return try self.push.badgeNumber
     }
 
+    public func setQuietTime(_ settings: QuietTimeSettings) throws {
+        try self.push.setQuietTimeStartHour(
+            Int(settings.startHour),
+            startMinute: Int(settings.startMinute),
+            endHour: Int(settings.endHour),
+            endMinute: Int(settings.endMinute)
+        )
+    }
+
+    public func getQuietTime() throws -> QuietTimeSettings? {
+        guard let dict = try self.push.quietTime else { return nil }
+        return QuietTimeSettings(from: dict)
+    }
+
+    public func setQuietTimeEnabled(_ enabled: Bool) throws -> Void {
+        try self.push.quietTimeEnabled = enabled
+    }
+
+    public func isQuietTimeEnabled() throws -> Bool {
+        return try self.push.quietTimeEnabled
+    }
+
     @objc
     public func clearNotifications() {
         UNUserNotificationCenter.current().removeAllDeliveredNotifications()
@@ -165,7 +187,6 @@ public class PresentationOptionsOverridesRequest {
     }
 }
 
-
 protocol AirshipPushProtocol: AnyObject {
     func enableUserPushNotifications() async -> Bool
     var authorizationStatus: UAAuthorizationStatus { get }
@@ -178,6 +199,58 @@ protocol AirshipPushProtocol: AnyObject {
     var badgeNumber: Int { get set }
     var autobadgeEnabled: Bool { get set }
     var notificationStatus: AirshipNotificationStatus { get async }
+    var quietTime: [AnyHashable: Any]? { get }
+    var quietTimeEnabled: Bool { get set }
+    func setQuietTimeStartHour(
+        _ startHour: Int,
+        startMinute: Int,
+        endHour: Int,
+        endMinute: Int
+    )
 }
 
-extension AirshipPush : AirshipPushProtocol {}
+extension AirshipPush: AirshipPushProtocol {}
+
+public struct QuietTimeSettings: Codable {
+    let startHour: UInt
+    let startMinute: UInt
+    let endHour: UInt
+    let endMinute: UInt
+
+    public init(startHour: UInt, startMinute: UInt, endHour: UInt, endMinute: UInt) throws {
+        guard startHour < 24, startMinute < 60 else {
+            throw AirshipErrors.error("Invalid start time")
+        }
+
+        guard endHour < 24, endMinute < 60 else {
+            throw AirshipErrors.error("Invalid end time")
+        }
+
+        self.startHour = startHour
+        self.startMinute = startMinute
+        self.endHour = endHour
+        self.endMinute = endMinute
+    }
+
+    init?(from dictionary: [AnyHashable: Any])  {
+        guard
+            let startTime = dictionary["start"] as? String,
+            let endTime = dictionary["end"] as? String
+        else {
+            return nil
+        }
+
+        let startParts = startTime.components(separatedBy:":").compactMap { UInt($0) }
+        let endParts = endTime.components(separatedBy:":").compactMap { UInt($0) }
+
+        guard startParts.count == 2, endParts.count == 2 else { return nil }
+
+        self.startHour = startParts[0]
+        self.startMinute = startParts[1]
+        self.endHour = endParts[0]
+        self.endMinute = endParts[1]
+    }
+}
+
+
+
