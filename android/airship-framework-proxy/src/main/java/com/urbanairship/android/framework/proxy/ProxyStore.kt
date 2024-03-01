@@ -45,9 +45,16 @@ public class ProxyStore internal constructor(private val context: Context) {
         }
         set(status) = setJson(NOTIFICATION_STATUS, status)
 
+    public var defaultAutoLaunchMessageCenter: Boolean = true
+
     public var isAutoLaunchMessageCenterEnabled: Boolean
-        get() = getBoolean(AUTO_LAUNCH_MESSAGE_CENTER, true)
+        get() = getBoolean(AUTO_LAUNCH_MESSAGE_CENTER, defaultAutoLaunchMessageCenter)
         set(enabled) = setBoolean(AUTO_LAUNCH_MESSAGE_CENTER, enabled)
+
+    public var defaultForegroundNotificationsEnabled: Boolean = true
+    public var isForegroundNotificationsEnabled: Boolean
+        get() = getBoolean(FOREGROUND_NOTIFICATIONS, defaultForegroundNotificationsEnabled)
+        set(enabled) = setBoolean(FOREGROUND_NOTIFICATIONS, enabled)
 
     public fun isAutoLaunchPreferenceCenterEnabled(preferenceId: String): Boolean {
         val key = getAutoLaunchPreferenceCenterKey(preferenceId)
@@ -110,6 +117,8 @@ public class ProxyStore internal constructor(private val context: Context) {
         private const val SHARED_PREFERENCES_FILE = "com.urbanairship.android.framework.proxy"
         private const val NOTIFICATION_STATUS = "NOTIFICATION_STATUS"
         private const val AUTO_LAUNCH_MESSAGE_CENTER = "AUTO_LAUNCH_MESSAGE_CENTER"
+        private const val FOREGROUND_NOTIFICATIONS = "FOREGROUND_NOTIFICATIONS"
+
         private const val AIRSHIP_CONFIG = "AIRSHIP_CONFIG"
         private const val NOTIFICATION_CONFIG = "NOTIFICATION_CONFIG"
         private const val PREFERENCE_CENTER_AUTO_LAUNCH_PREFIX = "PREFERENCE_CENTER_AUTO_LAUNCH"
