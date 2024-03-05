@@ -34,15 +34,23 @@ public struct ProxyConfig: Codable {
     public struct PlatformConfig: Codable {
         public let itunesID: String?
         public let messageCenterStyleConfig: String?
+        public let useUserPreferredLocale: Bool?
 
-        public init(itunesID: String? = nil, messageCenterStyleConfig: String? = nil) {
+
+        public init(
+            itunesID: String?  = nil,
+            messageCenterStyleConfig: String? = nil,
+            useUserPreferredLocale: Bool? = nil
+        ) {
             self.itunesID = itunesID
             self.messageCenterStyleConfig = messageCenterStyleConfig
+            self.useUserPreferredLocale = useUserPreferredLocale
         }
 
         private enum CodingKeys: String, CodingKey {
             case itunesID = "itunesId"
             case messageCenterStyleConfig
+            case useUserPreferredLocale
         }
     }
 
@@ -182,6 +190,10 @@ extension AirshipConfig {
 
         if let messageCenterStyleConfig = proxyConfig.ios?.messageCenterStyleConfig {
             self.messageCenterStyleConfig = messageCenterStyleConfig
+        }
+
+        if let useUserPreferredLocale = proxyConfig.ios?.useUserPreferredLocale {
+            self.useUserPreferredLocale = useUserPreferredLocale
         }
 
         if let site = proxyConfig.site {
