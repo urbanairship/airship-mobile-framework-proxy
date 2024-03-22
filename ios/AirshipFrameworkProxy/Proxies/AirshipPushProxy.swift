@@ -83,8 +83,8 @@ public class AirshipPushProxy {
     }
 
     @MainActor
-    public func setBadgeNumber(_ badgeNumber: Int) throws {
-        try self.push.badgeNumber = badgeNumber
+    public func setBadgeNumber(_ badgeNumber: Int) async throws {
+        try await self.push.setBadgeNumber(badgeNumber)
     }
 
     @MainActor
@@ -186,30 +186,6 @@ public class PresentationOptionsOverridesRequest {
         self.onResult(options)
     }
 }
-
-protocol AirshipPushProtocol: AnyObject {
-    func enableUserPushNotifications() async -> Bool
-    var authorizationStatus: UAAuthorizationStatus { get }
-    var userPushNotificationsEnabled: Bool { get set }
-    var deviceToken: String? { get }
-    var notificationOptions: UANotificationOptions { get set }
-    var authorizedNotificationSettings: UAAuthorizedNotificationSettings { get }
-    var defaultPresentationOptions: UNNotificationPresentationOptions { get set}
-    @MainActor
-    var badgeNumber: Int { get set }
-    var autobadgeEnabled: Bool { get set }
-    var notificationStatus: AirshipNotificationStatus { get async }
-    var quietTime: [AnyHashable: Any]? { get }
-    var quietTimeEnabled: Bool { get set }
-    func setQuietTimeStartHour(
-        _ startHour: Int,
-        startMinute: Int,
-        endHour: Int,
-        endMinute: Int
-    )
-}
-
-extension AirshipPush: AirshipPushProtocol {}
 
 public struct QuietTimeSettings: Codable {
     let startHour: UInt

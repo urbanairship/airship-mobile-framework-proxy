@@ -53,7 +53,7 @@ public class AirshipContactProxy {
     }
 
     public func editTagGroups(json: Any) throws {
-        let data = try JSONUtils.data(json)
+        let data = try AirshipJSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [TagGroupOperation].self,
             from: data
@@ -71,7 +71,7 @@ public class AirshipContactProxy {
 
     @objc
     public func editAttributes(json: Any) throws {
-        let data = try JSONUtils.data(json)
+        let data = try AirshipJSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [AttributeOperation].self,
             from: data
@@ -89,7 +89,7 @@ public class AirshipContactProxy {
     }
 
     public func editSubscriptionLists(json: Any) throws {
-        let data = try JSONUtils.data(json)
+        let data = try AirshipJSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [ScopedSubscriptionListOperation].self,
             from: data

@@ -31,7 +31,7 @@ public class AirshipChannelProxy {
     
     @objc
     public func editTags(json: Any) throws {
-        let data = try JSONUtils.data(json)
+        let data = try AirshipJSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [TagOperation].self,
             from: data
@@ -61,7 +61,7 @@ public class AirshipChannelProxy {
 
     @objc
     public func editTagGroups(json: Any) throws {
-        let data = try JSONUtils.data(json)
+        let data = try AirshipJSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [TagGroupOperation].self,
             from: data
@@ -78,7 +78,7 @@ public class AirshipChannelProxy {
     }
 
     public func editAttributes(json: Any) throws {
-        let data = try JSONUtils.data(json)
+        let data = try AirshipJSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [AttributeOperation].self,
             from: data
@@ -96,7 +96,7 @@ public class AirshipChannelProxy {
     }
 
     public func editSubscriptionLists(json: Any) throws {
-        let data = try JSONUtils.data(json)
+        let data = try AirshipJSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [SubscriptionListOperation].self,
             from: data

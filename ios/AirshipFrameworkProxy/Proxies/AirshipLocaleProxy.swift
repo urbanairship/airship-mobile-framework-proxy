@@ -5,12 +5,12 @@ import AirshipKit
 
 public class AirshipLocaleProxy {
 
-    private let localeProvider: () throws -> AirshipLocaleProtocol
-    private var locale: AirshipLocaleProtocol {
+    private let localeProvider: () throws -> AirshipLocaleManagerProtocol
+    private var locale: AirshipLocaleManagerProtocol {
         get throws { try localeProvider() }
     }
 
-    init(localeProvider: @escaping () throws -> any AirshipLocaleProtocol) {
+    init(localeProvider: @escaping () throws -> any AirshipLocaleManagerProtocol) {
         self.localeProvider = localeProvider
     }
 
@@ -35,11 +35,3 @@ public class AirshipLocaleProxy {
 
 }
 
-protocol AirshipLocaleProtocol: AnyObject {
-    func clearLocale()
-    var currentLocale: Locale { get set }
-}
-
-extension AirshipLocaleManager: AirshipLocaleProtocol {
-    
-}

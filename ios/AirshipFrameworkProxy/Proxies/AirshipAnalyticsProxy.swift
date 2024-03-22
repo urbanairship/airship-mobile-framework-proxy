@@ -52,9 +52,10 @@ public class AirshipAnalyticsProxy {
             throw AirshipErrors.error("Invalid event: \(event)")
         }
         
-        try analytics.addCustomEvent(event: customEvent)
+        try analytics.recordCustomEvent(customEvent)
     }
 
+    @MainActor
     public func trackScreen(_ screen: String?) throws {
         try self.analytics.trackScreen(screen)
     }
@@ -63,29 +64,9 @@ public class AirshipAnalyticsProxy {
         identifier: String?,
         key: String
     ) throws {
-        try self.analytics.associateIdentifier(
-            identifier: identifier,
-            key: key
-        )
-    }
-
-}
-
-protocol AirshipAnalyticsProtocol: AnyObject {
-    func trackScreen(_ screen: String?)
-    func associateIdentifier(identifier: String?, key: String)
-    func addCustomEvent(event: CustomEvent)
-}
-
-extension AirshipAnalytics: AirshipAnalyticsProtocol {
-    func associateIdentifier(identifier: String?, key: String) {
-        let identifiers = self.currentAssociatedDeviceIdentifiers()
+        let identifiers = try self.analytics.currentAssociatedDeviceIdentifiers()
         identifiers.set(identifier: identifier, key: key)
-        self.associateDeviceIdentifiers(identifiers)
-    }
-    
-    func addCustomEvent(event: CustomEvent) {
-        self.addEvent(event)
+        try self.analytics.associateDeviceIdentifiers(identifiers)
     }
 
 }
