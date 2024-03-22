@@ -145,7 +145,7 @@ extension ProxyConfig.Site {
 
 extension AirshipConfig {
 
-    func applyProxyConfig(proxyConfig: ProxyConfig) {
+    public func applyProxyConfig(proxyConfig: ProxyConfig) {
         if let appKey = proxyConfig.defaultEnvironment?.appKey,
            let appSecret = proxyConfig.defaultEnvironment?.appSecret {
             self.defaultAppKey = appKey

@@ -147,7 +147,7 @@ public abstract class BaseAutopilot : Autopilot() {
     public abstract fun onMigrateData(context: Context, proxyStore: ProxyStore)
 }
 
-internal fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxyConfig: ProxyConfig) {
+public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxyConfig: ProxyConfig) {
     proxyConfig?.developmentEnvironment?.let {
         this.setDevelopmentAppKey(it.appKey)
             .setDevelopmentAppSecret(it.appSecret)
