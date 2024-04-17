@@ -4,7 +4,7 @@ on: [pull_request]
   
 env:
   BUNDLE_PATH: vendor/bundle
-  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
 
 concurrency:
   group: ${{ github.ref }}
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: set up JDK 11
         uses: actions/setup-java@v2
@@ -45,7 +45,7 @@ jobs:
     runs-on: macos-14-xlarge
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
     
       - name: Install Coreutils
         run: brew install coreutils

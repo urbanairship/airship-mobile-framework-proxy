@@ -7,14 +7,14 @@ on:
 
 env:
   BUNDLE_PATH: vendor/bundle
-  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
 
 jobs:
   android:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Get the version
         id: get_version
@@ -53,8 +53,9 @@ jobs:
     runs-on: macos-14-xlarge
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
-          
+      - uses: actions/checkout@v4
+
+
       - name: Install Coreutils
         run: brew install coreutils
 
