@@ -83,8 +83,8 @@ public class AirshipPushProxy {
     }
 
     @MainActor
-    public func setBadgeNumber(_ badgeNumber: Int) throws {
-        try self.push.badgeNumber = badgeNumber
+    public func setBadgeNumber(_ badgeNumber: Int) async throws {
+        try await self.push.setBadgeNumber(badgeNumber)
     }
 
     @MainActor
@@ -101,9 +101,9 @@ public class AirshipPushProxy {
         )
     }
 
-    public func getQuietTime() throws -> QuietTimeSettings? {
-        guard let dict = try self.push.quietTime else { return nil }
-        return QuietTimeSettings(from: dict)
+    public func getQuietTime() throws -> ProxyQuietTimeSettings? {
+        guard let settings = try self.push.quietTime else { return nil }
+        return settings.proxySettings
     }
 
     public func setQuietTimeEnabled(_ enabled: Bool) throws -> Void {
@@ -187,70 +187,22 @@ public class PresentationOptionsOverridesRequest {
     }
 }
 
-protocol AirshipPushProtocol: AnyObject {
-    func enableUserPushNotifications() async -> Bool
-    var authorizationStatus: UAAuthorizationStatus { get }
-    var userPushNotificationsEnabled: Bool { get set }
-    var deviceToken: String? { get }
-    var notificationOptions: UANotificationOptions { get set }
-    var authorizedNotificationSettings: UAAuthorizedNotificationSettings { get }
-    var defaultPresentationOptions: UNNotificationPresentationOptions { get set}
-    @MainActor
-    var badgeNumber: Int { get set }
-    var autobadgeEnabled: Bool { get set }
-    var notificationStatus: AirshipNotificationStatus { get async }
-    var quietTime: [AnyHashable: Any]? { get }
-    var quietTimeEnabled: Bool { get set }
-    func setQuietTimeStartHour(
-        _ startHour: Int,
-        startMinute: Int,
-        endHour: Int,
-        endMinute: Int
-    )
-}
-
-extension AirshipPush: AirshipPushProtocol {}
-
-public struct QuietTimeSettings: Codable {
+public struct ProxyQuietTimeSettings: Codable {
     let startHour: UInt
     let startMinute: UInt
     let endHour: UInt
     let endMinute: UInt
-
-    public init(startHour: UInt, startMinute: UInt, endHour: UInt, endMinute: UInt) throws {
-        guard startHour < 24, startMinute < 60 else {
-            throw AirshipErrors.error("Invalid start time")
-        }
-
-        guard endHour < 24, endMinute < 60 else {
-            throw AirshipErrors.error("Invalid end time")
-        }
-
-        self.startHour = startHour
-        self.startMinute = startMinute
-        self.endHour = endHour
-        self.endMinute = endMinute
-    }
-
-    init?(from dictionary: [AnyHashable: Any])  {
-        guard
-            let startTime = dictionary["start"] as? String,
-            let endTime = dictionary["end"] as? String
-        else {
-            return nil
-        }
-
-        let startParts = startTime.components(separatedBy:":").compactMap { UInt($0) }
-        let endParts = endTime.components(separatedBy:":").compactMap { UInt($0) }
-
-        guard startParts.count == 2, endParts.count == 2 else { return nil }
-
-        self.startHour = startParts[0]
-        self.startMinute = startParts[1]
-        self.endHour = endParts[0]
-        self.endMinute = endParts[1]
-    }
 }
 
+extension QuietTimeSettings {
+    var proxySettings: ProxyQuietTimeSettings {
+        return ProxyQuietTimeSettings(
+            startHour: startHour,
+            startMinute: startMinute,
+            endHour: endHour,
+            endMinute: endMinute
+        )
+    }
+}
 
 

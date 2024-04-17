@@ -42,7 +42,7 @@ public class AirshipProxy {
         self.proxyStore = proxyStore
         self.locale = AirshipLocaleProxy {
             try AirshipProxy.ensureAirshipReady()
-            return Airship.shared.localeManager
+            return Airship.localeManager
         }
         
         self.push = AirshipPushProxy(proxyStore: proxyStore) {
@@ -90,7 +90,7 @@ public class AirshipProxy {
 
         self.privacyManager = AirshipPrivacyManagerProxy {
             try AirshipProxy.ensureAirshipReady()
-            return Airship.shared.privacyManager
+            return Airship.privacyManager
         }
 
         self.featureFlagManager = AirshipFeatureFlagManagerProxy {
@@ -109,7 +109,7 @@ public class AirshipProxy {
     ) throws -> Bool {
         let proxyConfig = try JSONDecoder().decode(
             ProxyConfig.self,
-            from: try JSONUtils.data(json)
+            from: try AirshipJSONUtils.data(json)
         )
 
         return try takeOff(config: proxyConfig, launchOptions: launchOptions)
@@ -171,7 +171,7 @@ public class AirshipProxy {
 
         AirshipLogger.debug("Taking off! \(airshipConfig)")
         Airship.takeOff(airshipConfig, launchOptions: launchOptions)
-        Airship.shared.deepLinkDelegate = self.airshipDelegate
+        Airship.deepLinkDelegate = self.airshipDelegate
         Airship.push.registrationDelegate = self.airshipDelegate
         Airship.push.pushNotificationDelegate = self.airshipDelegate
         PreferenceCenter.shared.openDelegate = self.airshipDelegate
@@ -194,7 +194,7 @@ public class AirshipProxy {
             .store(in: &self.subscriptions)
 
         NotificationCenter.default.addObserver(
-            forName: MessageCenterInbox.messageListUpdatedEvent,
+            forName: AirshipNotifications.MessageCenterListUpdated.name,
             object: nil,
             queue: .main
         ) { _ in
@@ -202,7 +202,7 @@ public class AirshipProxy {
         }
 
         NotificationCenter.default.addObserver(
-            forName: AirshipChannel.channelCreatedEvent,
+            forName: AirshipNotifications.ChannelCreated.name,
             object: nil,
             queue: .main
         ) { _ in
