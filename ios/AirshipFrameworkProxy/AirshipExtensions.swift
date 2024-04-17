@@ -52,7 +52,7 @@ extension UAAuthorizedNotificationSettings {
     }
 }
 
-extension AirshipFeature: Codable {
+extension AirshipFeature {
     static let nameMap: [String: AirshipFeature] = [
         "push": .push,
         "contacts": .contacts,
@@ -63,6 +63,7 @@ extension AirshipFeature: Codable {
         "all": .all,
         "none": []
     ]
+    
 
     var names: [String] {
         var names: [String] = []
@@ -104,21 +105,6 @@ extension AirshipFeature: Codable {
         }
 
         return features
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(self.names)
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-
-        if let names: [String] = try? container.decode([String].self) {
-            self = try AirshipFeature.parse(names)
-        } else {
-            throw AirshipErrors.error("Failed to parse features")
-        }
     }
 }
 

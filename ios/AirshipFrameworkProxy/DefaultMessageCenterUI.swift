@@ -5,17 +5,17 @@ import SwiftUI
 
 public class DefaultMessageCenterUI {
     static let shared: DefaultMessageCenterUI = DefaultMessageCenterUI()
-    private var currentDisplay: Disposable?
+    private var currentDisplay: AirshipMainActorCancellable?
     private var controller: MessageCenterController = MessageCenterController()
 
     @MainActor
     func dismiss() {
-        self.currentDisplay?.dispose()
+        self.currentDisplay?.cancel()
     }
 
     @MainActor
     func display(messageID: String? = nil) {
-        guard let scene = try? AirshipUtils.findWindowScene() else {
+        guard let scene = try? AirshipSceneManager.shared.lastActiveScene else {
             AirshipLogger.error(
                 "Unable to display message center, missing scene."
             )
@@ -24,7 +24,7 @@ public class DefaultMessageCenterUI {
 
         controller.navigate(messageID: messageID)
 
-        currentDisplay?.dispose()
+        currentDisplay?.cancel()
 
         AirshipLogger.debug("Opening default message center UI")
 
@@ -36,15 +36,15 @@ public class DefaultMessageCenterUI {
 
     @MainActor
     func displayMessageView(messageID: String) {
-        guard let scene = try? AirshipUtils.findWindowScene() else {
+        guard let scene = try? AirshipSceneManager.shared.lastActiveScene else {
             AirshipLogger.error(
                 "Unable to display message center, missing scene."
             )
             return
         }
 
-        currentDisplay?.dispose()
-        
+        currentDisplay?.cancel()
+
         self.currentDisplay = openMessageView(
             scene: scene,
             messageID: messageID,
@@ -56,10 +56,10 @@ public class DefaultMessageCenterUI {
     private func open(
         scene: UIWindowScene,
         theme: MessageCenterTheme?
-    ) -> Disposable {
+    ) -> AirshipMainActorCancellable {
         var window: UIWindow? = UIWindow(windowScene: scene)
 
-        let disposable = Disposable {
+        let cancellable = AirshipMainActorCancellableBlock {
             window?.windowLevel = .normal
             window?.isHidden = true
             window = nil
@@ -69,7 +69,7 @@ public class DefaultMessageCenterUI {
             theme: theme,
             controller: self.controller
         ) {
-            disposable.dispose()
+            cancellable.cancel()
         }
 
         window?.isHidden = false
@@ -77,7 +77,7 @@ public class DefaultMessageCenterUI {
         window?.makeKeyAndVisible()
         window?.rootViewController = viewController
 
-        return disposable
+        return cancellable
     }
 
     @MainActor
@@ -85,10 +85,10 @@ public class DefaultMessageCenterUI {
         scene: UIWindowScene,
         messageID: String,
         theme: MessageCenterTheme?
-    ) -> Disposable {
+    ) -> AirshipMainActorCancellable {
         var window: UIWindow? = UIWindow(windowScene: scene)
 
-        let disposable = Disposable {
+        let cancellable = AirshipMainActorCancellableBlock {
             window?.windowLevel = .normal
             window?.isHidden = true
             window = nil
@@ -98,7 +98,7 @@ public class DefaultMessageCenterUI {
         let viewController = HostingViewController(
             rootView: StandaloneMessageView(
                 dismissAction: {
-                    disposable.dispose()
+                    cancellable.cancel()
 
                 }, 
                 content: {
@@ -106,7 +106,7 @@ public class DefaultMessageCenterUI {
                         messageID: messageID,
                         title: nil
                     ) {
-                        disposable.dispose()
+                        cancellable.cancel()
                     }
                     .messageCenterTheme(theme)
                 }
@@ -119,7 +119,7 @@ public class DefaultMessageCenterUI {
         window?.makeKeyAndVisible()
         window?.rootViewController = viewController
 
-        return disposable
+        return cancellable
     }
 }
 
@@ -187,7 +187,7 @@ struct StandaloneMessageView<Content: View>: View  {
 
 extension String {
     var airshipLocalizedString: String {
-        return LocalizationUtils.localizedString(
+        return AirshipLocalizationUtils.localizedString(
             self,
             withTable: "UrbanAirship",
             moduleBundle: AirshipCoreResources.bundle
