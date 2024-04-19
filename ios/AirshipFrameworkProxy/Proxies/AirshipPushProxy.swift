@@ -92,12 +92,12 @@ public class AirshipPushProxy {
         return try self.push.badgeNumber
     }
 
-    public func setQuietTime(_ settings: QuietTimeSettings) throws {
-        try self.push.setQuietTimeStartHour(
-            Int(settings.startHour),
-            startMinute: Int(settings.startMinute),
-            endHour: Int(settings.endHour),
-            endMinute: Int(settings.endMinute)
+    public func setQuietTime(_ settings: ProxyQuietTimeSettings) throws {
+        try self.push.quietTime = QuietTimeSettings(
+            startHour: settings.startHour,
+            startMinute: settings.startMinute,
+            endHour: settings.endHour,
+            endMinute: settings.endMinute
         )
     }
 

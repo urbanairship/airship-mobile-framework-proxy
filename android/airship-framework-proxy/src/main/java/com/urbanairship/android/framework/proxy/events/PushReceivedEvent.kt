@@ -35,7 +35,8 @@ internal class PushReceivedEvent : Event {
      */
     constructor(message: PushMessage, isForeground: Boolean) : this(
         jsonMapOf(
-            "pushPayload" to Utils.notificationMap(message)
+            "pushPayload" to Utils.notificationMap(message),
+            "isForeground" to isForeground
         ),
         isForeground
     )
@@ -52,7 +53,8 @@ internal class PushReceivedEvent : Event {
                 notificationInfo.message,
                 notificationInfo.notificationId,
                 notificationInfo.notificationTag
-            )
+            ),
+            "isForeground" to isForeground
         ),
         isForeground
     )

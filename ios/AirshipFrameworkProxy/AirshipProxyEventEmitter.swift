@@ -7,6 +7,8 @@ public actor AirshipProxyEventEmitter {
     public static let shared = AirshipProxyEventEmitter()
     private nonisolated let eventSubject = PassthroughSubject<AirshipProxyEvent, Never>()
 
+    private var pendingEvents: [AirshipProxyEvent] = []
+
     public nonisolated var pendingEventPublisher: AnyPublisher<AirshipProxyEvent, Never> {
         eventSubject.eraseToAnyPublisher()
     }
@@ -19,50 +21,55 @@ public actor AirshipProxyEventEmitter {
         self.updateContinuation = escapee
     }
 
-    private var eventMap: [AirshipProxyEventType: [AirshipProxyEvent]] = [:]
-
     public func hasEvent(type: AirshipProxyEventType) -> Bool {
-        return eventMap[type]?.isEmpty == false
+        return pendingEvents.contains { event in
+            event.type == type
+        }
     }
 
     public func hasAnyEvents() -> Bool {
-        return eventMap.values.contains { events in
-            !events.isEmpty
-        }
+        return !pendingEvents.isEmpty
     }
 
     public func takePendingEvents(
         type: AirshipProxyEventType
     ) -> [AirshipProxyEvent] {
-        let result = eventMap[type]
-        eventMap[type] = []
-        return result ?? []
+
+        var result: [AirshipProxyEvent] = []
+        
+        pendingEvents.removeAll(where: { event in
+            if event.type == type {
+                result.append(event)
+                return true
+            } else {
+                return false
+            }
+        })
+
+        return result
     }
 
     public func processPendingEvents(
         type: AirshipProxyEventType?,
         handler: (AirshipProxyEvent) -> Bool
     ) {
-        var types: [AirshipProxyEventType]!
-        if let type = type {
-            types = [type]
+        let types: Set<AirshipProxyEventType> = if let type = type {
+            Set([type])
         } else {
-            types = AirshipProxyEventType.allCases
+            Set(AirshipProxyEventType.allCases)
         }
 
-        for type in types {
-            let result = eventMap[type] ?? []
-            eventMap[type] = result.filter { event in
-                return !handler(event)
+        pendingEvents.removeAll(where: { event in
+            if types.contains(event.type) {
+                return handler(event)
+            } else {
+                return false
             }
-        }
+        })
     }
 
     func addEvent(_ event: AirshipProxyEvent) {
-        if eventMap[event.type] == nil {
-            eventMap[event.type] = []
-        }
-        eventMap[event.type]?.append(event)
+        self.pendingEvents.append(event)
         updateContinuation.yield(event)
         eventSubject.send(event)
     }

@@ -108,9 +108,10 @@ struct PushReceivedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .pushReceived
     let body: [String : Any]
 
-    init(userInfo: [AnyHashable : Any]) {
+    init(userInfo: [AnyHashable : Any], isForeground: Bool) {
         self.body = [
-            "pushPayload": PushUtils.contentPayload(userInfo)
+            "pushPayload": PushUtils.contentPayload(userInfo),
+            "isForeground": isForeground
         ]
     }
 }
