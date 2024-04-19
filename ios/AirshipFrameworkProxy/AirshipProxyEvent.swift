@@ -1,7 +1,7 @@
 import Foundation
 import AirshipKit
 
-public enum AirshipProxyEventType: CaseIterable {
+public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case deepLinkReceived
     case channelCreated
     case pushTokenReceived
