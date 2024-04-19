@@ -141,7 +141,8 @@ class AirshipDelegate: NSObject,
         Task {
             await self.eventEmitter.addEvent(
                 PushReceivedEvent(
-                    userInfo: userInfo
+                    userInfo: userInfo,
+                    isForeground: false
                 )
             )
             completionHandler(.noData)
@@ -155,7 +156,8 @@ class AirshipDelegate: NSObject,
         Task {
             await self.eventEmitter.addEvent(
                 PushReceivedEvent(
-                    userInfo: userInfo
+                    userInfo: userInfo,
+                    isForeground: true
                 )
             )
             completionHandler()

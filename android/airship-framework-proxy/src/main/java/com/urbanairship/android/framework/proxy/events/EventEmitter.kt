@@ -18,7 +18,7 @@ public class EventEmitter {
 
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
-    private val pendingEvents = mutableMapOf<EventType, MutableList<Event>>()
+    private val pendingEvents = mutableListOf<Event>()
     private val _pendingEventsUpdates = MutableSharedFlow<Event>()
     public val pendingEventListener: SharedFlow<Event> = _pendingEventsUpdates
 
@@ -29,7 +29,7 @@ public class EventEmitter {
      */
     public fun addEvent(event: Event) {
         synchronized(lock) {
-            pendingEvents.getOrPut(event.type) { mutableListOf() }.add(event)
+            pendingEvents.add(event)
             scope.launch {
                 _pendingEventsUpdates.emit(event)
             }
@@ -44,8 +44,9 @@ public class EventEmitter {
     public fun takePending(types: List<EventType>): List<Event> {
         synchronized(lock) {
             val result = mutableListOf<Event>()
-            types.forEach { type ->
-                result.addAll(pendingEvents.remove(type) ?: emptyList())
+            pendingEvents.removeAll {
+                types.contains(it.type)
+                result.add(it)
             }
             return result
         }
@@ -53,12 +54,9 @@ public class EventEmitter {
 
     public fun hasEvents(types: List<EventType>): Boolean {
         synchronized(lock) {
-            for (type in types) {
-                if (!pendingEvents[type].isNullOrEmpty()) {
-                    return true
-                }
-            }
-            return false
+            return pendingEvents.firstOrNull {
+                types.contains(it.type)
+            } != null
         }
     }
 
@@ -69,8 +67,12 @@ public class EventEmitter {
      */
     public fun processPending(types: List<EventType>, onProcess: (Event) -> Boolean) {
         synchronized(lock) {
-            types.forEach { type ->
-                pendingEvents[type]?.removeAll(onProcess)
+            pendingEvents.removeAll {
+                if (!types.contains(it.type)) {
+                    false
+                } else {
+                    onProcess(it)
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 import Foundation
 import AirshipKit
 
-public enum AirshipProxyEventType: CaseIterable {
+public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case deepLinkReceived
     case channelCreated
     case pushTokenReceived
@@ -108,9 +108,10 @@ struct PushReceivedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .pushReceived
     let body: [String : Any]
 
-    init(userInfo: [AnyHashable : Any]) {
+    init(userInfo: [AnyHashable : Any], isForeground: Bool) {
         self.body = [
-            "pushPayload": PushUtils.contentPayload(userInfo)
+            "pushPayload": PushUtils.contentPayload(userInfo),
+            "isForeground": isForeground
         ]
     }
 }
