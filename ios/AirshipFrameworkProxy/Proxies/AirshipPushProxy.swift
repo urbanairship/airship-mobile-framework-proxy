@@ -192,6 +192,18 @@ public struct ProxyQuietTimeSettings: Codable {
     let startMinute: UInt
     let endHour: UInt
     let endMinute: UInt
+    
+    public init(
+        startHour: UInt,
+        startMinute: UInt,
+        endHour: UInt,
+        endMinute: UInt
+    ) {
+        self.startHour = startHour
+        self.startMinute = startMinute
+        self.endHour = endHour
+        self.endMinute = endMinute
+    }
 }
 
 extension QuietTimeSettings {
