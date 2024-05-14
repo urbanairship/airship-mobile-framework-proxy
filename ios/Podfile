@@ -1,5 +1,5 @@
 target 'AirshipFrameworkProxy' do
-  pod 'Airship', '18.2.0'
+  pod 'Airship', '18.2.1'
 end
 
 target 'AirshipFrameworkProxyTests' do
