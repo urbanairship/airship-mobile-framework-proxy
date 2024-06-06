@@ -45,8 +45,7 @@ public class EventEmitter {
         synchronized(lock) {
             val result = mutableListOf<Event>()
             pendingEvents.removeAll {
-                types.contains(it.type)
-                result.add(it)
+                types.contains(it.type) && result.add(it)
             }
             return result
         }
