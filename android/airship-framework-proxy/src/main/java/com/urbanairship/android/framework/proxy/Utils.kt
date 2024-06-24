@@ -18,16 +18,6 @@ import com.urbanairship.util.UAStringUtil
  * Module utils.
  */
 public object Utils {
-    internal val featureMap: Map<String, Int> = mapOf(
-        "none" to PrivacyManager.FEATURE_NONE,
-        "in_app_automation" to PrivacyManager.FEATURE_IN_APP_AUTOMATION,
-        "message_center" to PrivacyManager.FEATURE_MESSAGE_CENTER,
-        "push" to PrivacyManager.FEATURE_PUSH,
-        "analytics" to PrivacyManager.FEATURE_ANALYTICS,
-        "tags_and_attributes" to PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES,
-        "contacts" to PrivacyManager.FEATURE_CONTACTS,
-        "all" to PrivacyManager.FEATURE_ALL
-    )
 
     public fun parseLogLevel(logLevel: String): Int {
         return when (logLevel.lowercase().trim()) {
@@ -57,13 +47,11 @@ public object Utils {
         }
     }
 
-    @PrivacyManager.Feature
-    public fun parseFeatures(value: JsonValue): Int {
-        var result = PrivacyManager.FEATURE_NONE
-        for (value in value.optList()) {
-            result = result or parseFeature(value.optString())
+    public fun parseFeatures(value: JsonValue): PrivacyManager.Feature {
+        if (value.isJsonList) {
+            return PrivacyManager.Feature.fromJson(value) ?: PrivacyManager.Feature.NONE
         }
-        return result
+        return PrivacyManager.Feature.NONE
     }
 
     @AirshipConfigOptions.Site
@@ -129,43 +117,9 @@ public object Utils {
         return defaultColor
     }
 
-    @PrivacyManager.Feature
     @JvmStatic
-    public fun parseFeature(feature: String): Int {
-        val value = featureMap[feature]
-        value?.let {
-            return it
-        }
-
-        throw IllegalArgumentException("Invalid feature: $feature")
-    }
-
-    @JvmStatic
-    public fun featureNames(@PrivacyManager.Feature features: Int): List<String> {
-        val result: MutableList<String> = ArrayList()
-
-        if (features == PrivacyManager.FEATURE_ALL) {
-            return featureMap.keys.filter {
-                it != "none" && it != "all"
-            }.toList()
-        }
-
-        if (features == PrivacyManager.FEATURE_NONE) {
-            return emptyList()
-        }
-
-        for ((key, value) in featureMap) {
-            if (value == PrivacyManager.FEATURE_ALL) {
-                continue
-            }
-            if (value == PrivacyManager.FEATURE_NONE) {
-                continue
-            }
-            if (value and features == value) {
-                result.add(key)
-            }
-        }
-        return result
+    public fun featureNames(features: PrivacyManager.Feature): List<String> {
+        return features.toJsonValue().optList().mapNotNull { it.string }
     }
 
     private fun getNotificationId(notificationId: Int, notificationTag: String?): String {

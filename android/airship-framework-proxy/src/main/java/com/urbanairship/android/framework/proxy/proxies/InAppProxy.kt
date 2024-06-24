@@ -14,10 +14,10 @@ public class InAppProxy internal constructor(private val inAppProvider: () -> In
     }
 
     public fun setDisplayInterval(milliseconds: Long) {
-        inAppProvider().inAppMessageManager.setDisplayInterval(milliseconds, TimeUnit.MILLISECONDS)
+        inAppProvider().inAppMessaging.displayInterval = milliseconds
     }
 
     public fun getDisplayInterval(): Long {
-        return inAppProvider().inAppMessageManager.displayInterval
+        return inAppProvider().inAppMessaging.displayInterval
     }
 }

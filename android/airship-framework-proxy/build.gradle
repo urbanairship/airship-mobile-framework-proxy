@@ -46,7 +46,7 @@ dependencies {
     api(libs.airship.feature.flag)
 
     implementation(libs.kotlinx.coroutines.android)
-    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.test.core)
@@ -57,10 +57,7 @@ dependencies {
     testImplementation(libs.mockk)
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets["main"].java.srcDirs
-}
+
 
 // Create the pom configuration:
 def pomConfig = {
@@ -84,15 +81,23 @@ def pomConfig = {
     }
 }
 
+//task sourceJar(type: Jar) {
+//    archiveClassifier.set("sources")
+//    from(android.sourceSets["main"].java.srcDirs)
+//}
+
 publishing {
     publications {
         Production(MavenPublication) {
+
+
+
             groupId project.group
             artifactId project.name
             version project.version
 
             artifact("$buildDir/outputs/aar/" + project.name + "-release.aar")
-            artifact(sourcesJar)
+//            artifact(sourcesJar)
 
             pom.withXml {
                 def root = asNode()

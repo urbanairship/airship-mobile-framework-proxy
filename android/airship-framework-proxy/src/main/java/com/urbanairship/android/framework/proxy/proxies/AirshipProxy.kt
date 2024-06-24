@@ -6,8 +6,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
-import com.urbanairship.actions.ActionRunRequest
-import com.urbanairship.actions.ActionRunRequestFactory
+import com.urbanairship.actions.DefaultActionRunner
 import com.urbanairship.android.framework.proxy.ProxyConfig
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.automation.InAppAutomation
@@ -21,12 +20,10 @@ public class AirshipProxy(
     internal val proxyStore: ProxyStore
 ) {
 
-    public val actions: ActionProxy = ActionProxy(
-        ActionRunRequestFactory {
-            ensureTakeOff()
-            ActionRunRequest.createRequest(it)
-        }
-    )
+    public val actions: ActionProxy = ActionProxy {
+        ensureTakeOff()
+        DefaultActionRunner
+    }
 
     public val analytics: AnalyticsProxy = AnalyticsProxy {
         ensureTakeOff()

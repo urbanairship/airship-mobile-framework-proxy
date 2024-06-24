@@ -12,7 +12,7 @@ public class FeatureTests {
 
     @Test
     public fun allFeatureNames() {
-        val names = Utils.featureNames(PrivacyManager.FEATURE_ALL)
+        val names = Utils.featureNames(PrivacyManager.Feature.ALL)
         assertEquals(
             listOf(
                 "in_app_automation",
@@ -20,6 +20,7 @@ public class FeatureTests {
                 "push",
                 "analytics",
                 "tags_and_attributes",
+                "feature_flags",
                 "contacts",
             ).sorted(),
             names.sorted()
@@ -28,7 +29,7 @@ public class FeatureTests {
 
     @Test
     public fun noneNames() {
-        val names = Utils.featureNames(PrivacyManager.FEATURE_NONE)
+        val names = Utils.featureNames(PrivacyManager.Feature.NONE)
         assertEquals(
             emptyList<String>(),
             names
@@ -37,15 +38,15 @@ public class FeatureTests {
 
     @Test
     public fun parseNames() {
-        val names = Utils.featureNames(PrivacyManager.FEATURE_ALL)
+        val names = Utils.featureNames(PrivacyManager.Feature.ALL)
         val feature = Utils.parseFeatures(JsonValue.wrapOpt(names))
-        assertEquals(PrivacyManager.FEATURE_ALL, feature)
+        assertEquals(PrivacyManager.Feature.ALL, feature)
     }
 
     @Test
     public fun parseEmpty() {
         val feature = Utils.parseFeatures(JsonValue.wrapOpt(emptyList<String>()))
-        assertEquals(PrivacyManager.FEATURE_NONE, feature)
+        assertEquals(PrivacyManager.Feature.NONE, feature)
     }
 
 }
