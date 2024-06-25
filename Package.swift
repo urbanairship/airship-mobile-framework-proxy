@@ -20,12 +20,10 @@ let package = Package(
     targets: [
         .target(
             name: "AirshipFrameworkProxy",
-            path: "ios/AirshipFrameworkProxy",
+            path: "ios/AirshipFrameworkProxy/AirshipFrameworkProxy",
             exclude: [
-                "AirshipFrameworkProxy/AirshipFrameworkProxy.h",
-                "Info.plist",
-            ],
-            sources: ["AirshipFrameworkProxy"]
+                "AirshipFrameworkProxy/AirshipFrameworkProxy.h"
+            ]
         )
     ]
 )
