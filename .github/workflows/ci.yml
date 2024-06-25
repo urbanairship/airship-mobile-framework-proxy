@@ -17,11 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
 
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
@@ -29,7 +29,7 @@ jobs:
       - name: Build and Test SDK
         run: |
           cd android
-          bash ./gradlew airship-framework-proxy:assembleDebug airship-framework-proxy:testDebugUnitTest --info --stacktrace
+          bash ./gradlew assembleDebug testDebugUnitTest --info --stacktrace
           cd -
         
       - name: publish unit test reports
