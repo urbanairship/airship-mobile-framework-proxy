@@ -60,6 +60,7 @@ extension AirshipFeature {
         "analytics": .analytics,
         "tags_and_attributes": .tagsAndAttributes,
         "in_app_automation": .inAppAutomation,
+        "feature_flags": .featureFlags,
         "all": .all,
         "none": []
     ]
