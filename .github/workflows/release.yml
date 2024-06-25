@@ -32,7 +32,7 @@ jobs:
       - name: Build
         run: |
           cd android
-          ./gradlew airship-framework-proxy:assembleRelease --stacktrace
+          ./gradlew assembleRelease --stacktrace
           cd -
 
       - name: Publish to Maven Central

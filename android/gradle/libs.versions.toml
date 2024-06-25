@@ -8,6 +8,7 @@ airship = '18.1.0'
 androidGradlePlugin = '8.3.2'
 nexusPublishPlugin = '1.1.0'
 gradle-versions =  '0.41.0'
+preferenceKtx = "1.2.1"
 spotlessPlugin = '6.4.2'
 
 # Spotless plugins
@@ -44,6 +45,7 @@ spotless = { id = 'com.diffplug.spotless', version.ref = "spotlessPlugin" }
 [libraries]
 
 # Kotlin
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines"}
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines"}
@@ -59,6 +61,7 @@ airship-preference-center = { module = "com.urbanairship.android:urbanairship-pr
 airship-automation = { module = "com.urbanairship.android:urbanairship-automation", version.ref = "airship"}
 airship-fcm = { module = "com.urbanairship.android:urbanairship-fcm", version.ref = "airship"}
 airship-feature-flag = { module = "com.urbanairship.android:urbanairship-feature-flag", version.ref = "airship"}
+airship-hms = { module = "com.urbanairship.android:urbanairship-hms", version.ref = "airship"}
 
 # Testing
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
