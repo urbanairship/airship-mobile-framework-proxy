@@ -2,7 +2,7 @@
 
 # Airship
 airshipProxy = '7.0.0'
-airship = '18.1.0'
+airship = '18.1.1'
 
 # Gradle plugins
 androidGradlePlugin = '8.3.2'
