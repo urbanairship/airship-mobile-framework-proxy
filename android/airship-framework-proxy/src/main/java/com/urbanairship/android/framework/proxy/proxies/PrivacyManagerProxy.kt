@@ -19,7 +19,7 @@ public class PrivacyManagerProxy internal constructor(
         )
     }
 
-    public fun setEnabledFeatures(features: Int) {
+    public fun setEnabledFeatures(features: PrivacyManager.Feature) {
         privacyManagerProvider().setEnabledFeatures(features)
     }
 
@@ -39,7 +39,7 @@ public class PrivacyManagerProxy internal constructor(
         )
     }
 
-    public fun enableFeatures(features: Int) {
+    public fun enableFeatures(features: PrivacyManager.Feature) {
         privacyManagerProvider().enable(features)
     }
 
@@ -55,7 +55,7 @@ public class PrivacyManagerProxy internal constructor(
         )
     }
 
-    public fun disableFeatures(features: Int) {
+    public fun disableFeatures(features: PrivacyManager.Feature) {
         privacyManagerProvider().disable(features)
     }
 
@@ -71,7 +71,7 @@ public class PrivacyManagerProxy internal constructor(
         )
     }
 
-    public fun isFeatureEnabled(features: Int): Boolean {
+    public fun isFeatureEnabled(features: PrivacyManager.Feature): Boolean {
         return privacyManagerProvider().isEnabled(features)
     }
 }

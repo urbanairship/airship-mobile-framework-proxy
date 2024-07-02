@@ -1,5 +1,11 @@
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
+
 
 public struct NotificationStatus: Sendable, Equatable, Codable {
 

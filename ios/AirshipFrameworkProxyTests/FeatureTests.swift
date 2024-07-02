@@ -36,7 +36,15 @@ class FeatureTests: XCTestCase {
     func testFeatureNameAll() throws {
         let features = AirshipFeature.all
         XCTAssertEqual(
-            ["push", "tags_and_attributes", "message_center", "analytics", "in_app_automation", "contacts"].sorted(),
+            [
+                "push",
+                "tags_and_attributes",
+                "message_center",
+                "analytics",
+                "in_app_automation",
+                "contacts",
+                "feature_flags"
+            ].sorted(),
             features.names.sorted()
         )
     }

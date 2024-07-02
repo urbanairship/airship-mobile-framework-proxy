@@ -1,7 +1,12 @@
 /* Copyright Airship and Contributors */
 
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
 
 
 public struct ProxyConfig: Codable {
@@ -23,11 +28,33 @@ public struct ProxyConfig: Codable {
         public let logLevel: LogLevel?
         public let appKey: String?
         public let appSecret: String?
+        public let ios: PlatformConfig?
 
-        public init(logLevel: LogLevel?, appKey: String?, appSecret: String?) {
+        public init(logLevel: LogLevel?, appKey: String?, appSecret: String?, ios: PlatformConfig?) {
             self.logLevel = logLevel
             self.appKey = appKey
             self.appSecret = appSecret
+            self.ios = ios
+        }
+
+        public struct PlatformConfig: Codable {
+            public let logPrivacyLevel: LogLevelPrivacy?
+
+            public init(logPrivacyLevel: LogLevelPrivacy?) {
+                self.logPrivacyLevel = logPrivacyLevel
+            }
+        }
+
+        public enum LogLevelPrivacy: String, Codable {
+            case `public` = "public"
+            case `private` = "private"
+
+            var airshipLevel: AirshipLogPrivacyLevel {
+                switch(self) {
+                case .private: .private
+                case .public: .public
+                }
+            }
         }
     }
 
@@ -146,6 +173,7 @@ extension ProxyConfig.Site {
 extension AirshipConfig {
 
     public func applyProxyConfig(proxyConfig: ProxyConfig) {
+        // App credentials
         if let appKey = proxyConfig.defaultEnvironment?.appKey,
            let appSecret = proxyConfig.defaultEnvironment?.appSecret {
             self.defaultAppKey = appKey
@@ -164,6 +192,7 @@ extension AirshipConfig {
             self.developmentAppSecret = appSecret
         }
 
+        // Log level
         if let level = proxyConfig.productionEnvironment?.logLevel {
             self.productionLogLevel  = level.airshipLogLevel
         } else if let level = proxyConfig.defaultEnvironment?.logLevel {
@@ -174,6 +203,19 @@ extension AirshipConfig {
             self.developmentLogLevel = level.airshipLogLevel
         } else if let level = proxyConfig.defaultEnvironment?.logLevel {
             self.developmentLogLevel = level.airshipLogLevel
+        }
+
+        // Privacy Log Level
+        if let level = proxyConfig.productionEnvironment?.ios?.logPrivacyLevel {
+            self.productionLogPrivacyLevel  = level.airshipLevel
+        } else if let level = proxyConfig.defaultEnvironment?.ios?.logPrivacyLevel {
+            self.productionLogPrivacyLevel = level.airshipLevel
+        }
+
+        if let level = proxyConfig.developmentEnvironment?.ios?.logPrivacyLevel {
+            self.developmentLogPrivacyLevel = level.airshipLevel
+        } else if let level = proxyConfig.defaultEnvironment?.ios?.logPrivacyLevel {
+            self.developmentLogPrivacyLevel = level.airshipLevel
         }
 
         if let inProduction = proxyConfig.inProduction {

@@ -18,7 +18,7 @@ public data class ProxyConfig(
     val urlAllowListScopeOpenUrl: List<String>? = null,
     val isChannelCaptureEnabled: Boolean? = null,
     val isChannelCreationDelayEnabled: Boolean? = null,
-    @Feature val enabledFeatures: Int? = null,
+    val enabledFeatures: Feature? = null,
     val autoPauseInAppAutomationOnLaunch: Boolean? = null,
     val androidConfig: Android? = null
 ) : JsonSerializable {

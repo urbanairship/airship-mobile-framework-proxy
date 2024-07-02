@@ -1,5 +1,12 @@
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
+
+
 
 public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case deepLinkReceived

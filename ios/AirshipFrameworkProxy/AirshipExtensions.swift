@@ -1,7 +1,15 @@
 /* Copyright Airship and Contributors */
 
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+import AirshipMessageCenter
+import AirshipPreferenceCenter
+#endif
+
 
 extension UAAuthorizationStatus {
     var name: String {
@@ -60,6 +68,7 @@ extension AirshipFeature {
         "analytics": .analytics,
         "tags_and_attributes": .tagsAndAttributes,
         "in_app_automation": .inAppAutomation,
+        "feature_flags": .featureFlags,
         "all": .all,
         "none": []
     ]

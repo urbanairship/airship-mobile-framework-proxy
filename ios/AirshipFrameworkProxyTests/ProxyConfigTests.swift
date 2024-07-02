@@ -1,5 +1,6 @@
 import XCTest
 import AirshipFrameworkProxy;
+import AirshipKit;
 
 final class ProxyConfigTests: XCTestCase {
 
@@ -13,12 +14,18 @@ final class ProxyConfigTests: XCTestCase {
         "development":{
             "appKey":"development-some-app-key",
             "appSecret":"development-some-app-secret",
-            "logLevel":"debug"
+            "logLevel":"debug",
+            "ios": {
+                "logPrivacyLevel": "private"
+            }
         },
         "default":{
             "appKey":"default-some-app-key",
             "appSecret":"default-some-secret",
-            "logLevel":"error"
+            "logLevel":"error",
+            "ios": {
+                "logPrivacyLevel": "public"
+            }
         },
         "site":"us",
         "initialConfigUrl":"some-url",
@@ -31,7 +38,7 @@ final class ProxyConfigTests: XCTestCase {
         ],
         "isChannelCaptureEnabled":true,
         "ios":{
-            "itunesId":"neat"
+            "itunesId": "neat"
         }
     }
     """
@@ -40,7 +47,7 @@ final class ProxyConfigTests: XCTestCase {
     {
        "development":{
           "appKey":"development-some-app-key",
-          "appSecret":"development-some-app-secret"Z
+          "appSecret":"development-some-app-secret"
        }
     }
     """
@@ -61,6 +68,26 @@ final class ProxyConfigTests: XCTestCase {
             try JSONSerialization.jsonObject(
                 with: encoded
             ) as! NSDictionary
+        )
+    }
+
+    func testPrivacyLogLevel() throws {
+        let proxyConfig = try JSONDecoder().decode(
+            ProxyConfig.self,
+            from: fullConfig.data(using: .utf8)!
+        )
+
+        let airshipConfig = AirshipConfig()
+        airshipConfig.applyProxyConfig(proxyConfig: proxyConfig)
+
+        XCTAssertEqual(
+            airshipConfig.productionLogPrivacyLevel,
+            .public
+        )
+
+        XCTAssertEqual(
+            airshipConfig.developmentLogPrivacyLevel,
+            .private
         )
     }
 
