@@ -1,7 +1,12 @@
 /* Copyright Airship and Contributors */
 
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
 
 public struct ScopedSubscriptionListOperation: Decodable, Equatable {
     enum Action: String, Codable {

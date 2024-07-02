@@ -15,14 +15,21 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/urbanairshipo/ios-library.git", from: "18.5.0")
+        .package(url: "https://github.com/urbanairship/ios-library.git", from: "18.5.0")
     ],
     targets: [
         .target(
             name: "AirshipFrameworkProxy",
-            path: "ios/AirshipFrameworkProxy/AirshipFrameworkProxy",
+            dependencies: [
+                .product(name: "AirshipCore", package: "ios-library"),
+                .product(name: "AirshipMessageCenter", package: "ios-library"),
+                .product(name: "AirshipPreferenceCenter", package: "ios-library"),
+                .product(name: "AirshipAutomation", package: "ios-library"),
+                .product(name: "AirshipFeatureFlags", package: "ios-library"),
+            ],
+            path: "ios/AirshipFrameworkProxy",
             exclude: [
-                "AirshipFrameworkProxy/AirshipFrameworkProxy.h"
+                "AirshipFrameworkProxy.h"
             ]
         )
     ]

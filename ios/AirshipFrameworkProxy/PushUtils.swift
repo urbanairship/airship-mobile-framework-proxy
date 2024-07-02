@@ -1,7 +1,12 @@
 /* Copyright Airship and Contributors */
 
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
 
 struct PushUtils {
     static func contentPayload(

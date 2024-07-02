@@ -1,8 +1,13 @@
 /* Copyright Urban Airship and Contributors */
 
 import Foundation
-import AirshipKit
 import UserNotifications
+
+#if canImport(AirshipKit)
+import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
 
 public class AirshipPushProxy {
 

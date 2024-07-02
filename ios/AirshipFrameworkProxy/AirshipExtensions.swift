@@ -1,7 +1,15 @@
 /* Copyright Airship and Contributors */
 
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+import AirshipMessageCenter
+import AirshipPreferenceCenter
+#endif
+
 
 extension UAAuthorizationStatus {
     var name: String {

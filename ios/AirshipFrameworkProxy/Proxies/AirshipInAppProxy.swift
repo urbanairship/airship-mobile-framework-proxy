@@ -1,7 +1,13 @@
 /* Copyright Urban Airship and Contributors */
 
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+import AirshipAutomation
+#endif
 
 public class AirshipInAppProxy {
 

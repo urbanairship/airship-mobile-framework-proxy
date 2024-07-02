@@ -1,7 +1,13 @@
 /* Copyright Urban Airship and Contributors */
 
 import Foundation
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+import AirshipFeatureFlags
+#endif
 
 public class AirshipFeatureFlagManagerProxy {
     private let featureFlagManagerProvider: () throws -> FeatureFlagManager

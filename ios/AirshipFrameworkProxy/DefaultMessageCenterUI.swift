@@ -1,7 +1,13 @@
-import AirshipKit
 import Foundation
 import UIKit
 import SwiftUI
+
+#if canImport(AirshipKit)
+import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+import AirshipMessageCenter
+#endif
 
 public class DefaultMessageCenterUI {
     static let shared: DefaultMessageCenterUI = DefaultMessageCenterUI()

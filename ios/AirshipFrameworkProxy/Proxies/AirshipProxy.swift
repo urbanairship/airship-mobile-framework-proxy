@@ -1,6 +1,15 @@
 import Foundation
 import Combine
+
+#if canImport(AirshipKit)
 import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+import AirshipAutomation
+import AirshipMessageCenter
+import AirshipFeatureFlags
+import AirshipPreferenceCenter
+#endif
 
 public enum AirshipProxyError: Error {
     case takeOffNotCalled
