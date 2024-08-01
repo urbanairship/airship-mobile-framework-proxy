@@ -62,22 +62,25 @@ public struct ProxyConfig: Codable {
         public let itunesID: String?
         public let messageCenterStyleConfig: String?
         public let useUserPreferredLocale: Bool?
-
+        public let isWebViewInspectionEnabled: Bool?
 
         public init(
             itunesID: String?  = nil,
             messageCenterStyleConfig: String? = nil,
-            useUserPreferredLocale: Bool? = nil
+            useUserPreferredLocale: Bool? = nil,
+            isWebViewInspectionEnabled: Bool? = nil
         ) {
             self.itunesID = itunesID
             self.messageCenterStyleConfig = messageCenterStyleConfig
             self.useUserPreferredLocale = useUserPreferredLocale
+            self.isWebViewInspectionEnabled = isWebViewInspectionEnabled
         }
 
         private enum CodingKeys: String, CodingKey {
             case itunesID = "itunesId"
             case messageCenterStyleConfig
             case useUserPreferredLocale
+            case isWebViewInspectionEnabled
         }
     }
 
@@ -228,6 +231,10 @@ extension AirshipConfig {
 
         if let itunesID = proxyConfig.ios?.itunesID {
             self.itunesID = itunesID
+        }
+
+        if let isWebViewInspectionEnabled = proxyConfig.ios?.isWebViewInspectionEnabled {
+            self.isWebViewInspectionEnabled = isWebViewInspectionEnabled
         }
 
         if let messageCenterStyleConfig = proxyConfig.ios?.messageCenterStyleConfig {
