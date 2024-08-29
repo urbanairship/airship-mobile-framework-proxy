@@ -8,10 +8,7 @@ import com.urbanairship.android.framework.proxy.events.DisplayMessageCenterEvent
 import com.urbanairship.android.framework.proxy.events.DisplayPreferenceCenterEvent
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.MessageCenterUpdatedEvent
-import com.urbanairship.android.framework.proxy.events.EmbeddedIdsUpdatedEvent
-
 import com.urbanairship.android.framework.proxy.events.NotificationResponseEvent
-import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PushReceivedEvent
 import com.urbanairship.android.framework.proxy.events.PushTokenReceivedEvent
 import com.urbanairship.app.GlobalActivityMonitor
@@ -24,8 +21,6 @@ import com.urbanairship.push.NotificationInfo
 import com.urbanairship.push.NotificationListener
 import com.urbanairship.push.PushListener
 import com.urbanairship.push.PushMessage
-import com.urbanairship.push.PushNotificationStatus
-import com.urbanairship.push.PushNotificationStatusListener
 import com.urbanairship.push.PushTokenListener
 
 internal class AirshipListener(
@@ -125,11 +120,4 @@ internal class AirshipListener(
         )
     }
 
-    override fun onEmbeddedIdsUpdated(embeddedInfo: AirshipEmbeddedInfo) {
-        eventEmitter.addEvent(
-            EmbeddedIdsUpdatedEvent(
-                embeddedInfo: embeddedInfo
-            )
-        )
-    }
 }

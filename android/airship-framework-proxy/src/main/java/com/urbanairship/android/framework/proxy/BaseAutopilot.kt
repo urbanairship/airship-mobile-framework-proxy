@@ -14,7 +14,9 @@ import com.urbanairship.android.framework.proxy.Utils.getHexColor
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
+import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
+import com.urbanairship.embedded.AirshipEmbeddedObserver
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
 import com.urbanairship.push.pushNotificationStatusFlow
@@ -57,6 +59,14 @@ public abstract class BaseAutopilot : Autopilot() {
         airship.pushManager.addPushTokenListener(airshipListener)
         airship.pushManager.notificationListener = airshipListener
         airship.deepLinkListener = airshipListener
+
+        dispatcher.launch {
+            AirshipEmbeddedObserver().embeddedViewInfoFlow.collect {
+                EventEmitter.shared().addEvent(
+                    PendingEmbeddedUpdated(it)
+                )
+            }
+        }
 
         dispatcher.launch {
             airship.pushManager.pushNotificationStatusFlow
