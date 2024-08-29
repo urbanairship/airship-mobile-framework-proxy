@@ -8,6 +8,8 @@ import com.urbanairship.android.framework.proxy.events.DisplayMessageCenterEvent
 import com.urbanairship.android.framework.proxy.events.DisplayPreferenceCenterEvent
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.MessageCenterUpdatedEvent
+import com.urbanairship.android.framework.proxy.events.EmbeddedIdsUpdatedEvent
+
 import com.urbanairship.android.framework.proxy.events.NotificationResponseEvent
 import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PushReceivedEvent
@@ -119,6 +121,14 @@ internal class AirshipListener(
             MessageCenterUpdatedEvent(
                 MessageCenter.shared().inbox.unreadCount,
                 MessageCenter.shared().inbox.count
+            )
+        )
+    }
+
+    override fun onEmbeddedIdsUpdated(embeddedInfo: AirshipEmbeddedInfo) {
+        eventEmitter.addEvent(
+            EmbeddedIdsUpdatedEvent(
+                embeddedInfo: embeddedInfo
             )
         )
     }

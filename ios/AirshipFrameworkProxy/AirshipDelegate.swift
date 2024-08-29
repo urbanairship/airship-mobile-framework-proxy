@@ -37,8 +37,8 @@ class AirshipDelegate: NSObject,
 
         /// Keep reference to the subscription task that needs to run on main actor
         let embeddedInfoSubscriptionTask = Task { @MainActor in
-            AirshipEmbeddedObserver().$embeddedInfos.sink { embeddedInfo in
-                self.embeddedInfoUpdated(embeddedInfo: embeddedInfo)
+            AirshipEmbeddedObserver().$embeddedInfos.sink { embeddedInfos in
+                self.embeddedInfosUpdated(embeddedInfos: embeddedInfos.map { EmbeddedInfo(embeddedId: $0.embeddedID) })
             }.store(in: &self.subscriptions)
         }
     }
@@ -125,11 +125,11 @@ class AirshipDelegate: NSObject,
 
     }
 
-    func embeddedInfoUpdated(embeddedInfo: [AirshipEmbeddedInfo]) {
+    func embeddedInfosUpdated(embeddedInfos: [EmbeddedInfo]) {
         Task {
             await self.eventEmitter.addEvent(
                 EmbeddedInfoUpdatedEvent(
-                    embeddedInfo: embeddedInfo
+                    pending: embeddedInfos
                 )
             )
         }
