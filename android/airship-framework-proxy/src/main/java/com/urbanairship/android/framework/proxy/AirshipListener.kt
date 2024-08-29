@@ -36,7 +36,6 @@ internal class AirshipListener(
     AirshipChannelListener,
     InboxListener
 {
-
     private val isAppForegrounded: Boolean
         get() {
             return GlobalActivityMonitor.shared(UAirship.getApplicationContext()).isAppForegrounded
