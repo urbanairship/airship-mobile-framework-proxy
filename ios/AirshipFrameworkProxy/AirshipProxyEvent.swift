@@ -20,6 +20,8 @@ public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case pushReceived
     case notificationStatusChanged
     case authorizedNotificationSettingsChanged
+
+    case pendingEmbeddedUpdated
 }
 
 public protocol AirshipProxyEvent {
@@ -163,4 +165,14 @@ struct AuthorizedNotificationSettingsChangedEvent: AirshipProxyEvent {
 
 }
 
+struct EmbeddedInfoUpdatedEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .pendingEmbeddedUpdated
+    let body: [String: Any]
+
+    init(pending: [AirshipEmbeddedInfo]) {
+        self.body = [
+            "pending": pending.map { ["embeddedId": $0.embeddedID] }
+        ]
+    }
+}
 

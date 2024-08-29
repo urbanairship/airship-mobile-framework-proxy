@@ -9,7 +9,6 @@ import com.urbanairship.android.framework.proxy.events.DisplayPreferenceCenterEv
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.MessageCenterUpdatedEvent
 import com.urbanairship.android.framework.proxy.events.NotificationResponseEvent
-import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PushReceivedEvent
 import com.urbanairship.android.framework.proxy.events.PushTokenReceivedEvent
 import com.urbanairship.app.GlobalActivityMonitor
@@ -22,8 +21,6 @@ import com.urbanairship.push.NotificationInfo
 import com.urbanairship.push.NotificationListener
 import com.urbanairship.push.PushListener
 import com.urbanairship.push.PushMessage
-import com.urbanairship.push.PushNotificationStatus
-import com.urbanairship.push.PushNotificationStatusListener
 import com.urbanairship.push.PushTokenListener
 
 internal class AirshipListener(
@@ -39,7 +36,6 @@ internal class AirshipListener(
     AirshipChannelListener,
     InboxListener
 {
-
     private val isAppForegrounded: Boolean
         get() {
             return GlobalActivityMonitor.shared(UAirship.getApplicationContext()).isAppForegrounded
@@ -122,4 +118,5 @@ internal class AirshipListener(
             )
         )
     }
+
 }

@@ -3,10 +3,12 @@
 import Foundation
 #if canImport(AirshipKit)
 import AirshipKit
+import Combine
 #elseif canImport(AirshipCore)
 import AirshipCore
 import AirshipMessageCenter
 import AirshipPreferenceCenter
+import AirshipAutomation
 #endif
 
 class AirshipDelegate: NSObject,
@@ -26,6 +28,9 @@ class AirshipDelegate: NSObject,
     ) {
         self.proxyStore = proxyStore
         self.eventEmitter = eventEmitter
+
+
+        super.init()
     }
     
     func displayMessageCenter(messageID: String) {
@@ -93,7 +98,6 @@ class AirshipDelegate: NSObject,
             DeepLinkEvent(deepLink)
         )
     }
-    
 
     func messageCenterInboxUpdated() {
         Task {
