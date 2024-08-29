@@ -3,10 +3,12 @@
 import Foundation
 #if canImport(AirshipKit)
 import AirshipKit
+import Combine
 #elseif canImport(AirshipCore)
 import AirshipCore
 import AirshipMessageCenter
 import AirshipPreferenceCenter
+import AirshipAutomation
 #endif
 
 class AirshipDelegate: NSObject,
@@ -20,12 +22,29 @@ class AirshipDelegate: NSObject,
     let proxyStore: ProxyStore
     let eventEmitter: AirshipProxyEventEmitter
 
+    var embeddedInfoSubscriptionTask: (Task<Void, Never>)?
+    var subscriptions: Set<AnyCancellable> = Set()
+
     init(
         proxyStore: ProxyStore = ProxyStore.shared,
         eventEmitter: AirshipProxyEventEmitter = AirshipProxyEventEmitter.shared
     ) {
         self.proxyStore = proxyStore
         self.eventEmitter = eventEmitter
+
+
+        super.init()
+
+        /// Keep reference to the subscription task that needs to run on main actor
+        let embeddedInfoSubscriptionTask = Task { @MainActor in
+            AirshipEmbeddedObserver().$embeddedInfos.sink { embeddedInfo in
+                self.embeddedInfoUpdated(embeddedInfo: embeddedInfo)
+            }.store(in: &self.subscriptions)
+        }
+    }
+
+    deinit {
+        embeddedInfoSubscriptionTask?.cancel()
     }
     
     func displayMessageCenter(messageID: String) {
@@ -93,7 +112,6 @@ class AirshipDelegate: NSObject,
             DeepLinkEvent(deepLink)
         )
     }
-    
 
     func messageCenterInboxUpdated() {
         Task {
@@ -105,6 +123,16 @@ class AirshipDelegate: NSObject,
             )
         }
 
+    }
+
+    func embeddedInfoUpdated(embeddedInfo: [AirshipEmbeddedInfo]) {
+        Task {
+            await self.eventEmitter.addEvent(
+                EmbeddedInfoUpdatedEvent(
+                    embeddedInfo: embeddedInfo
+                )
+            )
+        }
     }
 
     func channelCreated() {
