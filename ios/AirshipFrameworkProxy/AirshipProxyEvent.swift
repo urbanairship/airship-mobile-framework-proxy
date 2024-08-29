@@ -165,17 +165,13 @@ struct AuthorizedNotificationSettingsChangedEvent: AirshipProxyEvent {
 
 }
 
-struct EmbeddedInfo: Codable {
-    let embeddedId: String
-}
-
 struct EmbeddedInfoUpdatedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .embeddedInfoUpdated
     let body: [String: Any]
 
-    init(pending: [EmbeddedInfo]) {
+    init(pending: [AirshipEmbeddedInfo]) {
         self.body = [
-            "pending": pending.map { ["embeddedId": $0.embeddedId] }
+            "pending": pending.map { ["embeddedId": $0.embeddedID] }
         ]
     }
 }
