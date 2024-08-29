@@ -22,9 +22,6 @@ class AirshipDelegate: NSObject,
     let proxyStore: ProxyStore
     let eventEmitter: AirshipProxyEventEmitter
 
-    var embeddedInfoSubscriptionTask: (Task<Void, Never>)?
-    var subscriptions: Set<AnyCancellable> = Set()
-
     init(
         proxyStore: ProxyStore = ProxyStore.shared,
         eventEmitter: AirshipProxyEventEmitter = AirshipProxyEventEmitter.shared
@@ -34,17 +31,6 @@ class AirshipDelegate: NSObject,
 
 
         super.init()
-
-        /// Keep reference to the subscription task that needs to run on main actor
-        let embeddedInfoSubscriptionTask = Task { @MainActor in
-            AirshipEmbeddedObserver().$embeddedInfos.sink { embeddedInfos in
-                self.embeddedInfosUpdated(embeddedInfos: embeddedInfos)
-            }.store(in: &self.subscriptions)
-        }
-    }
-
-    deinit {
-        embeddedInfoSubscriptionTask?.cancel()
     }
     
     func displayMessageCenter(messageID: String) {
@@ -123,16 +109,6 @@ class AirshipDelegate: NSObject,
             )
         }
 
-    }
-
-    func embeddedInfosUpdated(embeddedInfos: [AirshipEmbeddedInfo]) {
-        Task {
-            await self.eventEmitter.addEvent(
-                EmbeddedInfoUpdatedEvent(
-                    pending: embeddedInfos
-                )
-            )
-        }
     }
 
     func channelCreated() {

@@ -202,6 +202,17 @@ public class AirshipProxy {
             }
             .store(in: &self.subscriptions)
 
+
+        AirshipEmbeddedObserver().$embeddedInfos.sink { embeddedInfos in
+            Task {
+                await AirshipProxyEventEmitter.shared.addEvent(
+                    EmbeddedInfoUpdatedEvent(
+                        pending: embeddedInfos
+                    )
+                )
+            }
+        }.store(in: &self.subscriptions)
+
         NotificationCenter.default.addObserver(
             forName: AirshipNotifications.MessageCenterListUpdated.name,
             object: nil,
