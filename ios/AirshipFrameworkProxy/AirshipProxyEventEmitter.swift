@@ -68,7 +68,10 @@ public actor AirshipProxyEventEmitter {
         })
     }
 
-    func addEvent(_ event: AirshipProxyEvent) {
+    func addEvent(_ event: AirshipProxyEvent, replacePending: Bool = false) {
+        if replacePending {
+            self.pendingEvents.removeAll { event.type == $0.type }
+        }
         self.pendingEvents.append(event)
         updateContinuation.yield(event)
         eventSubject.send(event)

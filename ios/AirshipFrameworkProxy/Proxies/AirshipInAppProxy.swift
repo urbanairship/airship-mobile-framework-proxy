@@ -41,6 +41,12 @@ public class AirshipInAppProxy {
         let seconds = Double(displayInterval)/1000.0
         try self.inApp.displayInterval = seconds
     }
+
+    public func resendLastEmbeddedEvent() {
+        Task {
+            await EmbeddedEventEmitter.shared.resendLastEvent()
+        }
+    }
 }
 
 protocol AirshipInAppProtocol: AnyObject {

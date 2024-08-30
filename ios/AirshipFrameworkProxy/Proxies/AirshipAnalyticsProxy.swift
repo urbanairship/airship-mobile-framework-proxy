@@ -65,6 +65,11 @@ public class AirshipAnalyticsProxy {
         try self.analytics.trackScreen(screen)
     }
 
+    @MainActor
+    public func getSessionID() throws -> String {
+        return try self.analytics.sessionID
+    }
+
     public func associateIdentifier(
         identifier: String?,
         key: String
