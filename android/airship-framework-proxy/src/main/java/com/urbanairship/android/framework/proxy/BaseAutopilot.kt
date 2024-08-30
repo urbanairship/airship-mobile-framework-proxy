@@ -16,7 +16,6 @@ import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
-import com.urbanairship.embedded.AirshipEmbeddedObserver
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
 import com.urbanairship.push.pushNotificationStatusFlow
@@ -61,9 +60,10 @@ public abstract class BaseAutopilot : Autopilot() {
         airship.deepLinkListener = airshipListener
 
         dispatcher.launch {
-            AirshipEmbeddedObserver().embeddedViewInfoFlow.collect {
+            PendingEmbedded.pending.collect {
                 EventEmitter.shared().addEvent(
-                    PendingEmbeddedUpdated(it)
+                    PendingEmbeddedUpdated(it),
+                    true
                 )
             }
         }
@@ -75,7 +75,8 @@ public abstract class BaseAutopilot : Autopilot() {
                 .collect {
                     proxyStore.lastNotificationStatus = it
                     EventEmitter.shared().addEvent(
-                        NotificationStatusEvent(it)
+                        NotificationStatusEvent(it),
+                        replacePending = true
                     )
                 }
         }

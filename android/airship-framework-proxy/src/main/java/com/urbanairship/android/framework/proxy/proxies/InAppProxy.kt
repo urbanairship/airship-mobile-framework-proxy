@@ -1,5 +1,8 @@
 package com.urbanairship.android.framework.proxy.proxies
 
+import com.urbanairship.android.framework.proxy.PendingEmbedded
+import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.automation.InAppAutomation
 import java.util.concurrent.TimeUnit
 
@@ -19,5 +22,11 @@ public class InAppProxy internal constructor(private val inAppProvider: () -> In
 
     public fun getDisplayInterval(): Long {
         return inAppProvider().inAppMessaging.displayInterval
+    }
+
+    public fun resendLastEmbeddedEvent() {
+        PendingEmbedded.pending.value.let {
+            EventEmitter.shared().addEvent(PendingEmbeddedUpdated(it), replacePending = true)
+        }
     }
 }

@@ -27,8 +27,13 @@ public class EventEmitter {
      *
      * @param event The event.
      */
-    public fun addEvent(event: Event) {
+    public fun addEvent(event: Event, replacePending: Boolean = false) {
         synchronized(lock) {
+            if (replacePending) {
+                pendingEvents.removeAll {
+                    event.type == it.type
+                }
+            }
             pendingEvents.add(event)
             scope.launch {
                 _pendingEventsUpdates.emit(event)

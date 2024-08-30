@@ -44,4 +44,8 @@ public class AnalyticsProxy internal constructor(private val analyticsProvider: 
             throw java.lang.IllegalArgumentException("Invalid event $json")
         }
     }
+
+    public fun getSessionId(): String {
+        return analyticsProvider().sessionId
+    }
 }
