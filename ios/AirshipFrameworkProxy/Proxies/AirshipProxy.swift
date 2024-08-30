@@ -198,7 +198,8 @@ public class AirshipProxy {
             .sink { status in
                 Task {
                     await AirshipProxyEventEmitter.shared.addEvent(
-                        NotificationStatusChangedEvent(status: status)
+                        NotificationStatusChangedEvent(status: status),
+                        replacePending: true
                     )
                 }
             }

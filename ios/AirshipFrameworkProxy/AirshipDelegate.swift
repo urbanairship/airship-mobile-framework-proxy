@@ -49,8 +49,6 @@ class AirshipDelegate: NSObject,
     }
 
     func displayMessageCenter() {
-
-
         Task { @MainActor in
             guard !self.proxyStore.autoDisplayMessageCenter else {
                 DefaultMessageCenterUI.shared.display()
@@ -105,7 +103,8 @@ class AirshipDelegate: NSObject,
                 MessageCenterUpdatedEvent(
                     messageCount: await MessageCenter.shared.inbox.messages.count,
                     unreadCount: await MessageCenter.shared.inbox.unreadCount
-                )
+                ),
+                replacePending: true
             )
         }
 
@@ -180,7 +179,8 @@ class AirshipDelegate: NSObject,
             await self.eventEmitter.addEvent(
                 PushTokenReceivedEvent(
                     pushToken: token
-                )
+                ),
+                replacePending: true
             )
         }
     }
@@ -192,7 +192,8 @@ class AirshipDelegate: NSObject,
             await self.eventEmitter.addEvent(
                 AuthorizedNotificationSettingsChangedEvent(
                     authorizedSettings: authorizedSettings
-                )
+                ),
+                replacePending: true
             )
         }
     }
