@@ -115,7 +115,8 @@ internal class AirshipListener(
             MessageCenterUpdatedEvent(
                 MessageCenter.shared().inbox.unreadCount,
                 MessageCenter.shared().inbox.count
-            )
+            ),
+            replacePending = true
         )
     }
 

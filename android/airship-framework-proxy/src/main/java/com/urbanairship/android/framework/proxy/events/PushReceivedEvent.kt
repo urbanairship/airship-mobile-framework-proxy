@@ -27,6 +27,7 @@ internal class PushReceivedEvent : Event {
             EventType.BACKGROUND_PUSH_RECEIVED
         }
     }
+
     /**
      * Default constructor.
      *

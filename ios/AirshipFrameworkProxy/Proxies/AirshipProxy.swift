@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 import Foundation
 import Combine
 
@@ -196,22 +198,17 @@ public class AirshipProxy {
             .sink { status in
                 Task {
                     await AirshipProxyEventEmitter.shared.addEvent(
-                        NotificationStatusChangedEvent(status: status)
+                        NotificationStatusChangedEvent(status: status),
+                        replacePending: true
                     )
                 }
             }
             .store(in: &self.subscriptions)
 
 
-        AirshipEmbeddedObserver().$embeddedInfos.sink { embeddedInfos in
-            Task {
-                await AirshipProxyEventEmitter.shared.addEvent(
-                    EmbeddedInfoUpdatedEvent(
-                        pending: embeddedInfos
-                    )
-                )
-            }
-        }.store(in: &self.subscriptions)
+        Task {
+            await EmbeddedEventEmitter.shared.start()
+        }
 
         NotificationCenter.default.addObserver(
             forName: AirshipNotifications.MessageCenterListUpdated.name,
