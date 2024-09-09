@@ -9,7 +9,24 @@ import AirshipKit
 import AirshipCore
 #endif
 
+public struct EnableUserPushNotificationsArgs: Codable, Sendable {
+    public enum Fallback: String, Codable, Sendable {
+        case systemSettings = "settings"
+    }
+
+    public let fallback: Fallback?
+
+    enum CodingKeys: String, CodingKey {
+        case fallback
+    }
+
+    public init(fallback: Fallback?) {
+        self.fallback = fallback
+    }
+}
+
 public class AirshipPushProxy {
+
 
     public var presentationOptionOverrides: ((PresentationOptionsOverridesRequest) -> Void)?
     
@@ -37,8 +54,42 @@ public class AirshipPushProxy {
         return try self.push.userPushNotificationsEnabled
     }
 
-    public func enableUserPushNotifications() async throws -> Bool {
-        return try await self.push.enableUserPushNotifications()
+    public func enableUserPushNotifications(
+        args: EnableUserPushNotificationsArgs? = nil
+    ) async throws -> Bool {
+        // Make sure push is available
+        _ = try self.push
+
+        // Using the prompt permission action as a workaround until SDK is able
+        // to do this natively
+        let result = await withCheckedContinuation { continuation in
+            Task {
+                let permissionReceiver: @Sendable (
+                    AirshipPermission,
+                    AirshipPermissionStatus,
+                    AirshipPermissionStatus
+                ) async -> Void = { _, _, end in
+                    continuation.resume(returning: end == .granted)
+                }
+
+                _ = await ActionRunner.run(actionName: "prompt_permission_action", arguments: ActionArguments(
+                    value: AirshipJSON.makeObject {
+                        $0.set(bool: false, key: "enable_airship_usage")
+                        $0.set(bool: (args?.fallback == .systemSettings), key: "fallback_system_settings")
+                        $0.set(string: AirshipPermission.displayNotifications.stringValue, key: "permission")
+                    },
+                    metadata: [
+                        PromptPermissionAction.resultReceiverMetadataKey: permissionReceiver
+                    ]
+                ))
+            }
+        }
+
+        // Enable user notifications flag regardless of status. Remove this once
+        // we have a native SDK call.
+        try self.setUserNotificationsEnabled(true)
+
+        return result
     }
 
     public func getRegistrationToken() throws -> String? {

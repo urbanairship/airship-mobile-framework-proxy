@@ -17,15 +17,25 @@ import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
+import com.urbanairship.permission.OnPermissionStatusChangedListener
+import com.urbanairship.permission.Permission
+import com.urbanairship.permission.PermissionStatus
+import com.urbanairship.permission.PermissionsManager
 import com.urbanairship.preferencecenter.PreferenceCenter
 import com.urbanairship.push.pushNotificationStatusFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Module's autopilot to customize Urban Airship.
@@ -69,18 +79,21 @@ public abstract class BaseAutopilot : Autopilot() {
         }
 
         dispatcher.launch {
-            airship.pushManager.pushNotificationStatusFlow
-                .map { NotificationStatus(it) }
-                .filter { it != proxyStore.lastNotificationStatus }
-                .collect {
-                    proxyStore.lastNotificationStatus = it
-                    EventEmitter.shared().addEvent(
-                        NotificationStatusEvent(it),
-                        replacePending = true
-                    )
-                }
+            combine(
+                airship.pushManager.pushNotificationStatusFlow,
+                airship.permissionsManager.permissionFlow(Permission.DISPLAY_NOTIFICATIONS)
+            ) { status, permissionStatus ->
+                NotificationStatus(status, permissionStatus.value)
+            }.filter {
+                it != proxyStore.lastNotificationStatus
+            }.collect {
+                proxyStore.lastNotificationStatus = it
+                EventEmitter.shared().addEvent(
+                    NotificationStatusEvent(it),
+                    replacePending = true
+                )
+            }
         }
-
 
         // Set our custom notification provider
         val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)
@@ -205,3 +218,28 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
         notificationConfig.accentColor?.let { this.setNotificationAccentColor(getHexColor(it, 0)) }
     }
 }
+
+internal fun PermissionsManager.permissionFlow(permission: Permission): Flow<PermissionStatus> = callbackFlow {
+    val listener: OnPermissionStatusChangedListener =  OnPermissionStatusChangedListener { p: Permission, permissionStatus: PermissionStatus ->
+        if (permission == p) {
+            trySend(permissionStatus)
+        }
+    }
+
+    checkPermissionStatus(permission) {
+        trySend(it)
+    }
+
+    addOnPermissionStatusChangedListener(listener)
+
+    awaitClose { removeOnPermissionStatusChangedListener(listener) }
+}
+
+internal suspend fun PermissionsManager.suspendingPermissionCheck(permission: Permission): PermissionStatus {
+    return suspendCoroutine { continuation ->
+        checkPermissionStatus(permission) {
+            continuation.resume(it)
+        }
+    }
+}
+
