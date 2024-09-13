@@ -16,6 +16,7 @@ public struct NotificationStatus: Sendable, Equatable, Codable {
         self.isPushTokenRegistered = airshipStatus.isPushTokenRegistered
         self.isUserOptedIn = airshipStatus.isUserOptedIn
         self.isOptedIn = airshipStatus.isOptedIn
+        self.notificationPermissionStatus = airshipStatus.displayNotificationStatus.stringValue
     }
 
     public let isUserNotificationsEnabled: Bool
@@ -24,6 +25,7 @@ public struct NotificationStatus: Sendable, Equatable, Codable {
     public let isPushTokenRegistered: Bool
     public let isUserOptedIn: Bool
     public let isOptedIn: Bool
+    public let notificationPermissionStatus: String?
 
     enum CodingKeys: String, CodingKey {
         case isUserNotificationsEnabled
@@ -32,10 +34,11 @@ public struct NotificationStatus: Sendable, Equatable, Codable {
         case isPushTokenRegistered
         case isUserOptedIn
         case isOptedIn
+        case notificationPermissionStatus
     }
 
     var toMap: [String: Any] {
-        return [
+        var map: [String: Any] = [
             "isUserNotificationsEnabled": self.isUserNotificationsEnabled,
             "areNotificationsAllowed": self.areNotificationsAllowed,
             "isPushPrivacyFeatureEnabled": self.isPushPrivacyFeatureEnabled,
@@ -43,6 +46,12 @@ public struct NotificationStatus: Sendable, Equatable, Codable {
             "isOptedIn": self.isOptedIn,
             "isUserOptedIn": self.isUserOptedIn
         ]
+
+        if let notificationPermissionStatus {
+            map["notificationPermissionStatus"] = notificationPermissionStatus
+        }
+
+        return map
     }
 
 }

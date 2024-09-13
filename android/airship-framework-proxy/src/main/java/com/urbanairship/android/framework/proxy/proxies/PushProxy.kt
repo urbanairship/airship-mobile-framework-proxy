@@ -5,19 +5,23 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
-import com.urbanairship.PendingResult
 import com.urbanairship.android.framework.proxy.BaseNotificationProvider
 import com.urbanairship.android.framework.proxy.NotificationConfig
 import com.urbanairship.android.framework.proxy.NotificationStatus
 import com.urbanairship.android.framework.proxy.ProxyLogger
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.android.framework.proxy.Utils
+import com.urbanairship.json.JsonException
+import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
+import com.urbanairship.json.jsonMapOf
+import com.urbanairship.json.optionalField
 import com.urbanairship.permission.Permission
-import com.urbanairship.permission.PermissionStatus
+import com.urbanairship.permission.PermissionPromptFallback
 import com.urbanairship.permission.PermissionsManager
 import com.urbanairship.push.PushManager
 import com.urbanairship.push.PushMessage
+import com.urbanairship.push.enableUserNotifications
 
 public interface SuspendingPredicate<T> {
     public suspend fun apply(value: T): Boolean
@@ -29,9 +33,8 @@ public class PushProxy internal constructor(
     private val permissionsManagerProvider: () -> PermissionsManager,
     private val pushProvider: () -> PushManager
 ) {
-
     public var foregroundNotificationDisplayPredicate: SuspendingPredicate<Map<String, Any>>? = null
-    
+
     public var isForegroundNotificationsEnabled: Boolean
         get() = store.isForegroundNotificationsEnabled
         set(enabled) { store.isForegroundNotificationsEnabled = enabled }
@@ -48,20 +51,15 @@ public class PushProxy internal constructor(
         pushProvider().userNotificationsEnabled = enabled
     }
 
-    public fun enableUserPushNotifications(): PendingResult<Boolean> {
-        val pending: PendingResult<Boolean> = PendingResult()
-        permissionsManagerProvider().requestPermission(
-            Permission.DISPLAY_NOTIFICATIONS,
-            true
-        ) { result ->
-            pending.result = (result.permissionStatus == PermissionStatus.GRANTED)
-        }
-        return pending
+    public suspend fun enableUserPushNotifications(args: EnableUserNotificationsArgs? = null): Boolean {
+        return pushProvider().enableUserNotifications(promptFallback = args?.fallback ?: PermissionPromptFallback.None)
     }
 
-    public fun getNotificationStatus(): NotificationStatus {
+    public suspend fun getNotificationStatus(): NotificationStatus {
+        val permissionStatus = permissionsManagerProvider().suspendingCheckPermissionStatus(Permission.DISPLAY_NOTIFICATIONS)
         return NotificationStatus(
             pushProvider().pushNotificationStatus,
+            permissionStatus.value
         )
     }
 
@@ -134,3 +132,23 @@ public class PushProxy internal constructor(
     }
 }
 
+public data class EnableUserNotificationsArgs(
+    val fallback: PermissionPromptFallback?,
+) : JsonSerializable {
+
+    public override fun toJsonValue(): JsonValue = jsonMapOf("fallback" to fallback).toJsonValue()
+
+    public companion object {
+        @Throws(JsonException::class)
+        public fun fromJson(value: JsonValue): EnableUserNotificationsArgs {
+            val fallback = value.optMap().optionalField<String>("fallback")?.let {
+                if ("systemSettings".equals(it, true)) {
+                    PermissionPromptFallback.SystemSettings
+                } else {
+                    PermissionPromptFallback.None
+                }
+            }
+            return EnableUserNotificationsArgs(fallback = fallback)
+        }
+    }
+}

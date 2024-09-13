@@ -17,15 +17,25 @@ import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
+import com.urbanairship.permission.OnPermissionStatusChangedListener
+import com.urbanairship.permission.Permission
+import com.urbanairship.permission.PermissionStatus
+import com.urbanairship.permission.PermissionsManager
 import com.urbanairship.preferencecenter.PreferenceCenter
 import com.urbanairship.push.pushNotificationStatusFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Module's autopilot to customize Urban Airship.
@@ -69,18 +79,21 @@ public abstract class BaseAutopilot : Autopilot() {
         }
 
         dispatcher.launch {
-            airship.pushManager.pushNotificationStatusFlow
-                .map { NotificationStatus(it) }
-                .filter { it != proxyStore.lastNotificationStatus }
-                .collect {
-                    proxyStore.lastNotificationStatus = it
-                    EventEmitter.shared().addEvent(
-                        NotificationStatusEvent(it),
-                        replacePending = true
-                    )
-                }
+            combine(
+                airship.pushManager.pushNotificationStatusFlow,
+                airship.permissionsManager.permissionsUpdate(Permission.DISPLAY_NOTIFICATIONS)
+            ) { status, permissionStatus ->
+                NotificationStatus(status, permissionStatus.value)
+            }.filter {
+                it != proxyStore.lastNotificationStatus
+            }.collect {
+                proxyStore.lastNotificationStatus = it
+                EventEmitter.shared().addEvent(
+                    NotificationStatusEvent(it),
+                    replacePending = true
+                )
+            }
         }
-
 
         // Set our custom notification provider
         val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)
@@ -159,38 +172,38 @@ public abstract class BaseAutopilot : Autopilot() {
 }
 
 public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxyConfig: ProxyConfig) {
-    proxyConfig?.developmentEnvironment?.let {
+    proxyConfig.developmentEnvironment?.let {
         this.setDevelopmentAppKey(it.appKey)
             .setDevelopmentAppSecret(it.appSecret)
             .setDevelopmentLogLevel(it.logLevel ?: Log.DEBUG)
     }
 
-    proxyConfig?.productionEnvironment?.let {
+    proxyConfig.productionEnvironment?.let {
         this.setProductionAppKey(it.appKey)
             .setProductionAppSecret(it.appSecret)
             .setProductionLogLevel(it.logLevel ?: Log.DEBUG)
     }
 
-    proxyConfig?.defaultEnvironment?.let {
+    proxyConfig.defaultEnvironment?.let {
         this.setAppKey(it.appKey)
             .setAppSecret(it.appSecret)
             .setLogLevel(it.logLevel ?: Log.ERROR)
     }
 
-    proxyConfig?.site?.let { this.setSite(it) }
-    proxyConfig?.inProduction?.let { this.setInProduction(it) }
-    proxyConfig?.isChannelCreationDelayEnabled?.let { this.setChannelCreationDelayEnabled(it) }
-    proxyConfig?.isChannelCaptureEnabled?.let { this.setChannelCaptureEnabled(it) }
-    proxyConfig?.initialConfigUrl?.let { this.setInitialConfigUrl(it) }
-    proxyConfig?.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
-    proxyConfig?.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
-    proxyConfig?.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
-    proxyConfig?.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
-    proxyConfig?.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
-    proxyConfig?.enabledFeatures?.let { this.setEnabledFeatures(it) }
-    proxyConfig?.autoPauseInAppAutomationOnLaunch?.let { this.setAutoPauseInAppAutomationOnLaunch(it) }
+    proxyConfig.site?.let { this.setSite(it) }
+    proxyConfig.inProduction?.let { this.setInProduction(it) }
+    proxyConfig.isChannelCreationDelayEnabled?.let { this.setChannelCreationDelayEnabled(it) }
+    proxyConfig.isChannelCaptureEnabled?.let { this.setChannelCaptureEnabled(it) }
+    proxyConfig.initialConfigUrl?.let { this.setInitialConfigUrl(it) }
+    proxyConfig.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
+    proxyConfig.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
+    proxyConfig.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
+    proxyConfig.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
+    proxyConfig.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
+    proxyConfig.enabledFeatures?.let { this.setEnabledFeatures(it) }
+    proxyConfig.autoPauseInAppAutomationOnLaunch?.let { this.setAutoPauseInAppAutomationOnLaunch(it) }
 
-    proxyConfig?.androidConfig?.notificationConfig?.let { notificationConfig ->
+    proxyConfig.androidConfig?.notificationConfig?.let { notificationConfig ->
         notificationConfig.icon?.let {
             val resourceId = getNamedResource(context, it, "drawable")
             this.setNotificationIcon(resourceId)
@@ -205,3 +218,5 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
         notificationConfig.accentColor?.let { this.setNotificationAccentColor(getHexColor(it, 0)) }
     }
 }
+
+

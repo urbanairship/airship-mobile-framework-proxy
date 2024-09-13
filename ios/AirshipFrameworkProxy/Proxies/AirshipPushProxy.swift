@@ -9,7 +9,10 @@ import AirshipKit
 import AirshipCore
 #endif
 
+
+
 public class AirshipPushProxy {
+
 
     public var presentationOptionOverrides: ((PresentationOptionsOverridesRequest) -> Void)?
     
@@ -37,8 +40,12 @@ public class AirshipPushProxy {
         return try self.push.userPushNotificationsEnabled
     }
 
-    public func enableUserPushNotifications() async throws -> Bool {
-        return try await self.push.enableUserPushNotifications()
+    public func enableUserPushNotifications(
+        args: EnableUserPushNotificationsArgs? = nil
+    ) async throws -> Bool {
+        return try await self.push.enableUserPushNotifications(
+            fallback: args?.fallback ?? .none
+        )
     }
 
     public func getRegistrationToken() throws -> String? {
@@ -211,3 +218,20 @@ extension QuietTimeSettings {
 }
 
 
+public struct EnableUserPushNotificationsArgs: Decodable, Sendable {
+    public let fallback: PromptPermissionFallback?
+
+    enum CodingKeys: String, CodingKey {
+        case fallback
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let fallbackString = try container.decodeIfPresent(String.self, forKey: .fallback)
+        self.fallback = if (fallbackString?.caseInsensitiveCompare("systemSettings") == .orderedSame) {
+            PromptPermissionFallback.systemSettings
+        } else {
+            nil
+        }
+    }
+}
