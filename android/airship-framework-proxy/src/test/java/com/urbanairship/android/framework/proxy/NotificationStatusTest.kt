@@ -31,7 +31,8 @@ public class NotificationStatusTest {
             isPushPrivacyFeatureEnabled = true,
             isPushTokenRegistered = false,
             isUserOptedIn = true,
-            isOptedIn = false
+            isOptedIn = false,
+            notificationPermissionStatus = null
         )
 
         assertEquals(expected, parsed)
