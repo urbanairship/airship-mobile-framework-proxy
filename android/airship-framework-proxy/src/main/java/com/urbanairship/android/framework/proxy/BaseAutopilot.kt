@@ -81,7 +81,7 @@ public abstract class BaseAutopilot : Autopilot() {
         dispatcher.launch {
             combine(
                 airship.pushManager.pushNotificationStatusFlow,
-                airship.permissionsManager.permissionFlow(Permission.DISPLAY_NOTIFICATIONS)
+                airship.permissionsManager.permissionsUpdate(Permission.DISPLAY_NOTIFICATIONS)
             ) { status, permissionStatus ->
                 NotificationStatus(status, permissionStatus.value)
             }.filter {
@@ -172,38 +172,38 @@ public abstract class BaseAutopilot : Autopilot() {
 }
 
 public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxyConfig: ProxyConfig) {
-    proxyConfig?.developmentEnvironment?.let {
+    proxyConfig.developmentEnvironment?.let {
         this.setDevelopmentAppKey(it.appKey)
             .setDevelopmentAppSecret(it.appSecret)
             .setDevelopmentLogLevel(it.logLevel ?: Log.DEBUG)
     }
 
-    proxyConfig?.productionEnvironment?.let {
+    proxyConfig.productionEnvironment?.let {
         this.setProductionAppKey(it.appKey)
             .setProductionAppSecret(it.appSecret)
             .setProductionLogLevel(it.logLevel ?: Log.DEBUG)
     }
 
-    proxyConfig?.defaultEnvironment?.let {
+    proxyConfig.defaultEnvironment?.let {
         this.setAppKey(it.appKey)
             .setAppSecret(it.appSecret)
             .setLogLevel(it.logLevel ?: Log.ERROR)
     }
 
-    proxyConfig?.site?.let { this.setSite(it) }
-    proxyConfig?.inProduction?.let { this.setInProduction(it) }
-    proxyConfig?.isChannelCreationDelayEnabled?.let { this.setChannelCreationDelayEnabled(it) }
-    proxyConfig?.isChannelCaptureEnabled?.let { this.setChannelCaptureEnabled(it) }
-    proxyConfig?.initialConfigUrl?.let { this.setInitialConfigUrl(it) }
-    proxyConfig?.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
-    proxyConfig?.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
-    proxyConfig?.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
-    proxyConfig?.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
-    proxyConfig?.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
-    proxyConfig?.enabledFeatures?.let { this.setEnabledFeatures(it) }
-    proxyConfig?.autoPauseInAppAutomationOnLaunch?.let { this.setAutoPauseInAppAutomationOnLaunch(it) }
+    proxyConfig.site?.let { this.setSite(it) }
+    proxyConfig.inProduction?.let { this.setInProduction(it) }
+    proxyConfig.isChannelCreationDelayEnabled?.let { this.setChannelCreationDelayEnabled(it) }
+    proxyConfig.isChannelCaptureEnabled?.let { this.setChannelCaptureEnabled(it) }
+    proxyConfig.initialConfigUrl?.let { this.setInitialConfigUrl(it) }
+    proxyConfig.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
+    proxyConfig.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
+    proxyConfig.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
+    proxyConfig.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
+    proxyConfig.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
+    proxyConfig.enabledFeatures?.let { this.setEnabledFeatures(it) }
+    proxyConfig.autoPauseInAppAutomationOnLaunch?.let { this.setAutoPauseInAppAutomationOnLaunch(it) }
 
-    proxyConfig?.androidConfig?.notificationConfig?.let { notificationConfig ->
+    proxyConfig.androidConfig?.notificationConfig?.let { notificationConfig ->
         notificationConfig.icon?.let {
             val resourceId = getNamedResource(context, it, "drawable")
             this.setNotificationIcon(resourceId)
@@ -219,27 +219,4 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     }
 }
 
-internal fun PermissionsManager.permissionFlow(permission: Permission): Flow<PermissionStatus> = callbackFlow {
-    val listener: OnPermissionStatusChangedListener =  OnPermissionStatusChangedListener { p: Permission, permissionStatus: PermissionStatus ->
-        if (permission == p) {
-            trySend(permissionStatus)
-        }
-    }
-
-    checkPermissionStatus(permission) {
-        trySend(it)
-    }
-
-    addOnPermissionStatusChangedListener(listener)
-
-    awaitClose { removeOnPermissionStatusChangedListener(listener) }
-}
-
-internal suspend fun PermissionsManager.suspendingPermissionCheck(permission: Permission): PermissionStatus {
-    return suspendCoroutine { continuation ->
-        checkPermissionStatus(permission) {
-            continuation.resume(it)
-        }
-    }
-}
 
