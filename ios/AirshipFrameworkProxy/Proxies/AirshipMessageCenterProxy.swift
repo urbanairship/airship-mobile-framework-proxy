@@ -39,6 +39,11 @@ public class AirshipMessageCenterProxy {
     }
 
     @MainActor
+    public func showMessageCenter(messageID: String?) throws {
+        DefaultMessageCenterUI.shared.display(messageID: messageID)
+    }
+
+    @MainActor
     public func showMessageView(messageID: String) throws {
         DefaultMessageCenterUI.shared.displayMessageView(messageID: messageID)
     }
