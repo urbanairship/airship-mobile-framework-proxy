@@ -33,12 +33,20 @@ public class MessageCenterProxy internal constructor(
     }
 
     public fun showMessageView(messageId: String) {
+        launchMessageCenterIntent(MessageCenter.VIEW_MESSAGE_INTENT_ACTION, messageId)
+    }
+
+    public fun showMessageCenter(messageId: String?) {
+        launchMessageCenterIntent(MessageCenter.VIEW_MESSAGE_CENTER_INTENT_ACTION, messageId)
+    }
+
+    private fun launchMessageCenterIntent(intentAction: String, messageId: String?) {
         MainScope().launch {
             _displayState.emit(true)
             messageCenterProvider()
 
             val context = UAirship.getApplicationContext()
-            val intent = Intent(MessageCenter.VIEW_MESSAGE_INTENT_ACTION)
+            val intent = Intent(intentAction)
                 .setPackage(UAirship.getApplicationContext().packageName)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
 
