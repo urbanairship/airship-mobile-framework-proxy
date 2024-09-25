@@ -50,7 +50,10 @@ public class MessageCenterProxy internal constructor(
                 .setPackage(UAirship.getApplicationContext().packageName)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
 
-            intent.setData(Uri.fromParts("message", messageId, null as String?))
+            messageId?.let {
+                intent.setData(Uri.fromParts("message", it, null as String?))
+            }
+            
             try {
                 context.startActivity(intent)
             } catch(exception: Exception) {
