@@ -22,6 +22,7 @@ public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case authorizedNotificationSettingsChanged
 
     case pendingEmbeddedUpdated
+    case liveActivitiesUpdated
 }
 
 public protocol AirshipProxyEvent {
@@ -35,6 +36,16 @@ struct DeepLinkEvent: AirshipProxyEvent {
 
     init(_ deepLink: URL) {
         self.body = ["deepLink": deepLink.absoluteString]
+    }
+}
+
+struct LiveActivitiesUpdatedEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = AirshipProxyEventType.liveActivitiesUpdated
+    let body: [String: Any]
+
+    init(_ liveActivities: [LiveActivityInfo]) {
+        let info =  try? AirshipJSON.wrap(liveActivities).unWrap()
+        self.body = ["activities": info ?? []]
     }
 }
 
