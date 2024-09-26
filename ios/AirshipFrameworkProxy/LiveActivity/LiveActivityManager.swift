@@ -24,7 +24,8 @@ public actor LiveActivityManager: Sendable {
     }
 
     private var entries: [String: Entry] = [:]
-    private var initilized: Bool = false
+    @MainActor
+    private var setupCalled: Bool = false
     private var setupTask: Task<Void, Never>? = nil
 
     private var activityState: [String: LiveActivityInfo] = [:]
@@ -51,19 +52,20 @@ public actor LiveActivityManager: Sendable {
         }
     }
 
-    public nonisolated func setup(setupBlock: @escaping @Sendable (Configurator) async -> Void) {
+    @MainActor
+    public func setup(setupBlock: @escaping @Sendable (Configurator) async -> Void) throws {
+        guard !setupCalled else {
+            throw AirshipErrors.error("Already initialized")
+        }
+
+        self.setupCalled = true
+
         Task {
             try await beginSetup(setupBlock: setupBlock)
         }
     }
 
     private func beginSetup(setupBlock: @escaping @Sendable (Configurator) async -> Void) async throws {
-        guard !initilized else {
-            throw AirshipErrors.error("Already initialized")
-        }
-
-        self.initilized = true
-
         self.setupTask = Task {
             await withUnsafeContinuation { continuation in
                 Task {
@@ -157,6 +159,9 @@ public actor LiveActivityManager: Sendable {
     }
 
     private func findEntry(typeReferenceID: String) async throws -> Entry {
+        guard await self.setupCalled else {
+            throw AirshipErrors.error("Setup not called")
+        }
         await setupTask?.value
         guard let entry = self.entries[typeReferenceID] else {
             throw AirshipErrors.error("Missing entry for typeReferenceID \(typeReferenceID)")

@@ -13,6 +13,13 @@ public struct LiveActivityInfo: Codable, Sendable, Equatable, Hashable {
     public var typeReferenceID: String
     public var content: LiveActivityContent
     public var attributes: AirshipJSON
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case typeReferenceID = "typeReferenceId"
+        case content
+        case attributes
+    }
 }
 
 extension LiveActivityInfo {
