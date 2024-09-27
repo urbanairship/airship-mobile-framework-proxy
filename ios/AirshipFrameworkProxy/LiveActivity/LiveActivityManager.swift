@@ -249,14 +249,7 @@ extension LiveActivityManager.Entry {
                 relevanceScore: request.content.relevanceScore
             )
 
-            if #available(iOS 17.2, *) {
-                await activity.update(
-                    content,
-                    timestamp: request.timestamp?.date ?? Date()
-                )
-            } else {
-                await activity.update(content)
-            }
+            await activity.update(content)
         } else {
             await activity.update(using: decodedContentState)
         }
@@ -287,15 +280,7 @@ extension LiveActivityManager.Entry {
                 nil
             }
 
-            if #available(iOS 17.2, *) {
-                await activity.end(
-                    activityContent,
-                    dismissalPolicy: dismissalPolicy,
-                    timestamp: request.timestamp?.date ?? Date()
-                )
-            } else {
-                await activity.end(activityContent, dismissalPolicy: dismissalPolicy)
-            }
+            await activity.end(activityContent, dismissalPolicy: dismissalPolicy)
         } else {
             await activity.end(
                 using: try request.content?.state.decode(),

@@ -8,27 +8,6 @@ import AirshipCore
 
 public struct LiveActivityRequest: Sendable, Equatable {
 
-    public struct Timestamp: Codable, Sendable, Equatable, Hashable {
-        public let date: Date
-
-        public init(date: Date) {
-            self.date = date
-        }
-
-        public func encode(to encoder: any Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(AirshipDateFormatter.string(fromDate: date, format: .iso))
-        }
-
-        public init(from decoder: any Decoder) throws {
-            var value = try decoder.singleValueContainer().decode(String.self)
-            guard let date = AirshipDateFormatter.date(fromISOString: value) else {
-                throw AirshipErrors.error("Invalid date")
-            }
-            self.date = date
-        }
-    }
-
     public struct List: Sendable, Equatable, Codable {
         public var typeReferenceID: String
 
@@ -45,27 +24,23 @@ public struct LiveActivityRequest: Sendable, Equatable {
         public var activityID: String
         public var typeReferenceID: String
         public var content: LiveActivityContent
-        public var timestamp: Timestamp?
 
 
         enum CodingKeys: String, CodingKey {
             case activityID
             case typeReferenceID = "typeReferenceId"
             case content
-            case timestamp
         }
 
 
         public init(
             activityID: String,
             typeReferenceID: String,
-            content: LiveActivityContent,
-            timestamp: Timestamp? = nil
+            content: LiveActivityContent
         ) {
             self.activityID = activityID
             self.typeReferenceID = typeReferenceID
             self.content = content
-            self.timestamp = timestamp
         }
     }
 
@@ -74,28 +49,24 @@ public struct LiveActivityRequest: Sendable, Equatable {
         public var typeReferenceID: String
         public var content: LiveActivityContent?
         public var dismissalPolicy: DismissalPolicy?
-        public var timestamp: Timestamp?
 
         enum CodingKeys: String, CodingKey {
             case activityID
             case typeReferenceID = "typeReferenceId"
             case content
             case dismissalPolicy
-            case timestamp
         }
 
         public init(
             activityID: String,
             typeReferenceID: String,
             content: LiveActivityContent? = nil,
-            dismissalPolicy: DismissalPolicy? = nil,
-            timestamp: Timestamp? = nil
+            dismissalPolicy: DismissalPolicy? = nil
         ) {
             self.activityID = activityID
             self.typeReferenceID = typeReferenceID
             self.content = content
             self.dismissalPolicy = dismissalPolicy
-            self.timestamp = timestamp
         }
     }
 
