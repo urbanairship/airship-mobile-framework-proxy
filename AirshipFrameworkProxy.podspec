@@ -16,16 +16,7 @@ Pod::Spec.new do |s|
    s.swift_version           = "5.0"
    s.source_files            = "ios/AirshipFrameworkProxy/**/*.{h,m,swift}"
    s.dependency                'Airship', "18.9.2"
-   s.default_subspecs        = ["Loader", "Proxy"]
-
-   s.subspec "Loader" do |loader|
-      loader.source_files = 'ios/AirshipFrameworkProxyLoader/**/*.{swift,h,m,c,cc,mm,cpp}'
-    end
-   
-   
-    s.subspec "Proxy" do |proxy|
-      proxy.source_files = 'ios/AirshipFrameworkProxy/**/*.{swift,h,m,c,cc,mm,cpp}'
-    end   
+   s.source_files            = 'ios/AirshipFrameworkProxyLoader/**/*.{swift,h,m,c,cc,mm,cpp}', 'ios/AirshipFrameworkProxy/**/*.{swift,h,m,c,cc,mm,cpp}'
 end
 
 

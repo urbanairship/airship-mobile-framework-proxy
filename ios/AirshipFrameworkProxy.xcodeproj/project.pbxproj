@@ -47,6 +47,8 @@
 		6ED117AF2CA750F400C41C56 /* AirshipFrameworkProxyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED117AE2CA750F000C41C56 /* AirshipFrameworkProxyLoader.swift */; };
 		6ED117B22CA75D1500C41C56 /* AirshipPluginLoaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED117B12CA75D0F00C41C56 /* AirshipPluginLoaderProtocol.swift */; };
 		6ED117B52CA75D2300C41C56 /* AirshipPluginExtenderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED117B42CA75D2300C41C56 /* AirshipPluginExtenderProtocol.swift */; };
+		6ED117D72CA7760A00C41C56 /* UAirshipFrameworkProxyLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED117A92CA74F9100C41C56 /* UAirshipFrameworkProxyLoader.m */; };
+		6ED117D82CA7761300C41C56 /* UAirshipFrameworkProxyLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 6ED117A82CA74F9100C41C56 /* UAirshipFrameworkProxyLoader.h */; };
 		6EFB83DA2979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB83D92979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift */; };
 		842981FF2AA10D6600456BDB /* TagOperationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842981FE2AA10D6600456BDB /* TagOperationTest.swift */; };
 		8443CF342A97ADB3000589B8 /* TagOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8443CF332A97ADB3000589B8 /* TagOperation.swift */; };
@@ -282,6 +284,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6ED117D82CA7761300C41C56 /* UAirshipFrameworkProxyLoader.h in Headers */,
 				6E142E5B296E3A8800F71E23 /* AirshipFrameworkProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -482,6 +485,7 @@
 				6E142EC2296F87DA00F71E23 /* AirshipProxyEventEmitter.swift in Sources */,
 				6E0D94F12A7D52F400781BC7 /* AirshipFeatureFlagManagerProxy.swift in Sources */,
 				6E5AD11A2C82388900EDC110 /* EmbeddedEventEmitter.swift in Sources */,
+				6ED117D72CA7760A00C41C56 /* UAirshipFrameworkProxyLoader.m in Sources */,
 				6E3A02912CA60B2B00B0C5CF /* LiveActivityManager.swift in Sources */,
 				6E142EC1296F85CD00F71E23 /* TagGroupOperation.swift in Sources */,
 				6E142E98296F852300F71E23 /* AirshipProxy.swift in Sources */,
