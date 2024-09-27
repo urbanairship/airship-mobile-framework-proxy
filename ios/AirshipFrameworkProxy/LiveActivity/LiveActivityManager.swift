@@ -250,7 +250,10 @@ extension LiveActivityManager.Entry {
             )
 
             if #available(iOS 17.2, *) {
-                await activity.update(content, timestamp: request.timestamp ?? Date())
+                await activity.update(
+                    content,
+                    timestamp: request.timestamp?.date ?? Date()
+                )
             } else {
                 await activity.update(content)
             }
@@ -285,7 +288,11 @@ extension LiveActivityManager.Entry {
             }
 
             if #available(iOS 17.2, *) {
-                await activity.end(activityContent, dismissalPolicy: dismissalPolicy, timestamp: request.timestamp ?? Date())
+                await activity.end(
+                    activityContent,
+                    dismissalPolicy: dismissalPolicy,
+                    timestamp: request.timestamp?.date ?? Date()
+                )
             } else {
                 await activity.end(activityContent, dismissalPolicy: dismissalPolicy)
             }

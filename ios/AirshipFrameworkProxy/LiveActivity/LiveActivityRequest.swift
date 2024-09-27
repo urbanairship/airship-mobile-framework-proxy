@@ -7,6 +7,28 @@ import AirshipCore
 #endif
 
 public struct LiveActivityRequest: Sendable, Equatable {
+
+    public struct Timestamp: Codable, Sendable, Equatable, Hashable {
+        public let date: Date
+
+        public init(date: Date) {
+            self.date = date
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(AirshipDateFormatter.string(fromDate: date, format: .iso))
+        }
+
+        public init(from decoder: any Decoder) throws {
+            var value = try decoder.singleValueContainer().decode(String.self)
+            guard let date = AirshipDateFormatter.date(fromISOString: value) else {
+                throw AirshipErrors.error("Invalid date")
+            }
+            self.date = date
+        }
+    }
+
     public struct List: Sendable, Equatable, Codable {
         public var typeReferenceID: String
 
@@ -23,7 +45,7 @@ public struct LiveActivityRequest: Sendable, Equatable {
         public var activityID: String
         public var typeReferenceID: String
         public var content: LiveActivityContent
-        public var timestamp: Date?
+        public var timestamp: Timestamp?
 
 
         enum CodingKeys: String, CodingKey {
@@ -34,7 +56,12 @@ public struct LiveActivityRequest: Sendable, Equatable {
         }
 
 
-        public init(activityID: String, typeReferenceID: String, content: LiveActivityContent, timestamp: Date? = nil) {
+        public init(
+            activityID: String,
+            typeReferenceID: String,
+            content: LiveActivityContent,
+            timestamp: Timestamp? = nil
+        ) {
             self.activityID = activityID
             self.typeReferenceID = typeReferenceID
             self.content = content
@@ -47,7 +74,7 @@ public struct LiveActivityRequest: Sendable, Equatable {
         public var typeReferenceID: String
         public var content: LiveActivityContent?
         public var dismissalPolicy: DismissalPolicy?
-        public var timestamp: Date?
+        public var timestamp: Timestamp?
 
         enum CodingKeys: String, CodingKey {
             case activityID
@@ -57,7 +84,13 @@ public struct LiveActivityRequest: Sendable, Equatable {
             case timestamp
         }
 
-        public init(activityID: String, typeReferenceID: String, content: LiveActivityContent? = nil, dismissalPolicy: DismissalPolicy? = nil, timestamp: Date? = nil) {
+        public init(
+            activityID: String,
+            typeReferenceID: String,
+            content: LiveActivityContent? = nil,
+            dismissalPolicy: DismissalPolicy? = nil,
+            timestamp: Timestamp? = nil
+        ) {
             self.activityID = activityID
             self.typeReferenceID = typeReferenceID
             self.content = content
@@ -76,7 +109,11 @@ public struct LiveActivityRequest: Sendable, Equatable {
             case content
             case attributes
         }
-        public init(typeReferenceID: String, content: LiveActivityContent, attributes: AirshipJSON) {
+        public init(
+            typeReferenceID: String,
+            content: LiveActivityContent,
+            attributes: AirshipJSON
+        ) {
             self.typeReferenceID = typeReferenceID
             self.content = content
             self.attributes = attributes
@@ -100,8 +137,8 @@ public struct LiveActivityRequest: Sendable, Equatable {
         }
 
         public init(from decoder: any Decoder) throws {
-            var container = try decoder.container(keyedBy: CodingKeys.self)
-            var type = try container.decode(DismissalType.self, forKey: .type)
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let type = try container.decode(DismissalType.self, forKey: .type)
             switch (type) {
             case .after:
                 self = .after(date: try container.decode(Date.self, forKey: .date))
