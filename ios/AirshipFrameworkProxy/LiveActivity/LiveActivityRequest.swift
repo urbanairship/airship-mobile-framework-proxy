@@ -27,7 +27,7 @@ public struct LiveActivityRequest: Sendable, Equatable {
 
 
         enum CodingKeys: String, CodingKey {
-            case activityID
+            case activityID = "activityId"
             case typeReferenceID = "typeReferenceId"
             case content
         }
@@ -51,7 +51,7 @@ public struct LiveActivityRequest: Sendable, Equatable {
         public var dismissalPolicy: DismissalPolicy?
 
         enum CodingKeys: String, CodingKey {
-            case activityID
+            case activityID = "activityId"
             case typeReferenceID = "typeReferenceId"
             case content
             case dismissalPolicy
