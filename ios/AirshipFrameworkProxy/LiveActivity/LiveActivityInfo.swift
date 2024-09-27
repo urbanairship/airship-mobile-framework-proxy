@@ -11,15 +11,25 @@ import ActivityKit
 public struct LiveActivityInfo: Codable, Sendable, Equatable, Hashable {
     public var id: String
     public var typeReferenceID: String
+    public var state: LiveActivityState
     public var content: LiveActivityContent
     public var attributes: AirshipJSON
 
     enum CodingKeys: String, CodingKey {
         case id
         case typeReferenceID = "typeReferenceId"
+        case state
         case content
         case attributes
     }
+}
+
+public enum LiveActivityState: String, Codable, Sendable, Equatable, Hashable {
+    case active
+    case ended
+    case dismissed
+    case stale
+    case unknown
 }
 
 extension LiveActivityInfo {
@@ -31,6 +41,7 @@ extension LiveActivityInfo {
         self.id = activity.id
         self.typeReferenceID = typeReferenceID
         self.attributes = try AirshipJSON.wrap(activity.attributes)
+        self.state = Self.state(state: activity.activityState)
         self.content = if #available(iOS 16.2, *) {
             LiveActivityContent(
               state: try AirshipJSON.wrap(activity.content.state),
@@ -43,6 +54,17 @@ extension LiveActivityInfo {
                 staleDate: nil,
                 relevanceScore: 0
             )
+        }
+    }
+
+    @available(iOS 16.1, *)
+    private static func state(state: ActivityState) -> LiveActivityState {
+        return switch(state) {
+        case .active: .active
+        case .ended: .ended
+        case .dismissed: .dismissed
+        case .stale: .stale
+        @unknown default: .unknown
         }
     }
 }

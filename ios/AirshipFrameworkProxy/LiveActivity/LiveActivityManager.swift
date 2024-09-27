@@ -19,8 +19,8 @@ public actor LiveActivityManager: Sendable {
         let update: (LiveActivityRequest.Update) async throws -> Void
         let end: (LiveActivityRequest.End) async throws -> Void
 
-        let pushToStartUpdates: ((@escaping @Sendable () async -> Void)) async -> Void
-        let contentUpdates: (String, (@escaping @Sendable (LiveActivityInfo) async -> Void)) async -> Void
+        let pushToStartUpdates: ((@escaping @Sendable () async -> Void)) -> Void
+        let activityUpdates: (String, (@escaping @Sendable (LiveActivityInfo?) async -> Void)) -> Void
     }
 
     private var entries: [String: Entry] = [:]
@@ -86,10 +86,8 @@ public actor LiveActivityManager: Sendable {
         self.entries = await configurator.entries
 
         self.entries.values.forEach { entry in
-            Task { [weak self] in
-                await entry.pushToStartUpdates { [weak self] in
-                    await self?.checkForActivities()
-                }
+            entry.pushToStartUpdates { [weak self] in
+                await self?.checkForActivities()
             }
         }
     }
@@ -99,7 +97,8 @@ public actor LiveActivityManager: Sendable {
         let all = self.entries.values.compactMap { try? $0.list() }.joined()
         for info in all {
             if activityState[info.id] == nil {
-                await updated(info: info, notifyOnChange: false)
+                await startWatchingActivityUpdates(info.id, typeReferenceID: info.typeReferenceID)
+                await updated(activityID: info.id, info: info, notifyOnChange: false)
                 update = true
             }
         }
@@ -109,12 +108,12 @@ public actor LiveActivityManager: Sendable {
         }
     }
 
-    private func updated(info: LiveActivityInfo, notifyOnChange: Bool) async {
-        guard activityState[info.id] != info else {
+    private func updated(activityID: String, info: LiveActivityInfo?, notifyOnChange: Bool) async {
+        guard activityState[activityID] != info else {
             return
         }
 
-        activityState[info.id] = info
+        activityState[activityID] = info
 
         if (notifyOnChange) {
             await notify()
@@ -129,13 +128,11 @@ public actor LiveActivityManager: Sendable {
         await AirshipProxyEventEmitter.shared.addEvent(LiveActivitiesUpdatedEvent(activities))
     }
 
-    private func startWatching(_ info: LiveActivityInfo) {
-        Task { [weak self] in
-            let entry = try await self?.findEntry(typeReferenceID: info.typeReferenceID)
-            await entry?.contentUpdates(info.id, { [weak self] info in
-                await self?.updated(info: info, notifyOnChange: true)
-            })
-        }
+    private func startWatchingActivityUpdates(_ activityID: String, typeReferenceID: String) async {
+        let entry = try? await self.findEntry(typeReferenceID: typeReferenceID)
+        entry?.activityUpdates(activityID, { [weak self] info in
+            await self?.updated(activityID: activityID, info: info, notifyOnChange: true)
+        })
     }
 
     public func create(_ request: LiveActivityRequest.Create) async throws -> LiveActivityInfo {
@@ -180,46 +177,40 @@ extension LiveActivityManager.Entry {
     ) {
 
         self.pushToStartUpdates = { callback in
-            if #available(iOS 17.2, *) {
-                for await _ in type.pushToStartTokenUpdates {
-                    await callback()
+            Task {
+                if #available(iOS 17.2, *) {
+                    for await _ in type.pushToStartTokenUpdates {
+                        await callback()
+                    }
                 }
             }
         }
 
-        self.contentUpdates = { id, callback in
-            guard let activity = type.activities.first(where: { $0.id == id }) else {
-               return
-            }
-
-            if #available(iOS 16.2, *) {
-                for await _ in activity.contentUpdates {
-                    guard let updated = type.activities.first(where: { $0.id == id }) else {
-                        return
-                    }
-
-                    if let info = try? LiveActivityInfo(activity: updated, typeReferenceID: typeReferenceID) {
-                        await callback(info)
-                    }
+        self.activityUpdates = { id, callback in
+            Task {
+                let contentTask = Task {
+                    try? await Self.watchContentUpates(
+                        type,
+                        activityID: id,
+                        typeReferenceID: typeReferenceID,
+                        onUpdate: callback
+                    )
                 }
-            } else {
-                for await _ in activity.contentStateUpdates {
-                    guard let updated = type.activities.first(where: { $0.id == id }) else {
-                        return
-                    }
 
-                    if let info = try? LiveActivityInfo(activity: updated, typeReferenceID: typeReferenceID) {
-                        await callback(info)
-                    }
+                Task {
+                    try? await Self.watchStatusUpdates(
+                        type,
+                        activityID: id,
+                        typeReferenceID: typeReferenceID,
+                        onUpdate: callback
+                    )
+                    contentTask.cancel()
                 }
             }
         }
 
         self.end = { request in
-            guard let activity = type.activities.first(where: { $0.id == request.activityID }) else {
-                throw AirshipErrors.error("No activity found with activityID \(request.activityID) typeReferenceID \(typeReferenceID)")
-            }
-            try await Self.endActivity(activity, request: request)
+            try await Self.endActivity(type, request: request)
         }
 
         self.list = {
@@ -229,11 +220,7 @@ extension LiveActivityManager.Entry {
         }
 
         self.update = { request in
-            guard let activity = type.activities.first(where: { $0.id == request.activityID }) else {
-                throw AirshipErrors.error("No activity found with activityID \(request.activityID) typeReferenceID \(typeReferenceID)")
-            }
-
-            try await Self.updateActivity(activity, request: request)
+            try await Self.updateActivity(type, request: request)
         }
 
         self.create = { request in
@@ -247,9 +234,13 @@ extension LiveActivityManager.Entry {
     }
 
     private static func updateActivity<T: ActivityAttributes>(
-        _ activity: Activity<T>,
+        _ type: Activity<T>.Type,
         request: LiveActivityRequest.Update
     ) async throws {
+        guard let activity = type.activities.first(where: { $0.id == request.activityID }) else {
+            throw AirshipErrors.error("No activity found with activityID \(request.activityID)")
+        }
+
         let decodedContentState: T.ContentState = try request.content.state.decode()
         if #available(iOS 16.2, *) {
             let content = ActivityContent(
@@ -269,9 +260,12 @@ extension LiveActivityManager.Entry {
     }
 
     private static func endActivity<T: ActivityAttributes>(
-        _ activity: Activity<T>,
+        _ type: Activity<T>.Type,
         request: LiveActivityRequest.End
     ) async throws {
+        guard let activity = type.activities.first(where: { $0.id == request.activityID }) else {
+            throw AirshipErrors.error("No activity found with activityID \(request.activityID)")
+        }
 
         let dismissalPolicy: ActivityUIDismissalPolicy = switch(request.dismissalPolicy ??  .default) {
         case .after(let date): .after(date)
@@ -325,6 +319,63 @@ extension LiveActivityManager.Entry {
                 contentState: decodedContentState,
                 pushType: .token
             )
+        }
+    }
+
+    private static func watchStatusUpdates<T: ActivityAttributes>(
+        _ type: Activity<T>.Type,
+        activityID: String,
+        typeReferenceID: String,
+        onUpdate: @escaping @Sendable (LiveActivityInfo?) async -> Void
+    ) async throws {
+        guard let activity = type.activities.first(where: { $0.id == activityID }) else {
+            return
+        }
+
+        for await _ in activity.activityStateUpdates {
+            guard let updated = type.activities.first(where: { $0.id == activityID }) else {
+                await onUpdate(nil)
+                return
+            }
+
+            if let info = try? LiveActivityInfo(activity: updated, typeReferenceID: typeReferenceID) {
+                await onUpdate(info)
+            }
+        }
+    }
+
+    private static func watchContentUpates<T: ActivityAttributes>(
+        _ type: Activity<T>.Type,
+        activityID: String,
+        typeReferenceID: String,
+        onUpdate: @escaping @Sendable (LiveActivityInfo?) async -> Void
+    ) async throws {
+        guard let activity = type.activities.first(where: { $0.id == activityID }) else {
+           return
+        }
+
+        if #available(iOS 16.2, *) {
+            for await _ in activity.contentUpdates {
+                try Task.checkCancellation()
+                guard let updated = type.activities.first(where: { $0.id == activityID }) else {
+                    break
+                }
+
+                if let info = try? LiveActivityInfo(activity: updated, typeReferenceID: typeReferenceID) {
+                    await onUpdate(info)
+                }
+            }
+        } else {
+            for await _ in activity.contentStateUpdates {
+                try Task.checkCancellation()
+                guard let updated = type.activities.first(where: { $0.id == activityID }) else {
+                    break
+                }
+
+                if let info = try? LiveActivityInfo(activity: updated, typeReferenceID: typeReferenceID) {
+                    await onUpdate(info)
+                }
+            }
         }
     }
 }

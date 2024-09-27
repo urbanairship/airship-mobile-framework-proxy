@@ -10,6 +10,10 @@ public struct LiveActivityRequest: Sendable, Equatable {
     public struct List: Sendable, Equatable, Codable {
         public var typeReferenceID: String
 
+        enum CodingKeys: String, CodingKey {
+            case typeReferenceID = "typeReferenceId"
+        }
+
         public init(typeReferenceID: String) {
             self.typeReferenceID = typeReferenceID
         }
@@ -20,6 +24,15 @@ public struct LiveActivityRequest: Sendable, Equatable {
         public var typeReferenceID: String
         public var content: LiveActivityContent
         public var timestamp: Date?
+
+
+        enum CodingKeys: String, CodingKey {
+            case activityID
+            case typeReferenceID = "typeReferenceId"
+            case content
+            case timestamp
+        }
+
 
         public init(activityID: String, typeReferenceID: String, content: LiveActivityContent, timestamp: Date? = nil) {
             self.activityID = activityID
@@ -36,6 +49,14 @@ public struct LiveActivityRequest: Sendable, Equatable {
         public var dismissalPolicy: DismissalPolicy?
         public var timestamp: Date?
 
+        enum CodingKeys: String, CodingKey {
+            case activityID
+            case typeReferenceID = "typeReferenceId"
+            case content
+            case dismissalPolicy
+            case timestamp
+        }
+
         public init(activityID: String, typeReferenceID: String, content: LiveActivityContent? = nil, dismissalPolicy: DismissalPolicy? = nil, timestamp: Date? = nil) {
             self.activityID = activityID
             self.typeReferenceID = typeReferenceID
@@ -50,6 +71,11 @@ public struct LiveActivityRequest: Sendable, Equatable {
         public var content: LiveActivityContent
         public var attributes: AirshipJSON
 
+        enum CodingKeys: String, CodingKey {
+            case typeReferenceID = "typeReferenceId"
+            case content
+            case attributes
+        }
         public init(typeReferenceID: String, content: LiveActivityContent, attributes: AirshipJSON) {
             self.typeReferenceID = typeReferenceID
             self.content = content
