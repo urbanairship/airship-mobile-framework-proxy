@@ -58,7 +58,6 @@ public class AirshipPreferenceCenterProxy {
 }
 
 protocol AirshipPreferenceCenterProtocol: AnyObject {
-    @MainActor
     func open(_ preferenceCenterID: String)
     func jsonConfig(preferenceCenterID: String) async throws -> Data
 }
