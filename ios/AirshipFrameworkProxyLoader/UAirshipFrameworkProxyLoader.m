@@ -7,7 +7,7 @@
 #elif __has_include("AirshipFrameworkProxy-Swift.h")
 #import "AirshipFrameworkProxy-Swift.h"
 #else
-@import AirshipFrameworkProxy;
+@import AirshipFrameworkProxyBase;
 #endif
 
 @implementation UAirshipFrameworkProxyLoader
