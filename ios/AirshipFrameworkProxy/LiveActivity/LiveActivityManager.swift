@@ -137,7 +137,7 @@ public actor LiveActivityManager: Sendable {
 
     public func create(_ request: LiveActivityRequest.Create) async throws -> LiveActivityInfo {
         let result = try await findEntry(typeReferenceID: request.typeReferenceID).create(request)
-        if #available(iOS 17.2, *) {} else {
+        if #unavailable(iOS 17.2) {
             await self.checkForActivities()
         }
         return result
