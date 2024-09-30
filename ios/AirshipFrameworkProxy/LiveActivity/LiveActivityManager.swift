@@ -174,19 +174,19 @@ public actor LiveActivityManager: Sendable {
         }
     }
 
-    public func list(_ request: LiveActivityRequest.List?) async throws -> [LiveActivityInfo] {
+    public func listAll() async throws -> [LiveActivityInfo] {
         try await waitForSetup()
 
-        if let type = request?.attributesType {
-            return try self.findEntry(attributesType: type).list()
-        } else {
-            var liveActivities: [LiveActivityInfo] = []
-            for handler in self.entries.values {
-                liveActivities.append(contentsOf: try handler.list())
-            }
-
-            return liveActivities
+        var liveActivities: [LiveActivityInfo] = []
+        for handler in self.entries.values {
+            liveActivities.append(contentsOf: try handler.list())
         }
+        return liveActivities
+    }
+
+    public func list(_ request: LiveActivityRequest.List) async throws -> [LiveActivityInfo] {
+        try await waitForSetup()
+        return try self.findEntry(attributesType: request.attributesType).list()
     }
 
     private func waitForSetup() async throws {

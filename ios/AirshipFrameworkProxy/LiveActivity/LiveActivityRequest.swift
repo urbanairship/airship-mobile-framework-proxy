@@ -9,7 +9,7 @@ import AirshipCore
 public struct LiveActivityRequest: Sendable, Equatable {
 
     public struct List: Sendable, Equatable, Codable {
-        public var attributesType: String?
+        public var attributesType: String
 
 
         public init(attributesType: String) {

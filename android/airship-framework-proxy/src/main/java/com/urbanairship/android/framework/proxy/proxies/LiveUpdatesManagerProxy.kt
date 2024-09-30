@@ -22,6 +22,10 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
         return this.manager.getAllActiveUpdates().filter { it.type == request.type }.map { LiveUpdateProxy(it) }
     }
 
+    public suspend fun listAll(): List<LiveUpdateProxy> {
+        return this.manager.getAllActiveUpdates().map { LiveUpdateProxy(it) }
+    }
+
     public fun create(request: LiveUpdateRequest.Create) {
         this.manager.start(
             name = request.name,
