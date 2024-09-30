@@ -44,6 +44,7 @@ dependencies {
     api(libs.airship.automation)
     api(libs.airship.fcm)
     api(libs.airship.feature.flag)
+    api(libs.airship.live.update)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.preference.ktx)

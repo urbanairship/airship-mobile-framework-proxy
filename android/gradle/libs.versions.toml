@@ -60,6 +60,8 @@ airship-message-center = { module = "com.urbanairship.android:urbanairship-messa
 airship-preference-center = { module = "com.urbanairship.android:urbanairship-preference-center", version.ref = "airship"}
 airship-automation = { module = "com.urbanairship.android:urbanairship-automation", version.ref = "airship"}
 airship-fcm = { module = "com.urbanairship.android:urbanairship-fcm", version.ref = "airship"}
+airship-live-update = { module = "com.urbanairship.android:urbanairship-live-update", version.ref = "airship"}
+
 airship-feature-flag = { module = "com.urbanairship.android:urbanairship-feature-flag", version.ref = "airship"}
 airship-hms = { module = "com.urbanairship.android:urbanairship-hms", version.ref = "airship"}
 
