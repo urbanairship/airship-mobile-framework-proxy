@@ -11,5 +11,12 @@ import com.urbanairship.UAirship
  * `com.urbanairship.plugin.AIRSHIP_EXTENDER`.
  */
 public interface AirshipPluginExtender {
+
+    /**
+     * Used to customize Airship before takeOff is complete. Avoid long running, blocking
+     * calls in this callback as it will delay Airship from being able to process notifications.
+     * @param context The application context.
+     * @param airship The airship instance.
+     */
     public fun onAirshipReady(context: Context, airship: UAirship)
 }
