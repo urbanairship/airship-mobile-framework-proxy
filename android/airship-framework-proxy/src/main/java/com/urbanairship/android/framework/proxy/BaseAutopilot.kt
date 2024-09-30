@@ -3,6 +3,8 @@
 package com.urbanairship.android.framework.proxy
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.XmlRes
@@ -17,25 +19,16 @@ import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.permission.OnPermissionStatusChangedListener
 import com.urbanairship.permission.Permission
-import com.urbanairship.permission.PermissionStatus
-import com.urbanairship.permission.PermissionsManager
 import com.urbanairship.preferencecenter.PreferenceCenter
 import com.urbanairship.push.pushNotificationStatusFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Module's autopilot to customize Urban Airship.
@@ -47,7 +40,7 @@ public abstract class BaseAutopilot : Autopilot() {
 
     private val dispatcher = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    override fun onAirshipReady(airship: UAirship) {
+    final override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
 
         ProxyLogger.setLogLevel(airship.airshipConfigOptions.logLevel)
@@ -107,7 +100,13 @@ public abstract class BaseAutopilot : Autopilot() {
         }
         loadCustomNotificationChannels(context, airship)
         loadCustomNotificationButtonGroups(context, airship)
+
+        onReady(context, airship)
+
+        createExtender(context)?.onAirshipReady(context, airship)
     }
+
+    protected abstract fun onReady(context: Context, airship: UAirship)
 
     private fun loadCustomNotificationChannels(context: Context, airship: UAirship) {
         val packageName = UAirship.getPackageName()
@@ -169,6 +168,33 @@ public abstract class BaseAutopilot : Autopilot() {
     }
 
     public abstract fun onMigrateData(context: Context, proxyStore: ProxyStore)
+
+    private fun createExtender(context: Context): AirshipPluginExtender? {
+        val ai: ApplicationInfo
+        try {
+            ai = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+
+            if (ai.metaData == null) {
+                return null
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            return null
+        }
+
+        val classname = ai.metaData.getString(EXTENDER_MANIFEST_KEY) ?: return null
+
+        try {
+            val extenderClass = Class.forName(classname)
+            return extenderClass.getDeclaredConstructor().newInstance() as AirshipPluginExtender
+        } catch (e: Exception) {
+            ProxyLogger.error(e, "Unable to create extender: $classname")
+        }
+        return null
+    }
+
+    private companion object {
+        const val EXTENDER_MANIFEST_KEY = "com.urbanairship.plugin.AIRSHIP_EXTENDER"
+    }
 }
 
 public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxyConfig: ProxyConfig) {

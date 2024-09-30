@@ -25,7 +25,6 @@ public object ProxyLogger {
      *
      * @param logLevel The log level.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     internal fun setLogLevel(logLevel: Int) {
         this.logLevel = logLevel
@@ -37,7 +36,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun warn(message: String, vararg args: Any?) {
         log(Log.WARN, null, message, *args)
@@ -50,7 +48,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun warn(t: Throwable, message: String, vararg args: Any?) {
         log(Log.WARN, t, message, *args)
@@ -61,7 +58,6 @@ public object ProxyLogger {
      *
      * @param t An exception to log
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun warn(t: Throwable) {
         log(Log.WARN, t, null)
@@ -73,7 +69,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun verbose(message: String, vararg args: Any?) {
         log(Log.VERBOSE, null, message, *args)
@@ -85,7 +80,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun debug(message: String, vararg args: Any?) {
         log(Log.DEBUG, null, message, *args)
@@ -98,7 +92,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun debug(t: Throwable, message: String, vararg args: Any?) {
         log(Log.DEBUG, t, message, *args)
@@ -110,7 +103,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun info(message: String, vararg args: Any) {
         log(Log.INFO, null, message, *args)
@@ -123,7 +115,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun info(t: Throwable, message: String, vararg args: Any?) {
         log(Log.INFO, t, message, *args)
@@ -135,7 +126,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun error(message: String, vararg args: Any?) {
         log(Log.ERROR, null, message, *args)
@@ -146,7 +136,6 @@ public object ProxyLogger {
      *
      * @param t An exception to log
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun error(t: Throwable) {
         log(Log.ERROR, t, null)
@@ -159,7 +148,6 @@ public object ProxyLogger {
      * @param message The message you would like logged.
      * @param args The message args.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmStatic
     public fun error(t: Throwable, message: String, vararg args: Any?) {
         log(Log.ERROR, t, message, *args)
