@@ -16,8 +16,8 @@ public actor LiveActivityManager: Sendable {
     fileprivate struct Entry {
         let list: () throws -> [LiveActivityInfo]
         let create: (LiveActivityRequest.Create) async throws -> LiveActivityInfo
-        let update: (LiveActivityRequest.Update) async throws -> Void
-        let end: (LiveActivityRequest.End) async throws -> Void
+        let update: (LiveActivityRequest.Update) async throws -> Bool
+        let end: (LiveActivityRequest.End) async throws -> Bool
 
         let pushToStartUpdates: ((@escaping @Sendable () async -> Void)) -> Void
         let activityUpdates: (String, (@escaping @Sendable (LiveActivityInfo?) async -> Void)) -> Void
@@ -129,13 +129,14 @@ public actor LiveActivityManager: Sendable {
     }
 
     private func startWatchingActivityUpdates(_ activityID: String, attributesType: String) async {
-        let entry = try? await self.findEntry(attributesType: attributesType)
+        let entry = try? self.findEntry(attributesType: attributesType)
         entry?.activityUpdates(activityID, { [weak self] info in
             await self?.updated(activityID: activityID, info: info, notifyOnChange: true)
         })
     }
 
     public func create(_ request: LiveActivityRequest.Create) async throws -> LiveActivityInfo {
+        try await waitForSetup()
         let result = try await findEntry(attributesType: request.attributesType).create(request)
         if #unavailable(iOS 17.2) {
             await self.checkForActivities()
@@ -144,22 +145,58 @@ public actor LiveActivityManager: Sendable {
     }
 
     public func update(_ request: LiveActivityRequest.Update) async throws -> Void {
-        try await findEntry(attributesType: request.attributesType).update(request)
+        try await waitForSetup()
+        var processed = false
+        for handler in self.entries.values {
+            if (try await handler.update(request)) {
+                processed = true
+                break
+            }
+        }
+
+        guard processed else {
+            throw AirshipErrors.error("Unable to update Live Activity \(request)")
+        }
     }
 
     public func end(_ request: LiveActivityRequest.End) async throws -> Void {
-        try await findEntry(attributesType: request.attributesType).end(request)
+        try await waitForSetup()
+        var processed = false
+        for handler in self.entries.values {
+            if (try await handler.end(request)) {
+                processed = true
+                break
+            }
+        }
+
+        guard processed else {
+            throw AirshipErrors.error("Unable to end Live Activity \(request)")
+        }
+    }
+
+    public func listAll() async throws -> [LiveActivityInfo] {
+        try await waitForSetup()
+
+        var liveActivities: [LiveActivityInfo] = []
+        for handler in self.entries.values {
+            liveActivities.append(contentsOf: try handler.list())
+        }
+        return liveActivities
     }
 
     public func list(_ request: LiveActivityRequest.List) async throws -> [LiveActivityInfo] {
-        return try await findEntry(attributesType: request.attributesType).list()
+        try await waitForSetup()
+        return try self.findEntry(attributesType: request.attributesType).list()
     }
 
-    private func findEntry(attributesType: String) async throws -> Entry {
+    private func waitForSetup() async throws {
         guard await self.setupCalled else {
             throw AirshipErrors.error("Setup not called")
         }
         await setupTask?.value
+    }
+
+    private func findEntry(attributesType: String) throws -> Entry {
         guard let entry = self.entries[attributesType] else {
             throw AirshipErrors.error("Missing entry for attributesType \(attributesType)")
         }
@@ -236,9 +273,9 @@ extension LiveActivityManager.Entry {
     private static func updateActivity<T: ActivityAttributes>(
         _ type: Activity<T>.Type,
         request: LiveActivityRequest.Update
-    ) async throws {
+    ) async throws -> Bool {
         guard let activity = type.activities.first(where: { $0.id == request.activityID }) else {
-            throw AirshipErrors.error("No activity found with activityID \(request.activityID)")
+            return false
         }
 
         let decodedContentState: T.ContentState = try request.content.state.decode()
@@ -253,14 +290,16 @@ extension LiveActivityManager.Entry {
         } else {
             await activity.update(using: decodedContentState)
         }
+
+        return true
     }
 
     private static func endActivity<T: ActivityAttributes>(
         _ type: Activity<T>.Type,
         request: LiveActivityRequest.End
-    ) async throws {
+    ) async throws -> Bool {
         guard let activity = type.activities.first(where: { $0.id == request.activityID }) else {
-            throw AirshipErrors.error("No activity found with activityID \(request.activityID)")
+            return false
         }
 
         let dismissalPolicy: ActivityUIDismissalPolicy = switch(request.dismissalPolicy ??  .default) {
@@ -287,6 +326,8 @@ extension LiveActivityManager.Entry {
                 dismissalPolicy: dismissalPolicy
             )
         }
+
+        return true
     }
 
     private static func createActivity<T: ActivityAttributes>(
