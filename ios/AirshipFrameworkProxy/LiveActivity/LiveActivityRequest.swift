@@ -110,7 +110,11 @@ public struct LiveActivityRequest: Sendable, Equatable {
             let type = try container.decode(DismissalType.self, forKey: .type)
             switch (type) {
             case .after:
-                self = .after(date: try container.decode(Date.self, forKey: .date))
+                let dateString = try container.decode(String.self, forKey: .date)
+                guard let date = AirshipDateFormatter.date(fromISOString: dateString) else {
+                    throw AirshipErrors.error("Invalid date format \(dateString)")
+                }
+                self = .after(date: date)
             case .immediate:
                 self = .immediate
             case .default:
@@ -123,7 +127,7 @@ public struct LiveActivityRequest: Sendable, Equatable {
             switch (self) {
             case .after(let date):
                 try container.encode(DismissalType.after, forKey: .type)
-                try container.encode(date, forKey: .date)
+                try container.encode(AirshipDateFormatter.string(fromDate: date, format: .iso), forKey: .date)
             case .immediate:
                 try container.encode(DismissalType.immediate, forKey: .type)
             case .default:
