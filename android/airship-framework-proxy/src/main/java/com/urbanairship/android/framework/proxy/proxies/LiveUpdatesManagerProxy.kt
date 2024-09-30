@@ -53,14 +53,6 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
             dismissTimestamp = request.dismissalTimestamp
         )
     }
-
-    public suspend fun update(request: LiveUpdateRequest.List): List<LiveUpdateProxy> {
-        return this.manager.getAllActiveUpdates().filter { it.type == request.type }.map { LiveUpdateProxy(it) }
-    }
-
-    public suspend fun end(request: LiveUpdateRequest.List): List<LiveUpdateProxy> {
-        return this.manager.getAllActiveUpdates().filter { it.type == request.type }.map { LiveUpdateProxy(it) }
-    }
 }
 
 public class LiveUpdateProxy(private val liveUpdate: LiveUpdate): JsonSerializable {
