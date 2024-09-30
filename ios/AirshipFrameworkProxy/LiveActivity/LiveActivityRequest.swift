@@ -9,7 +9,7 @@ import AirshipCore
 public struct LiveActivityRequest: Sendable, Equatable {
 
     public struct List: Sendable, Equatable, Codable {
-        public var attributesType: String
+        public var attributesType: String?
 
 
         public init(attributesType: String) {
@@ -19,49 +19,40 @@ public struct LiveActivityRequest: Sendable, Equatable {
 
     public struct Update: Sendable, Equatable, Codable {
         public var activityID: String
-        public var attributesType: String
         public var content: LiveActivityContent
-
 
         enum CodingKeys: String, CodingKey {
             case activityID = "activityId"
-            case attributesType
             case content
         }
 
 
         public init(
             activityID: String,
-            attributesType: String,
             content: LiveActivityContent
         ) {
             self.activityID = activityID
-            self.attributesType = attributesType
             self.content = content
         }
     }
 
     public struct End: Sendable, Equatable, Codable {
         public var activityID: String
-        public var attributesType: String
         public var content: LiveActivityContent?
         public var dismissalPolicy: DismissalPolicy?
 
         enum CodingKeys: String, CodingKey {
             case activityID = "activityId"
-            case attributesType
             case content
             case dismissalPolicy
         }
 
         public init(
             activityID: String,
-            attributesType: String,
             content: LiveActivityContent? = nil,
             dismissalPolicy: DismissalPolicy? = nil
         ) {
             self.activityID = activityID
-            self.attributesType = attributesType
             self.content = content
             self.dismissalPolicy = dismissalPolicy
         }
