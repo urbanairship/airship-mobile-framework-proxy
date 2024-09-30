@@ -40,12 +40,12 @@ public actor LiveActivityManager: Sendable {
 
         public func register<T: ActivityAttributes>(
             forType type: Activity<T>.Type,
-            typeReferenceID: String,
+            attributesType: String = String(describing: T.self),
             airshipNameExtractor: (@Sendable (T) -> String)?
         ) async {
-            self.entries[typeReferenceID] = Entry(
+            self.entries[attributesType] = Entry(
                 forType: type,
-                typeReferenceID: typeReferenceID,
+                attributesType: attributesType,
                 airshipNameExtractor: airshipNameExtractor
             )
             await restorer.restore(forType: type)
@@ -97,7 +97,7 @@ public actor LiveActivityManager: Sendable {
         let all = self.entries.values.compactMap { try? $0.list() }.joined()
         for info in all {
             if activityState[info.id] == nil {
-                await startWatchingActivityUpdates(info.id, typeReferenceID: info.typeReferenceID)
+                await startWatchingActivityUpdates(info.id, attributesType: info.attributesType)
                 await updated(activityID: info.id, info: info, notifyOnChange: false)
                 update = true
             }
@@ -128,15 +128,15 @@ public actor LiveActivityManager: Sendable {
         await AirshipProxyEventEmitter.shared.addEvent(LiveActivitiesUpdatedEvent(activities))
     }
 
-    private func startWatchingActivityUpdates(_ activityID: String, typeReferenceID: String) async {
-        let entry = try? await self.findEntry(typeReferenceID: typeReferenceID)
+    private func startWatchingActivityUpdates(_ activityID: String, attributesType: String) async {
+        let entry = try? await self.findEntry(attributesType: attributesType)
         entry?.activityUpdates(activityID, { [weak self] info in
             await self?.updated(activityID: activityID, info: info, notifyOnChange: true)
         })
     }
 
     public func create(_ request: LiveActivityRequest.Create) async throws -> LiveActivityInfo {
-        let result = try await findEntry(typeReferenceID: request.typeReferenceID).create(request)
+        let result = try await findEntry(attributesType: request.attributesType).create(request)
         if #unavailable(iOS 17.2) {
             await self.checkForActivities()
         }
@@ -144,24 +144,24 @@ public actor LiveActivityManager: Sendable {
     }
 
     public func update(_ request: LiveActivityRequest.Update) async throws -> Void {
-        try await findEntry(typeReferenceID: request.typeReferenceID).update(request)
+        try await findEntry(attributesType: request.attributesType).update(request)
     }
 
     public func end(_ request: LiveActivityRequest.End) async throws -> Void {
-        try await findEntry(typeReferenceID: request.typeReferenceID).end(request)
+        try await findEntry(attributesType: request.attributesType).end(request)
     }
 
     public func list(_ request: LiveActivityRequest.List) async throws -> [LiveActivityInfo] {
-        return try await findEntry(typeReferenceID: request.typeReferenceID).list()
+        return try await findEntry(attributesType: request.attributesType).list()
     }
 
-    private func findEntry(typeReferenceID: String) async throws -> Entry {
+    private func findEntry(attributesType: String) async throws -> Entry {
         guard await self.setupCalled else {
             throw AirshipErrors.error("Setup not called")
         }
         await setupTask?.value
-        guard let entry = self.entries[typeReferenceID] else {
-            throw AirshipErrors.error("Missing entry for typeReferenceID \(typeReferenceID)")
+        guard let entry = self.entries[attributesType] else {
+            throw AirshipErrors.error("Missing entry for attributesType \(attributesType)")
         }
         return entry
     }
@@ -172,7 +172,7 @@ public actor LiveActivityManager: Sendable {
 extension LiveActivityManager.Entry {
     init<T: ActivityAttributes>(
         forType type: Activity<T>.Type,
-        typeReferenceID: String,
+        attributesType: String,
         airshipNameExtractor: (@Sendable (T) -> String)?
     ) {
 
@@ -192,7 +192,7 @@ extension LiveActivityManager.Entry {
                     try? await Self.watchContentUpates(
                         type,
                         activityID: id,
-                        typeReferenceID: typeReferenceID,
+                        attributesType: attributesType,
                         onUpdate: callback
                     )
                 }
@@ -201,7 +201,7 @@ extension LiveActivityManager.Entry {
                     try? await Self.watchStatusUpdates(
                         type,
                         activityID: id,
-                        typeReferenceID: typeReferenceID,
+                        attributesType: attributesType,
                         onUpdate: callback
                     )
                     contentTask.cancel()
@@ -215,7 +215,7 @@ extension LiveActivityManager.Entry {
 
         self.list = {
             return try type.activities.map { activity in
-                try LiveActivityInfo(activity: activity, typeReferenceID: typeReferenceID)
+                try LiveActivityInfo(activity: activity, attributesType: attributesType)
             }
         }
 
@@ -229,7 +229,7 @@ extension LiveActivityManager.Entry {
                 Airship.channel.trackLiveActivity(activity, name: airshipName)
             }
 
-            return try LiveActivityInfo(activity: activity, typeReferenceID: typeReferenceID)
+            return try LiveActivityInfo(activity: activity, attributesType: attributesType)
         }
     }
 
@@ -317,7 +317,7 @@ extension LiveActivityManager.Entry {
     private static func watchStatusUpdates<T: ActivityAttributes>(
         _ type: Activity<T>.Type,
         activityID: String,
-        typeReferenceID: String,
+        attributesType: String,
         onUpdate: @escaping @Sendable (LiveActivityInfo?) async -> Void
     ) async throws {
         guard let activity = type.activities.first(where: { $0.id == activityID }) else {
@@ -330,7 +330,7 @@ extension LiveActivityManager.Entry {
                 return
             }
 
-            if let info = try? LiveActivityInfo(activity: updated, typeReferenceID: typeReferenceID) {
+            if let info = try? LiveActivityInfo(activity: updated, attributesType: attributesType) {
                 await onUpdate(info)
             }
         }
@@ -339,7 +339,7 @@ extension LiveActivityManager.Entry {
     private static func watchContentUpates<T: ActivityAttributes>(
         _ type: Activity<T>.Type,
         activityID: String,
-        typeReferenceID: String,
+        attributesType: String,
         onUpdate: @escaping @Sendable (LiveActivityInfo?) async -> Void
     ) async throws {
         guard let activity = type.activities.first(where: { $0.id == activityID }) else {
@@ -353,7 +353,7 @@ extension LiveActivityManager.Entry {
                     break
                 }
 
-                if let info = try? LiveActivityInfo(activity: updated, typeReferenceID: typeReferenceID) {
+                if let info = try? LiveActivityInfo(activity: updated, attributesType: attributesType) {
                     await onUpdate(info)
                 }
             }
@@ -364,7 +364,7 @@ extension LiveActivityManager.Entry {
                     break
                 }
 
-                if let info = try? LiveActivityInfo(activity: updated, typeReferenceID: typeReferenceID) {
+                if let info = try? LiveActivityInfo(activity: updated, attributesType: attributesType) {
                     await onUpdate(info)
                 }
             }

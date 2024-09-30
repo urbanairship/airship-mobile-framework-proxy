@@ -9,83 +9,81 @@ import AirshipCore
 public struct LiveActivityRequest: Sendable, Equatable {
 
     public struct List: Sendable, Equatable, Codable {
-        public var typeReferenceID: String
+        public var attributesType: String
 
-        enum CodingKeys: String, CodingKey {
-            case typeReferenceID = "typeReferenceId"
-        }
 
-        public init(typeReferenceID: String) {
-            self.typeReferenceID = typeReferenceID
+        public init(attributesType: String) {
+            self.attributesType = attributesType
         }
     }
 
     public struct Update: Sendable, Equatable, Codable {
         public var activityID: String
-        public var typeReferenceID: String
+        public var attributesType: String
         public var content: LiveActivityContent
 
 
         enum CodingKeys: String, CodingKey {
             case activityID = "activityId"
-            case typeReferenceID = "typeReferenceId"
+            case attributesType
             case content
         }
 
 
         public init(
             activityID: String,
-            typeReferenceID: String,
+            attributesType: String,
             content: LiveActivityContent
         ) {
             self.activityID = activityID
-            self.typeReferenceID = typeReferenceID
+            self.attributesType = attributesType
             self.content = content
         }
     }
 
     public struct End: Sendable, Equatable, Codable {
         public var activityID: String
-        public var typeReferenceID: String
+        public var attributesType: String
         public var content: LiveActivityContent?
         public var dismissalPolicy: DismissalPolicy?
 
         enum CodingKeys: String, CodingKey {
             case activityID = "activityId"
-            case typeReferenceID = "typeReferenceId"
+            case attributesType
             case content
             case dismissalPolicy
         }
 
         public init(
             activityID: String,
-            typeReferenceID: String,
+            attributesType: String,
             content: LiveActivityContent? = nil,
             dismissalPolicy: DismissalPolicy? = nil
         ) {
             self.activityID = activityID
-            self.typeReferenceID = typeReferenceID
+            self.attributesType = attributesType
             self.content = content
             self.dismissalPolicy = dismissalPolicy
         }
     }
 
     public struct Create: Sendable, Equatable, Codable {
-        public var typeReferenceID: String
+        public var attributesType: String
         public var content: LiveActivityContent
         public var attributes: AirshipJSON
 
         enum CodingKeys: String, CodingKey {
-            case typeReferenceID = "typeReferenceId"
+            case attributesType
             case content
             case attributes
         }
+
         public init(
-            typeReferenceID: String,
+            attributesType: String,
             content: LiveActivityContent,
             attributes: AirshipJSON
         ) {
-            self.typeReferenceID = typeReferenceID
+            self.attributesType = attributesType
             self.content = content
             self.attributes = attributes
         }

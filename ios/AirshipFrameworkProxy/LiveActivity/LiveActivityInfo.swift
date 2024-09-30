@@ -10,14 +10,14 @@ import ActivityKit
 
 public struct LiveActivityInfo: Codable, Sendable, Equatable, Hashable {
     public var id: String
-    public var typeReferenceID: String
+    public var attributesType: String
     public var state: LiveActivityState
     public var content: LiveActivityContent
     public var attributes: AirshipJSON
 
     enum CodingKeys: String, CodingKey {
         case id
-        case typeReferenceID = "typeReferenceId"
+        case attributesType
         case state
         case content
         case attributes
@@ -36,10 +36,10 @@ extension LiveActivityInfo {
     @available(iOS 16.1, *)
     init<T: ActivityAttributes>(
       activity: Activity<T>,
-      typeReferenceID: String
+      attributesType: String
     ) throws {
         self.id = activity.id
-        self.typeReferenceID = typeReferenceID
+        self.attributesType = attributesType
         self.attributes = try AirshipJSON.wrap(activity.attributes)
         self.state = Self.state(state: activity.activityState)
         self.content = if #available(iOS 16.2, *) {
