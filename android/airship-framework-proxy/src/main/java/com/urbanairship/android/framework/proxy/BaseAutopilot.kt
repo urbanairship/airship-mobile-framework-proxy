@@ -193,7 +193,7 @@ public abstract class BaseAutopilot : Autopilot() {
     }
 
     private companion object {
-        const val EXTENDER_MANIFEST_KEY = "com.urbanairship.plugin.AIRSHIP_EXTENDER"
+        const val EXTENDER_MANIFEST_KEY = "com.urbanairship.plugin.extender"
     }
 }
 

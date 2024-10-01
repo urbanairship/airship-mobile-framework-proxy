@@ -106,7 +106,7 @@ public sealed class LiveUpdateRequest {
                 val map = jsonValue.requireMap()
                 return End(
                     name = map.requireField(NAME),
-                    content = map.requireField(CONTENT),
+                    content = map.optionalField(CONTENT),
                     timestamp =  map.optionalField<String>(TIMESTAMP)?.let {
                         DateUtils.parseIso8601(it)
                     },
