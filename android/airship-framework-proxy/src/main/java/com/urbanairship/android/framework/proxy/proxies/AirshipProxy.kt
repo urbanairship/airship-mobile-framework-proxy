@@ -12,6 +12,7 @@ import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.automation.InAppAutomation
 import com.urbanairship.featureflag.FeatureFlagManager
 import com.urbanairship.json.JsonValue
+import com.urbanairship.liveupdate.LiveUpdateManager
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.preferencecenter.PreferenceCenter
 
@@ -48,6 +49,11 @@ public class AirshipProxy(
     public val locale: LocaleProxy = LocaleProxy {
         ensureTakeOff()
         UAirship.shared().localeManager
+    }
+
+    public val liveUpdateManager: LiveUpdatesManagerProxy = LiveUpdatesManagerProxy {
+        ensureTakeOff()
+        LiveUpdateManager.shared()
     }
 
     public val messageCenter: MessageCenterProxy = MessageCenterProxy(proxyStore) {
