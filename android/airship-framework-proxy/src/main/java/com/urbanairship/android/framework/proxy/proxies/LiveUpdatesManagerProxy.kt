@@ -96,15 +96,15 @@ public sealed class LiveUpdateRequest {
 
     public data class End(
         val name: String,
-        val content: JsonMap,
+        val content: JsonMap?,
         val timestamp: Long? = null,
         val dismissalTimestamp: Long? = null
     ): LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)
-            public fun fromJson(jsonValue: JsonValue): Update {
+            public fun fromJson(jsonValue: JsonValue): End {
                 val map = jsonValue.requireMap()
-                return Update(
+                return End(
                     name = map.requireField(NAME),
                     content = map.requireField(CONTENT),
                     timestamp =  map.optionalField<String>(TIMESTAMP)?.let {
