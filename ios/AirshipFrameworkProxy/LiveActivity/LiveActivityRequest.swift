@@ -58,7 +58,7 @@ public struct LiveActivityRequest: Sendable, Equatable {
         }
     }
 
-    public struct Create: Sendable, Equatable, Codable {
+    public struct Start: Sendable, Equatable, Codable {
         public var attributesType: String
         public var content: LiveActivityContent
         public var attributes: AirshipJSON

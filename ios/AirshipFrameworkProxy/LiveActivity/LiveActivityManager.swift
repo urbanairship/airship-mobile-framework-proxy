@@ -15,7 +15,7 @@ public actor LiveActivityManager: Sendable {
 
     fileprivate struct Entry {
         let list: () throws -> [LiveActivityInfo]
-        let create: (LiveActivityRequest.Create) async throws -> LiveActivityInfo
+        let start: (LiveActivityRequest.Start) async throws -> LiveActivityInfo
         let update: (LiveActivityRequest.Update) async throws -> Bool
         let end: (LiveActivityRequest.End) async throws -> Bool
 
@@ -135,9 +135,9 @@ public actor LiveActivityManager: Sendable {
         })
     }
 
-    public func create(_ request: LiveActivityRequest.Create) async throws -> LiveActivityInfo {
+    public func start(_ request: LiveActivityRequest.Start) async throws -> LiveActivityInfo {
         try await waitForSetup()
-        let result = try await findEntry(attributesType: request.attributesType).create(request)
+        let result = try await findEntry(attributesType: request.attributesType).start(request)
         if #unavailable(iOS 17.2) {
             await self.checkForActivities()
         }
@@ -260,8 +260,8 @@ extension LiveActivityManager.Entry {
             try await Self.updateActivity(type, request: request)
         }
 
-        self.create = { request in
-            let activity: Activity<T> = try Self.createActivity(request: request)
+        self.start = { request in
+            let activity: Activity<T> = try Self.startActivity(request: request)
             if let airshipName = airshipNameExtractor?(activity.attributes) {
                 Airship.channel.trackLiveActivity(activity, name: airshipName)
             }
@@ -330,8 +330,8 @@ extension LiveActivityManager.Entry {
         return true
     }
 
-    private static func createActivity<T: ActivityAttributes>(
-        request: LiveActivityRequest.Create
+    private static func startActivity<T: ActivityAttributes>(
+        request: LiveActivityRequest.Start
     ) throws -> Activity<T> {
         let decodedAttributes: T = try request.attributes.decode()
         let decodedContentState: T.ContentState = try request.content.state.decode()
