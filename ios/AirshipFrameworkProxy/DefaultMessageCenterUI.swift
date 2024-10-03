@@ -103,10 +103,6 @@ public class DefaultMessageCenterUI {
         let theme = theme ?? MessageCenterTheme()
         let viewController = HostingViewController(
             rootView: StandaloneMessageView(
-                dismissAction: {
-                    cancellable.cancel()
-
-                }, 
                 content: {
                     MessageCenterMessageView(
                         messageID: messageID,
@@ -147,30 +143,11 @@ struct StandaloneMessageView<Content: View>: View  {
     @Environment(\.airshipMessageCenterTheme)
     private var theme
 
-    let dismissAction: () -> Void
-
-    @ViewBuilder
-    private func makeBackButton() -> some View {
-        Button(action: {
-            self.dismissAction()
-        }) {
-            Image(systemName: "chevron.backward")
-                .scaleEffect(0.68)
-                .font(Font.title.weight(.medium))
-                .foregroundColor(theme.backButtonColor)
-        }
-    }
-
     let content: () -> Content
 
     @ViewBuilder
     func makeContent() -> some View {
         let content = content()
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    makeBackButton()
-                }
-            }
         if #available(iOS 16.0, *) {
             NavigationStack {
                 content
