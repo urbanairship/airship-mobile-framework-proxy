@@ -26,7 +26,7 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
         return this.manager.getAllActiveUpdates().map { LiveUpdateProxy(it) }
     }
 
-    public fun create(request: LiveUpdateRequest.Create) {
+    public fun start(request: LiveUpdateRequest.Start) {
         this.manager.start(
             name = request.name,
             type = request.type,
@@ -52,6 +52,10 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
             timestamp = request.timestamp ?: System.currentTimeMillis(),
             dismissTimestamp = request.dismissalTimestamp
         )
+    }
+
+    public fun clearAll() {
+        this.manager.clearAll()
     }
 }
 
@@ -118,7 +122,7 @@ public sealed class LiveUpdateRequest {
         }
     }
 
-    public data class Create(
+    public data class Start(
         val name: String,
         val type: String,
         val content: JsonMap,
@@ -127,9 +131,9 @@ public sealed class LiveUpdateRequest {
     ): LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)
-            public fun fromJson(jsonValue: JsonValue): Create {
+            public fun fromJson(jsonValue: JsonValue): Start {
                 val map = jsonValue.requireMap()
-                return Create(
+                return Start(
                     name = map.requireField(NAME),
                     type = map.requireField(TYPE),
                     content = map.requireField(CONTENT),

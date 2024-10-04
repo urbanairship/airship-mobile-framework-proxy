@@ -9,17 +9,16 @@ import AirshipCore
 import AirshipMessageCenter
 #endif
 
+@MainActor
 public class DefaultMessageCenterUI {
     static let shared: DefaultMessageCenterUI = DefaultMessageCenterUI()
     private var currentDisplay: AirshipMainActorCancellable?
     private var controller: MessageCenterController = MessageCenterController()
 
-    @MainActor
     func dismiss() {
         self.currentDisplay?.cancel()
     }
 
-    @MainActor
     func display(messageID: String? = nil) {
         guard let scene = try? AirshipSceneManager.shared.lastActiveScene else {
             AirshipLogger.error(
@@ -40,7 +39,6 @@ public class DefaultMessageCenterUI {
         )
     }
 
-    @MainActor
     func displayMessageView(messageID: String) {
         guard let scene = try? AirshipSceneManager.shared.lastActiveScene else {
             AirshipLogger.error(
@@ -58,7 +56,6 @@ public class DefaultMessageCenterUI {
         )
     }
 
-    @MainActor
     private func open(
         scene: UIWindowScene,
         theme: MessageCenterTheme?
@@ -86,7 +83,6 @@ public class DefaultMessageCenterUI {
         return cancellable
     }
 
-    @MainActor
     private func openMessageView(
         scene: UIWindowScene,
         messageID: String,
