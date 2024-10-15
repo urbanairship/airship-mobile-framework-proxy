@@ -70,6 +70,7 @@ public class DefaultMessageCenterUI {
 
         let viewController = MessageCenterViewControllerFactory.make(
             theme: theme,
+            predicate: MessageCenter.shared.predicate,
             controller: self.controller
         ) {
             cancellable.cancel()
