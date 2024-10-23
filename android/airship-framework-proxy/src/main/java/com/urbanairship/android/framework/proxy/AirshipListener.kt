@@ -71,13 +71,15 @@ internal class AirshipListener(
 
     override fun onNotificationPosted(notificationInfo: NotificationInfo) {
         eventEmitter.addEvent(PushReceivedEvent(notificationInfo, isAppForegrounded))
+        AirshipPluginForwardListeners.notificationListener?.onNotificationPosted(notificationInfo)
     }
 
     override fun onNotificationOpened(notificationInfo: NotificationInfo): Boolean {
         eventEmitter.addEvent(
             NotificationResponseEvent(notificationInfo, null)
         )
-        return false
+
+        return AirshipPluginForwardListeners.notificationListener?.onNotificationOpened(notificationInfo) ?: false
     }
 
     override fun onNotificationForegroundAction(
@@ -87,7 +89,7 @@ internal class AirshipListener(
         eventEmitter.addEvent(
             NotificationResponseEvent(notificationInfo, notificationActionButtonInfo)
         )
-        return false
+        return AirshipPluginForwardListeners.notificationListener?.onNotificationForegroundAction(notificationInfo, notificationActionButtonInfo) ?: false
     }
 
     override fun onNotificationBackgroundAction(
@@ -97,12 +99,18 @@ internal class AirshipListener(
         eventEmitter.addEvent(
             NotificationResponseEvent(notificationInfo, notificationActionButtonInfo)
         )
+        AirshipPluginForwardListeners.notificationListener?.onNotificationBackgroundAction(notificationInfo, notificationActionButtonInfo)
     }
 
-    override fun onNotificationDismissed(notificationInfo: NotificationInfo) {}
+    override fun onNotificationDismissed(notificationInfo: NotificationInfo) {
+        AirshipPluginForwardListeners.notificationListener?.onNotificationDismissed(notificationInfo)
+    }
 
     override fun onDeepLink(deepLink: String): Boolean {
-        eventEmitter.addEvent(DeepLinkEvent(deepLink))
+        if (AirshipPluginForwardListeners.deepLinkListener?.onDeepLink(deepLink) != true) {
+            eventEmitter.addEvent(DeepLinkEvent(deepLink))
+        }
+
         return true
     }
 
