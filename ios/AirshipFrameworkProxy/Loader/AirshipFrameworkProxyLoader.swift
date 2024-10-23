@@ -11,26 +11,18 @@ import AirshipCore
 @objc
 @MainActor
 public class AirshipFrameworkProxyLoader: NSObject {
-    private static let pluginLoaderClass = "AirshipPluginLoader"
-    private static let extenderClass = "AirshipPluginExtender"
-
-    private static var pluginLoader: AirshipPluginLoaderProtocol?
-    private static var extender: AirshipPluginExtenderProtocol?
+    private static let pluginLoader: AirshipPluginLoaderProtocol.Type? = {
+        NSClassFromString("AirshipPluginLoader") as? AirshipPluginLoaderProtocol.Type
+    }()
 
     @objc
     public static func onLoad() {
-        if let classFromString =  NSClassFromString(self.extenderClass) as? AirshipPluginExtenderProtocol.Type {
-            Airship.onReady {
-                classFromString.onAirshipReady()
-            }
-        }
+        pluginLoader?.onLoad()
     }
 
     @objc
     public static func onApplicationDidFinishLaunching(launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
-        if let classFromString =  NSClassFromString(self.pluginLoaderClass) as? AirshipPluginLoaderProtocol.Type {
-            classFromString.onApplicationDidFinishLaunching(launchOptions: launchOptions)
-        }
+        pluginLoader?.onApplicationDidFinishLaunching(launchOptions: launchOptions)
     }
 }
 

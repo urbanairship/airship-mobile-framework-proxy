@@ -26,6 +26,10 @@ public protocol AirshipProxyDelegate {
 
 public class AirshipProxy {
 
+    private static let extender: AirshipPluginExtenderProtocol.Type? = {
+        NSClassFromString("AirshipPluginExtender") as? AirshipPluginExtenderProtocol.Type
+    }()
+
     public var delegate: AirshipProxyDelegate?
     private var migrateCalled: Bool = false
     private var subscriptions: Set<AnyCancellable> = Set()
@@ -164,21 +168,7 @@ public class AirshipProxy {
 
         AirshipLogger.debug("attemptTakeOff: \(String(describing: launchOptions))")
 
-        let airshipConfig: AirshipConfig = delegate?.loadDefaultConfig() ?? AirshipConfig.default()
-        airshipConfig.requireInitialRemoteConfigEnabled = true
-
-        if let config = self.proxyStore.config {
-            airshipConfig.applyProxyConfig(proxyConfig: config)
-            guard airshipConfig.validate() == true else {
-                throw AirshipProxyError.invalidConfig(
-                    "Invalid config: \(String(describing: airshipConfig))"
-                )
-            }
-        } else {
-            guard airshipConfig.validate() == true else {
-                return
-            }
-        }
+        let airshipConfig = try makeConfig()
 
         AirshipLogger.debug("Taking off! \(airshipConfig)")
         Airship.takeOff(airshipConfig, launchOptions: launchOptions)
@@ -226,13 +216,14 @@ public class AirshipProxy {
             self.airshipDelegate.channelCreated()
         }
 
-        self.delegate?.onAirshipReady()
-
         Airship.push.defaultPresentationOptions = self.proxyStore.foregroundPresentationOptions
 
         if let categories = self.loadCategories() {
             Airship.push.customCategories = categories
         }
+
+        self.delegate?.onAirshipReady()
+        AirshipProxy.extender?.onAirshipReady()
     }
 
     private func loadCategories() -> Set<UNNotificationCategory>? {
@@ -248,6 +239,26 @@ public class AirshipProxy {
         return NotificationCategories.createCategories(
             fromFile: categoriesPath
         )
+    }
+
+    @MainActor
+    private func makeConfig() throws -> AirshipConfig {
+        let airshipConfig: AirshipConfig = delegate?.loadDefaultConfig() ?? AirshipConfig.default()
+        airshipConfig.requireInitialRemoteConfigEnabled = true
+
+        if let config = self.proxyStore.config {
+            airshipConfig.applyProxyConfig(proxyConfig: config)
+        }
+
+        AirshipProxy.extender?.extendConfig(config: airshipConfig)
+
+        guard airshipConfig.validate() else {
+            throw AirshipProxyError.invalidConfig(
+                "Invalid config: \(String(describing: airshipConfig))"
+            )
+        }
+
+        return airshipConfig
     }
 }
 

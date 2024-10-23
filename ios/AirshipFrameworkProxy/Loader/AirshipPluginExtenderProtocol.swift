@@ -1,8 +1,22 @@
 /* Copyright Airship and Contributors */
 
-import UIKit
+import Foundation
+
+#if canImport(AirshipKit)
+import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
 
 public protocol AirshipPluginExtenderProtocol: NSObject {
     @MainActor
     static func onAirshipReady()
+
+    @MainActor
+    static func extendConfig(config: AirshipConfig)
+}
+
+public extension AirshipPluginExtenderProtocol {
+    static func extendConfig(config: AirshipConfig) {
+    }
 }

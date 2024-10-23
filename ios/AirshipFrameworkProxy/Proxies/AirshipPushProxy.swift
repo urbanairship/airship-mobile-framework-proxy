@@ -9,10 +9,7 @@ import AirshipKit
 import AirshipCore
 #endif
 
-
-
 public class AirshipPushProxy {
-
 
     public var presentationOptionOverrides: ((PresentationOptionsOverridesRequest) -> Void)?
     
@@ -172,7 +169,6 @@ public class AirshipPushProxy {
         }
     }
 }
-
 
 public class PresentationOptionsOverridesRequest {
     private let onResult: (UNNotificationPresentationOptions?) -> Void

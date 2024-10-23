@@ -6,8 +6,6 @@ import AirshipKit
 import AirshipCore
 #endif
 
-
-
 public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case deepLinkReceived
     case channelCreated

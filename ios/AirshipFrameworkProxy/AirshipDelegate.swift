@@ -11,13 +11,7 @@ import AirshipPreferenceCenter
 import AirshipAutomation
 #endif
 
-class AirshipDelegate: NSObject,
-                       PushNotificationDelegate,
-                       MessageCenterDisplayDelegate,
-                       PreferenceCenterOpenDelegate,
-                       RegistrationDelegate,
-                       DeepLinkDelegate
-{
+class AirshipDelegate: NSObject {
 
     let proxyStore: ProxyStore
     let eventEmitter: AirshipProxyEventEmitter
@@ -28,73 +22,7 @@ class AirshipDelegate: NSObject,
     ) {
         self.proxyStore = proxyStore
         self.eventEmitter = eventEmitter
-
-
         super.init()
-    }
-    
-    func displayMessageCenter(messageID: String) {
-        Task { @MainActor in
-            guard !self.proxyStore.autoDisplayMessageCenter else {
-                DefaultMessageCenterUI.shared.display(messageID: messageID)
-                return
-            }
-
-            await self.eventEmitter.addEvent(
-                DisplayMessageCenterEvent(
-                    messageID: messageID
-                )
-            )
-        }
-    }
-
-    func displayMessageCenter() {
-        Task { @MainActor in
-            guard !self.proxyStore.autoDisplayMessageCenter else {
-                DefaultMessageCenterUI.shared.display()
-                return
-            }
-
-            await self.eventEmitter.addEvent(
-                DisplayMessageCenterEvent()
-            )
-        }
-    }
-
-    func dismissMessageCenter() {
-        Task { @MainActor in
-            DefaultMessageCenterUI.shared.dismiss()
-        }
-    }
-
-    func openPreferenceCenter(
-        _ preferenceCenterID: String
-    ) -> Bool {
-        let autoLaunch = self.proxyStore.shouldAutoLaunchPreferenceCenter(
-            preferenceCenterID
-        )
-
-        guard !autoLaunch else {
-            return false
-        }
-
-        Task {
-            await self.eventEmitter.addEvent(
-                DisplayPreferenceCenterEvent(
-                    preferenceCenterID: preferenceCenterID
-                )
-            )
-        }
-
-        return true
-    }
-
-    func receivedDeepLink(
-        _ deepLink: URL
-    ) async {
-        await self.eventEmitter.addEvent(
-            DeepLinkEvent(deepLink)
-        )
     }
 
     func messageCenterInboxUpdated() {
@@ -122,24 +50,35 @@ class AirshipDelegate: NSObject,
         }
     }
 
+}
+
+extension AirshipDelegate: PushNotificationDelegate {
+
+    @MainActor
+    private var forwardPushDelegate: PushNotificationDelegate? {
+        AirshipPluginForwardDelegates.shared.pushNotificationDelegate
+    }
+
     func receivedNotificationResponse(
         _ notificationResponse: UNNotificationResponse,
         completionHandler: @escaping () -> Void
     ) {
-        guard
-            notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier
-        else {
-            completionHandler()
-            return
-        }
-
-        Task {
-            await self.eventEmitter.addEvent(
-                NotificationResponseEvent(
-                    response: notificationResponse
+        Task { @MainActor in
+            if (notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier) {
+                await self.eventEmitter.addEvent(
+                    NotificationResponseEvent(
+                        response: notificationResponse
+                    )
                 )
-            )
-            completionHandler()
+            }
+
+            guard
+                let forward = forwardPushDelegate?.receivedNotificationResponse
+            else {
+                completionHandler()
+                return
+            }
+            forward(notificationResponse, completionHandler)
         }
     }
 
@@ -147,14 +86,21 @@ class AirshipDelegate: NSObject,
         _ userInfo: [AnyHashable : Any],
         completionHandler: @escaping (UIBackgroundFetchResult
     ) -> Void) {
-        Task {
+        Task { @MainActor in
             await self.eventEmitter.addEvent(
                 PushReceivedEvent(
                     userInfo: userInfo,
                     isForeground: false
                 )
             )
-            completionHandler(.noData)
+
+            guard
+                let forward = forwardPushDelegate?.receivedBackgroundNotification
+            else {
+                completionHandler(.noData)
+                return
+            }
+            forward(userInfo, completionHandler)
         }
     }
 
@@ -162,17 +108,61 @@ class AirshipDelegate: NSObject,
         _ userInfo: [AnyHashable : Any],
         completionHandler: @escaping () -> Void
     ) {
-        Task {
+        Task { @MainActor in
             await self.eventEmitter.addEvent(
                 PushReceivedEvent(
                     userInfo: userInfo,
                     isForeground: true
                 )
             )
-            completionHandler()
+
+            guard
+                let forward = forwardPushDelegate?.receivedForegroundNotification
+            else {
+                completionHandler()
+                return
+            }
+            forward(userInfo, completionHandler)
         }
     }
 
+    func extendPresentationOptions(
+        _ options: UNNotificationPresentationOptions,
+        notification: UNNotification,
+        completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        Task { @MainActor in
+            guard
+                let forward = forwardPushDelegate?.extendPresentationOptions
+            else {
+                let overrides = await AirshipProxy.shared.push.presentationOptions(
+                    notification: notification
+                )
+                completionHandler(overrides ?? options)
+                return
+            }
+
+            forward(options, notification, completionHandler)
+        }
+    }
+
+    @preconcurrency @MainActor
+    func extend(
+        _ options: UNNotificationPresentationOptions,
+        notification: UNNotification
+    ) -> UNNotificationPresentationOptions {
+        return forwardPushDelegate?.extend?(options, notification: notification) ?? options
+    }
+}
+
+
+extension AirshipDelegate: RegistrationDelegate {
+    @MainActor
+    private var forwardRegistrationDelegate: RegistrationDelegate? {
+        AirshipPluginForwardDelegates.shared.registrationDelegate
+    }
+
+    @preconcurrency @MainActor
     func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
         let token = AirshipUtils.deviceTokenStringFromDeviceToken(deviceToken)
         Task {
@@ -183,8 +173,16 @@ class AirshipDelegate: NSObject,
                 replacePending: true
             )
         }
+
+        forwardRegistrationDelegate?.apnsRegistrationSucceeded?(withDeviceToken: deviceToken)
     }
 
+    @preconcurrency @MainActor
+    func apnsRegistrationFailedWithError(_ error: Error) {
+        forwardRegistrationDelegate?.apnsRegistrationFailedWithError?(error)
+    }
+
+    @preconcurrency @MainActor
     func notificationAuthorizedSettingsDidChange(
         _ authorizedSettings: UAAuthorizedNotificationSettings
     ) {
@@ -196,19 +194,80 @@ class AirshipDelegate: NSObject,
                 replacePending: true
             )
         }
+
+        forwardRegistrationDelegate?.notificationAuthorizedSettingsDidChange?(authorizedSettings)
+    }
+}
+
+extension AirshipDelegate: MessageCenterDisplayDelegate {
+    @MainActor
+    func displayMessageCenter(messageID: String) {
+        guard !self.proxyStore.autoDisplayMessageCenter else {
+            DefaultMessageCenterUI.shared.display(messageID: messageID)
+            return
+        }
+
+        Task {
+            await self.eventEmitter.addEvent(
+                DisplayMessageCenterEvent(
+                    messageID: messageID
+                )
+            )
+        }
     }
 
-    @MainActor
-    func extendPresentationOptions(
-        _ options: UNNotificationPresentationOptions,
-        notification: UNNotification,
-        completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
+    func displayMessageCenter() {
+        guard !self.proxyStore.autoDisplayMessageCenter else {
+            DefaultMessageCenterUI.shared.display()
+            return
+        }
+
         Task {
-            let overrides = await AirshipProxy.shared.push.presentationOptions(
-                notification: notification
+            await self.eventEmitter.addEvent(
+                DisplayMessageCenterEvent()
             )
-            completionHandler(overrides ?? options)
+        }
+    }
+
+    func dismissMessageCenter() {
+        DefaultMessageCenterUI.shared.dismiss()
+    }
+}
+
+extension AirshipDelegate: PreferenceCenterOpenDelegate {
+    func openPreferenceCenter(
+        _ preferenceCenterID: String
+    ) -> Bool {
+        let autoLaunch = self.proxyStore.shouldAutoLaunchPreferenceCenter(
+            preferenceCenterID
+        )
+
+        guard !autoLaunch else {
+            return false
+        }
+
+        Task {
+            await self.eventEmitter.addEvent(
+                DisplayPreferenceCenterEvent(
+                    preferenceCenterID: preferenceCenterID
+                )
+            )
+        }
+
+        return true
+    }
+}
+
+extension AirshipDelegate: DeepLinkDelegate {
+    func receivedDeepLink(
+        _ deepLink: URL
+    ) async {
+        let delegate = AirshipPluginForwardDelegates.shared.deepLinkDelegate
+        guard await delegate?.receivedDeepLink(deepLink) == true else {
+            await self.eventEmitter.addEvent(
+                DeepLinkEvent(deepLink)
+            )
+            return
         }
     }
 }
