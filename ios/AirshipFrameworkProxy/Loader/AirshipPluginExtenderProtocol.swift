@@ -16,20 +16,7 @@ public protocol AirshipPluginExtenderProtocol: NSObject {
     static func extendConfig(config: AirshipConfig)
 }
 
-
 public extension AirshipPluginExtenderProtocol {
     static func extendConfig(config: AirshipConfig) {
     }
-}
-
-
-public class Thing: NSObject, AirshipPluginExtenderProtocol {
-    public static func onAirshipReady() {
-
-    }
-
-    public static func extendConfig(config: AirshipConfig) {
-
-    }
-
 }
