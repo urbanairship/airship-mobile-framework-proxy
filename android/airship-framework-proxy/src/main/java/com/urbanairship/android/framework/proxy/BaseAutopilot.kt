@@ -35,6 +35,7 @@ import kotlinx.coroutines.runBlocking
  */
 public abstract class BaseAutopilot : Autopilot() {
 
+    private var extenderProvider: ExtenderProvider = ExtenderProvider()
     private var configOptions: AirshipConfigOptions? = null
     private var firstReady: Boolean = false
 
@@ -103,7 +104,8 @@ public abstract class BaseAutopilot : Autopilot() {
 
         onReady(context, airship)
 
-        createExtender(context)?.onAirshipReady(context, airship)
+        extenderProvider.get(context)?.onAirshipReady(context, airship)
+        extenderProvider.reset()
     }
 
     protected abstract fun onReady(context: Context, airship: UAirship)
@@ -134,10 +136,12 @@ public abstract class BaseAutopilot : Autopilot() {
             firstReady = true
         }
 
-        val builder = createConfigBuilder(context)
+        var builder = createConfigBuilder(context)
         AirshipProxy.shared(context).proxyStore.airshipConfig?.let {
             builder.applyProxyConfig(context, it)
         }
+
+        builder = extenderProvider.get(context)?.extendConfig(context, builder) ?: builder
 
         val configOptions = builder.build()
 
@@ -168,33 +172,6 @@ public abstract class BaseAutopilot : Autopilot() {
     }
 
     public abstract fun onMigrateData(context: Context, proxyStore: ProxyStore)
-
-    private fun createExtender(context: Context): AirshipPluginExtender? {
-        val ai: ApplicationInfo
-        try {
-            ai = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
-
-            if (ai.metaData == null) {
-                return null
-            }
-        } catch (e: PackageManager.NameNotFoundException) {
-            return null
-        }
-
-        val classname = ai.metaData.getString(EXTENDER_MANIFEST_KEY) ?: return null
-
-        try {
-            val extenderClass = Class.forName(classname)
-            return extenderClass.getDeclaredConstructor().newInstance() as AirshipPluginExtender
-        } catch (e: Exception) {
-            ProxyLogger.error(e, "Unable to create extender: $classname")
-        }
-        return null
-    }
-
-    private companion object {
-        const val EXTENDER_MANIFEST_KEY = "com.urbanairship.plugin.extender"
-    }
 }
 
 public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxyConfig: ProxyConfig) {
@@ -242,6 +219,50 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
 
         notificationConfig.defaultChannelId?.let { this.setNotificationChannel(it) }
         notificationConfig.accentColor?.let { this.setNotificationAccentColor(getHexColor(it, 0)) }
+    }
+}
+
+private class ExtenderProvider {
+    private var extender: AirshipPluginExtender? = null
+    private var created: Boolean = false
+
+    fun get(context: Context): AirshipPluginExtender? {
+        if (!created) {
+            extender = createExtender(context)
+        }
+        return extender
+    }
+
+    fun reset() {
+        created = false
+        extender = null
+    }
+
+    private fun createExtender(context: Context): AirshipPluginExtender? {
+        val ai: ApplicationInfo
+        try {
+            ai = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+
+            if (ai.metaData == null) {
+                return null
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            return null
+        }
+
+        val classname = ai.metaData.getString(EXTENDER_MANIFEST_KEY) ?: return null
+
+        try {
+            val extenderClass = Class.forName(classname)
+            return extenderClass.getDeclaredConstructor().newInstance() as AirshipPluginExtender
+        } catch (e: Exception) {
+            ProxyLogger.error(e, "Unable to create extender: $classname")
+        }
+        return null
+    }
+
+    private companion object {
+        const val EXTENDER_MANIFEST_KEY = "com.urbanairship.plugin.extender"
     }
 }
 
