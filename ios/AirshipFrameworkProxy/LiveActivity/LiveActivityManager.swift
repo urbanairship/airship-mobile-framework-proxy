@@ -247,7 +247,7 @@ extension LiveActivityManager.Entry {
         self.activityUpdates = { id, callback in
             Task {
                 let contentTask = Task {
-                    try? await Self.watchContentUpates(
+                    try? await Self.watchContentUpdates(
                         type,
                         activityID: id,
                         attributesType: attributesType,
@@ -422,7 +422,7 @@ extension LiveActivityManager.Entry {
         }
     }
 
-    private static func watchContentUpates<T: ActivityAttributes>(
+    private static func watchContentUpdates<T: ActivityAttributes>(
         _ type: Activity<T>.Type,
         activityID: String,
         attributesType: String,
