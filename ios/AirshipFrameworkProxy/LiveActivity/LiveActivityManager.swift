@@ -18,6 +18,7 @@ public actor LiveActivityManager: Sendable {
         let start: (LiveActivityRequest.Start) async throws -> LiveActivityInfo
         let update: (LiveActivityRequest.Update) async throws -> Bool
         let end: (LiveActivityRequest.End) async throws -> Bool
+        let track: (String) -> Void
 
         let pushToStartUpdates: ((@escaping @Sendable () async -> Void)) -> Void
         let activityUpdates: (String, (@escaping @Sendable (LiveActivityInfo?) async -> Void)) -> Void
@@ -96,8 +97,20 @@ public actor LiveActivityManager: Sendable {
         var update = false
         let all = self.entries.values.compactMap { try? $0.list() }.joined()
         for info in all {
+            do {
+                try track(
+                    attributesType: info.attributesType,
+                    activityID: info.id
+                )
+            } catch {
+                AirshipLogger.warn("Failed to track activity: \(error)")
+            }
+
             if activityState[info.id] == nil {
-                await startWatchingActivityUpdates(info.id, attributesType: info.attributesType)
+                await startWatchingActivityUpdates(
+                    info.id,
+                    attributesType: info.attributesType
+                )
                 await updated(activityID: info.id, info: info, notifyOnChange: false)
                 update = true
             }
@@ -135,6 +148,7 @@ public actor LiveActivityManager: Sendable {
         })
     }
 
+    
     public func start(_ request: LiveActivityRequest.Start) async throws -> LiveActivityInfo {
         try await waitForSetup()
         let result = try await findEntry(attributesType: request.attributesType).start(request)
@@ -202,6 +216,13 @@ public actor LiveActivityManager: Sendable {
         }
         return entry
     }
+
+    private func track(attributesType: String, activityID: String) throws {
+        guard let entry = self.entries[attributesType] else {
+            throw AirshipErrors.error("Missing entry for attributesType \(attributesType)")
+        }
+        entry.track(activityID)
+    }
 }
 
 
@@ -226,7 +247,7 @@ extension LiveActivityManager.Entry {
         self.activityUpdates = { id, callback in
             Task {
                 let contentTask = Task {
-                    try? await Self.watchContentUpates(
+                    try? await Self.watchContentUpdates(
                         type,
                         activityID: id,
                         attributesType: attributesType,
@@ -267,6 +288,30 @@ extension LiveActivityManager.Entry {
             }
 
             return try LiveActivityInfo(activity: activity, attributesType: attributesType)
+        }
+
+        self.track = { activityID in
+            Self.track(
+                type,
+                activityID:activityID,
+                airshipNameExtractor: airshipNameExtractor
+            )
+        }
+    }
+
+    private static func track<T: ActivityAttributes>(
+        _ type: Activity<T>.Type,
+        activityID: String,
+        airshipNameExtractor: (@Sendable (T) -> String)?
+    ) {
+        guard
+            let activity = type.activities.first(where: { $0.id == activityID })
+        else {
+            return
+        }
+
+        if let airshipName = airshipNameExtractor?(activity.attributes) {
+            Airship.channel.trackLiveActivity(activity, name: airshipName)
         }
     }
 
@@ -377,7 +422,7 @@ extension LiveActivityManager.Entry {
         }
     }
 
-    private static func watchContentUpates<T: ActivityAttributes>(
+    private static func watchContentUpdates<T: ActivityAttributes>(
         _ type: Activity<T>.Type,
         activityID: String,
         attributesType: String,
