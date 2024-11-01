@@ -1,25 +1,25 @@
 PODS:
-  - Airship (18.11.1):
-    - Airship/Automation (= 18.11.1)
-    - Airship/Basement (= 18.11.1)
-    - Airship/Core (= 18.11.1)
-    - Airship/FeatureFlags (= 18.11.1)
-    - Airship/MessageCenter (= 18.11.1)
-    - Airship/PreferenceCenter (= 18.11.1)
-  - Airship/Automation (18.11.1):
+  - Airship (18.12.0):
+    - Airship/Automation (= 18.12.0)
+    - Airship/Basement (= 18.12.0)
+    - Airship/Core (= 18.12.0)
+    - Airship/FeatureFlags (= 18.12.0)
+    - Airship/MessageCenter (= 18.12.0)
+    - Airship/PreferenceCenter (= 18.12.0)
+  - Airship/Automation (18.12.0):
     - Airship/Core
-  - Airship/Basement (18.11.1)
-  - Airship/Core (18.11.1):
+  - Airship/Basement (18.12.0)
+  - Airship/Core (18.12.0):
     - Airship/Basement
-  - Airship/FeatureFlags (18.11.1):
+  - Airship/FeatureFlags (18.12.0):
     - Airship/Core
-  - Airship/MessageCenter (18.11.1):
+  - Airship/MessageCenter (18.12.0):
     - Airship/Core
-  - Airship/PreferenceCenter (18.11.1):
+  - Airship/PreferenceCenter (18.12.0):
     - Airship/Core
 
 DEPENDENCIES:
-  - Airship (= 18.11.1)
+  - Airship (= 18.12.0)
 
 SPEC REPOS:
   trunk:
