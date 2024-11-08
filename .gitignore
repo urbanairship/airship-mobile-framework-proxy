@@ -21,7 +21,6 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
-
 # Cocoapods
 Pods/
 
@@ -58,3 +57,5 @@ yarn-error.log
 *.iml
 
 .jest/*
+
+.build/
