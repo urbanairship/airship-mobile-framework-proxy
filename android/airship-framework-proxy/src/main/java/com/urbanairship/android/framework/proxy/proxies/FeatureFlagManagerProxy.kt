@@ -10,9 +10,10 @@ import com.urbanairship.json.requireField
 import kotlin.time.Duration
 
 public class FeatureFlagManagerProxy internal constructor(
-    private val featureFlagManagerProvider: () -> FeatureFlagManager,
-    public val resultCache: ResultCacheProxy = ResultCacheProxy { featureFlagManagerProvider().resultCache }
+    private val featureFlagManagerProvider: () -> FeatureFlagManager
 ) {
+
+    public val resultCache: ResultCacheProxy = ResultCacheProxy { featureFlagManagerProvider().resultCache }
 
     public class ResultCacheProxy  internal constructor(private val cacheProvider: () -> FeatureFlagResultCache) {
 
