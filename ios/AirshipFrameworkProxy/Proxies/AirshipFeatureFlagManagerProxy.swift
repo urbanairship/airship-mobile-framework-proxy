@@ -9,19 +9,51 @@ import AirshipCore
 import AirshipFeatureFlags
 #endif
 
-public class AirshipFeatureFlagManagerProxy {
-    private let featureFlagManagerProvider: () throws -> FeatureFlagManager
+public final class AirshipFeatureFlagManagerProxy: Sendable {
+    public final class ResultCacheProxy: Sendable {
+        private let cacheProvider: @Sendable () throws -> FeatureFlagResultCache
+
+        init(cacheProvider: @Sendable @escaping () throws -> FeatureFlagResultCache) {
+            self.cacheProvider = cacheProvider
+        }
+
+        private var cache: FeatureFlagResultCache {
+            get throws { try cacheProvider() }
+        }
+
+        public func cache(flag: FeatureFlagProxy, ttl: TimeInterval) async throws {
+            try await self.cache.cache(flag: flag.original, ttl: ttl)
+        }
+
+        public func flag(name: String) async throws -> FeatureFlagProxy? {
+            guard let flag = try await self.cache.flag(name: name) else {
+                return nil
+            }
+            return FeatureFlagProxy(flag: flag)
+        }
+
+        public func removeCachedFlag(name: String) async throws {
+            try await self.cache.removeCachedFlag(name: name)
+        }
+    }
+
+    private let featureFlagManagerProvider: @Sendable () throws -> FeatureFlagManager
 
     private var featureFlagManager: FeatureFlagManager {
         get throws { try featureFlagManagerProvider() }
     }
 
-    init(featureFlagManagerProvider: @escaping () throws -> FeatureFlagManager) {
+    init(featureFlagManagerProvider: @Sendable @escaping () throws -> FeatureFlagManager) {
         self.featureFlagManagerProvider = featureFlagManagerProvider
+        self.resultCache = ResultCacheProxy {
+            return try featureFlagManagerProvider().resultCache
+        }
     }
 
-    public func flag(name: String) async throws -> FeatureFlagProxy {
-        let flag = try await self.featureFlagManager.flag(name: name)
+    public let resultCache: ResultCacheProxy
+
+    public func flag(name: String, useResultCache: Bool = true) async throws -> FeatureFlagProxy {
+        let flag = try await self.featureFlagManager.flag(name: name, useResultCache: useResultCache)
         return FeatureFlagProxy(flag: flag)
     }
 
