@@ -17,7 +17,7 @@ on:
         pattern: '^\d+\.\d+\.\d+$'
 
 env:
-  GITHUB_TOKEN: ${{ secrets.PREPARE_RELEASES_PAT }}
+  GITHUB_TOKEN: ${{ secrets.MOBILE_PLUGIN_RELEASE_PAT }}
 
 jobs:
   trigger-releases:
@@ -72,20 +72,20 @@ jobs:
           echo "::error::Failed to trigger one or more plugin releases. Please check the logs above for details."
           exit 1
 
-      - name: Slack Notification (Success)
-        if: success()
-        uses: homoluctus/slatify@master
-        with:
-          type: success
-          job_name: ":tada: Plugin release preparations triggered :tada:"
-          message: "@mobile-team Release preparations have been triggered for all plugins with proxy version v${{ github.event.inputs.proxy_version }} :rocket:"
-          url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
+      # - name: Slack Notification (Success)
+      #   if: success()
+      #   uses: homoluctus/slatify@master
+      #   with:
+      #     type: success
+      #     job_name: ":tada: Plugin release preparations triggered :tada:"
+      #     message: "@mobile-team Release preparations have been triggered for all plugins with proxy version v${{ github.event.inputs.proxy_version }} :rocket:"
+      #     url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
 
-      - name: Slack Notification (Failure)
-        if: failure()
-        uses: homoluctus/slatify@master
-        with:
-          type: failure
-          job_name: ":disappointed: Plugin Release Preparations Failed :disappointed:"
-          message: "@crow Failed to trigger plugin release preparations. Please check the workflow logs. :sob:"
-          url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
+      # - name: Slack Notification (Failure)
+      #   if: failure()
+      #   uses: homoluctus/slatify@master
+      #   with:
+      #     type: failure
+      #     job_name: ":disappointed: Plugin Release Preparations Failed :disappointed:"
+      #     message: "@crow Failed to trigger plugin release preparations. Please check the workflow logs. :sob:"
+      #     url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
