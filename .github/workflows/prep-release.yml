@@ -23,25 +23,30 @@ jobs:
   trigger-releases:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     steps:
-      - name: Fetch current proxy version
+      - name: Fetch current proxy version (based on latest tags)
         id: current_proxy
         run: |
-          CURRENT_PROXY_VERSION=$(gh api repos/urbanairship/airship-mobile-framework-proxy/releases/latest \
-            --header "Authorization: token $GITHUB_TOKEN" --jq '.tag_name')
-          echo "current_proxy_version=$CURRENT_PROXY_VERSION" >> $GITHUB_OUTPUT
+          # Fetch the top 2 tags so we can fall back to the previous one if the latest equals the new version
+          readarray -t PROXY_TAGS < <(gh api repos/urbanairship/airship-mobile-framework-proxy/tags?per_page=2 \
+            --header "Authorization: token $GITHUB_TOKEN" --jq '.[].name')
+          LATEST_PROXY_TAG="${PROXY_TAGS[0]}"
+          PREVIOUS_PROXY_TAG="${PROXY_TAGS[1]}"
+
+          # If the latest tag equals the requested proxy_version and there's a previous tag, use that for comparison
+          if [ "$LATEST_PROXY_TAG" = "${{ github.event.inputs.proxy_version }}" ] && [ -n "$PREVIOUS_PROXY_TAG" ]; then
+            echo "current_proxy_version=$PREVIOUS_PROXY_TAG" >> $GITHUB_OUTPUT
+          else
+            echo "current_proxy_version=$LATEST_PROXY_TAG" >> $GITHUB_OUTPUT
+          fi
 
       - name: Determine increment type
         id: increment_type
         run: |
-          # Parse the old proxy version (CURRENT_PROXY_VERSION) and the new requested proxy version (NEW_PROXY_VERSION).
           IFS='.' read -r OLD_MAJOR OLD_MINOR OLD_PATCH <<< "${{ steps.current_proxy.outputs.current_proxy_version }}"
           IFS='.' read -r NEW_MAJOR NEW_MINOR NEW_PATCH <<< "${{ github.event.inputs.proxy_version }}"
 
-          # Default to patch increment
           INC_TYPE="patch"
-
           if [ "$NEW_MAJOR" -gt "$OLD_MAJOR" ]; then
             INC_TYPE="major"
           elif [ "$NEW_MINOR" -gt "$OLD_MINOR" ]; then
@@ -50,32 +55,32 @@ jobs:
 
           echo "increment_type=$INC_TYPE" >> $GITHUB_OUTPUT
 
-      - name: Fetch React Native Version
+      - name: Fetch React Native Version (latest tag)
         id: rn
         run: |
-          RN_VERSION=$(gh api repos/urbanairship/react-native-airship/releases/latest \
-            --header "Authorization: token $GITHUB_TOKEN" --jq '.tag_name')
+          RN_VERSION=$(gh api repos/urbanairship/react-native-airship/tags?per_page=1 \
+            --header "Authorization: token $GITHUB_TOKEN" --jq '.[0].name')
           echo "rn_version=$RN_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Fetch Flutter Version
+      - name: Fetch Flutter Version (latest tag)
         id: flutter
         run: |
-          FLUTTER_VERSION=$(gh api repos/urbanairship/airship-flutter/releases/latest \
-            --header "Authorization: token $GITHUB_TOKEN" --jq '.tag_name')
+          FLUTTER_VERSION=$(gh api repos/urbanairship/airship-flutter/tags?per_page=1 \
+            --header "Authorization: token $GITHUB_TOKEN" --jq '.[0].name')
           echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Fetch Capacitor Version
+      - name: Fetch Capacitor Version (latest tag)
         id: capacitor
         run: |
-          CAPACITOR_VERSION=$(gh api repos/urbanairship/capacitor-airship/releases/latest \
-            --header "Authorization: token $GITHUB_TOKEN" --jq '.tag_name')
+          CAPACITOR_VERSION=$(gh api repos/urbanairship/capacitor-airship/tags?per_page=1 \
+            --header "Authorization: token $GITHUB_TOKEN" --jq '.[0].name')
           echo "capacitor_version=$CAPACITOR_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Fetch Cordova Version
+      - name: Fetch Cordova Version (latest tag)
         id: cordova
         run: |
-          CORDOVA_VERSION=$(gh api repos/urbanairship/urbanairship-cordova/releases/latest \
-            --header "Authorization: token $GITHUB_TOKEN" --jq '.tag_name')
+          CORDOVA_VERSION=$(gh api repos/urbanairship/urbanairship-cordova/tags?per_page=1 \
+            --header "Authorization: token $GITHUB_TOKEN" --jq '.[0].name')
           echo "cordova_version=$CORDOVA_VERSION" >> $GITHUB_OUTPUT
 
       - name: Bump plugin versions
@@ -148,6 +153,7 @@ jobs:
         run: |
           echo "::error::Failed to trigger one or more plugin releases. Check the logs for details."
           exit 1
+
 
       # - name: Slack Notification (Success)
       #   if: success()
