@@ -34,7 +34,7 @@ let package = Package(
         ),
          .target(
             name: "AirshipFrameworkProxyLoader",
-            dependencies: [.target(name: "AirshipFrameworkProxyBase")],
+            dependencies: [.target(name: "AirshipFrameworkProxy")],
             path: "ios/AirshipFrameworkProxyLoader",
             publicHeadersPath: "Public"
         )
