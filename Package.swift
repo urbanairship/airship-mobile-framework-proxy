@@ -11,7 +11,7 @@ let package = Package(
     products: [
         .library(
             name: "AirshipFrameworkProxy",
-            targets: ["AirshipFrameworkProxy"]
+            targets: ["AirshipFrameworkProxy", "AirshipFrameworkProxyLoader"]
         )
     ],
     dependencies: [
@@ -19,7 +19,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AirshipFrameworkProxyBase",
+            name: "AirshipFrameworkProxy",
             dependencies: [
                 .product(name: "AirshipCore", package: "ios-library"),
                 .product(name: "AirshipMessageCenter", package: "ios-library"),
@@ -33,8 +33,8 @@ let package = Package(
             ]
         ),
          .target(
-            name: "AirshipFrameworkProxy",
-            dependencies: [.target(name: "AirshipFrameworkProxyBase")],
+            name: "AirshipFrameworkProxyLoader",
+            dependencies: [.target(name: "AirshipFrameworkProxy")],
             path: "ios/AirshipFrameworkProxyLoader",
             publicHeadersPath: "Public"
         )
