@@ -11,18 +11,18 @@ public data class MessageCenterMessage(
     val sentDate: Long,
     val listIconUrl: String?,
     val isRead: Boolean,
-    val extras: Map<String, String>,
+    val extras: Map<String, String?>,
     val expirationDate: Long?
 ) : JsonSerializable {
 
     internal constructor(message: Message) : this(
         title = message.title,
-        id = message.messageId,
-        sentDate = message.sentDateMS,
+        id = message.id,
+        sentDate = message.sentDate.time,
         listIconUrl = message.listIconUrl,
         isRead = message.isRead,
-        extras = message.extrasMap,
-        expirationDate = message.expirationDateMS
+        extras = message.extras ?: emptyMap<String, String?>(),
+        expirationDate = message.expirationDate?.time
     )
 
     override fun toJsonValue(): JsonValue = JsonMap.newBuilder()

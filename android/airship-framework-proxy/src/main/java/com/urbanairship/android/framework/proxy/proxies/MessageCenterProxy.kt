@@ -53,7 +53,7 @@ public class MessageCenterProxy internal constructor(
             messageId?.let {
                 intent.setData(Uri.fromParts("message", it, null as String?))
             }
-            
+
             try {
                 context.startActivity(intent)
             } catch(exception: Exception) {
@@ -68,24 +68,23 @@ public class MessageCenterProxy internal constructor(
         }
     }
 
-    public fun getMessages(): List<MessageCenterMessage> {
-        return messageCenterProvider().inbox.messages.map { MessageCenterMessage(it) }
+    public suspend fun getMessages(): List<MessageCenterMessage> {
+        return messageCenterProvider().inbox.getMessages().map { MessageCenterMessage(it) }
     }
 
-    public fun getMessage(messageId: String): MessageCenterMessage {
+    public suspend fun getMessage(messageId: String): MessageCenterMessage {
         return MessageCenterMessage(
             requireNotNull(messageCenterProvider().inbox.getMessage(messageId))
         )
     }
 
     public fun deleteMessage(messageId: String) {
-        requireNotNull(messageCenterProvider().inbox.getMessage(messageId))
-            .delete()
+        messageCenterProvider().inbox.deleteMessages(messageId)
     }
 
-    public fun markMessageRead(messageId: String) {
-        requireNotNull(messageCenterProvider().inbox.getMessage(messageId))
-            .markRead()
+
+    public suspend fun markMessageRead(messageId: String) {
+        messageCenterProvider().inbox.markMessagesRead(messageId)
     }
 
     public fun refreshInbox(): PendingResult<Boolean> {
@@ -96,8 +95,8 @@ public class MessageCenterProxy internal constructor(
         return pendingResult
     }
 
-    public fun getUnreadMessagesCount(): Int {
-        return messageCenterProvider().inbox.unreadCount
+    public suspend fun getUnreadMessagesCount(): Int {
+        return messageCenterProvider().inbox.getUnreadCount()
     }
 
     public fun setAutoLaunchDefaultMessageCenter(enabled: Boolean) {

@@ -5,7 +5,7 @@ package com.urbanairship.android.framework.proxy
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
-import com.urbanairship.messagecenter.MessageActivity
+import com.urbanairship.messagecenter.ui.MessageActivity
 import kotlinx.coroutines.launch
 
 public class CustomMessageActivity : MessageActivity() {
