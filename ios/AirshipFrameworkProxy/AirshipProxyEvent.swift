@@ -165,7 +165,7 @@ struct AuthorizedNotificationSettingsChangedEvent: AirshipProxyEvent {
     let body: [String: Any]
 
     init(
-        authorizedSettings: UAAuthorizedNotificationSettings
+        authorizedSettings: AirshipAuthorizedNotificationSettings
     ) {
         self.body = [
             "authorizedSettings": authorizedSettings.names

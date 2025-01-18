@@ -35,7 +35,7 @@ public class AirshipProxy {
     private var subscriptions: Set<AnyCancellable> = Set()
 
     private let proxyStore: ProxyStore
-    private let airshipDelegate: AirshipDelegate
+    private var airshipDelegate: AirshipDelegate?
 
     public let locale: AirshipLocaleProxy
     public let push: AirshipPushProxy
@@ -74,18 +74,18 @@ public class AirshipProxy {
             proxyStore: proxyStore
         ) {
             try AirshipProxy.ensureAirshipReady()
-            return MessageCenter.shared
+            return Airship.messageCenter
         }
 
         self.preferenceCenter = AirshipPreferenceCenterProxy(
             proxyStore: proxyStore
         ) {
             try AirshipProxy.ensureAirshipReady()
-            return PreferenceCenter.shared
+            return Airship.preferenceCenter
         }
         self.inApp = AirshipInAppProxy {
             try AirshipProxy.ensureAirshipReady()
-            return InAppAutomation.shared
+            return Airship.inAppAutomation
         }
 
         self.contact = AirshipContactProxy {
@@ -110,10 +110,9 @@ public class AirshipProxy {
 
         self.featureFlagManager = AirshipFeatureFlagManagerProxy {
             try AirshipProxy.ensureAirshipReady()
-            return FeatureFlagManager.shared
+            return Airship.featureFlagManager
         }
 
-        self.airshipDelegate = AirshipDelegate(proxyStore: proxyStore)
     }
 
 
@@ -168,15 +167,17 @@ public class AirshipProxy {
 
         AirshipLogger.debug("attemptTakeOff: \(String(describing: launchOptions))")
 
-        let airshipConfig = try makeConfig()
+        let airshipConfig = makeConfig()
+
+        self.airshipDelegate = AirshipDelegate(proxyStore: proxyStore)
 
         AirshipLogger.debug("Taking off! \(airshipConfig)")
-        Airship.takeOff(airshipConfig, launchOptions: launchOptions)
+        try Airship.takeOff(airshipConfig, launchOptions: launchOptions)
         Airship.deepLinkDelegate = self.airshipDelegate
         Airship.push.registrationDelegate = self.airshipDelegate
         Airship.push.pushNotificationDelegate = self.airshipDelegate
-        PreferenceCenter.shared.openDelegate = self.airshipDelegate
-        MessageCenter.shared.displayDelegate = self.airshipDelegate
+        Airship.preferenceCenter.openDelegate = self.airshipDelegate
+        Airship.messageCenter.displayDelegate = self.airshipDelegate
 
         Airship.push.notificationStatusPublisher
             .map { status in
@@ -200,12 +201,15 @@ public class AirshipProxy {
             await EmbeddedEventEmitter.shared.start()
         }
 
+        let delegate = self.airshipDelegate
         NotificationCenter.default.addObserver(
             forName: AirshipNotifications.MessageCenterListUpdated.name,
             object: nil,
             queue: .main
         ) { _ in
-            self.airshipDelegate.messageCenterInboxUpdated()
+            MainActor.assumeIsolated {
+                delegate?.messageCenterInboxUpdated()
+            }
         }
 
         NotificationCenter.default.addObserver(
@@ -213,7 +217,9 @@ public class AirshipProxy {
             object: nil,
             queue: .main
         ) { _ in
-            self.airshipDelegate.channelCreated()
+            MainActor.assumeIsolated {
+                delegate?.channelCreated()
+            }
         }
 
         Airship.push.defaultPresentationOptions = self.proxyStore.foregroundPresentationOptions
@@ -242,8 +248,8 @@ public class AirshipProxy {
     }
 
     @MainActor
-    private func makeConfig() throws -> AirshipConfig {
-        let airshipConfig: AirshipConfig = delegate?.loadDefaultConfig() ?? AirshipConfig.default()
+    private func makeConfig() -> AirshipConfig {
+        var airshipConfig: AirshipConfig = delegate?.loadDefaultConfig() ?? (try? AirshipConfig.default()) ?? AirshipConfig()
         airshipConfig.requireInitialRemoteConfigEnabled = true
 
         if let config = self.proxyStore.config {
@@ -251,12 +257,6 @@ public class AirshipProxy {
         }
 
         AirshipProxy.extender?.extendConfig(config: airshipConfig)
-
-        guard airshipConfig.validate() else {
-            throw AirshipProxyError.invalidConfig(
-                "Invalid config: \(String(describing: airshipConfig))"
-            )
-        }
 
         return airshipConfig
     }

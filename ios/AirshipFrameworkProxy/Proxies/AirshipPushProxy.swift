@@ -45,14 +45,16 @@ public class AirshipPushProxy {
         )
     }
 
+    @MainActor
     public func getRegistrationToken() throws -> String? {
         return try self.push.deviceToken
     }
 
+    @MainActor
     public func setNotificationOptions(
         names:[String]
     ) throws {
-        let options = try UANotificationOptions.parse(names)
+        let options = try UNAuthorizationOptions.parse(names)
         try self.push.notificationOptions = options
     }
 

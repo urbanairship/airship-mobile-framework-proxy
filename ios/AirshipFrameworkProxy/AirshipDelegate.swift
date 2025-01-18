@@ -11,7 +11,8 @@ import AirshipPreferenceCenter
 import AirshipAutomation
 #endif
 
-class AirshipDelegate: NSObject {
+@MainActor
+final class AirshipDelegate {
 
     let proxyStore: ProxyStore
     let eventEmitter: AirshipProxyEventEmitter
@@ -22,15 +23,14 @@ class AirshipDelegate: NSObject {
     ) {
         self.proxyStore = proxyStore
         self.eventEmitter = eventEmitter
-        super.init()
     }
 
     func messageCenterInboxUpdated() {
         Task {
             await self.eventEmitter.addEvent(
                 MessageCenterUpdatedEvent(
-                    messageCount: await MessageCenter.shared.inbox.messages.count,
-                    unreadCount: await MessageCenter.shared.inbox.unreadCount
+                    messageCount: await Airship.messageCenter.inbox.messages.count,
+                    unreadCount: await Airship.messageCenter.inbox.unreadCount
                 ),
                 replacePending: true
             )
@@ -59,99 +59,55 @@ extension AirshipDelegate: PushNotificationDelegate {
         AirshipPluginForwardDelegates.shared.pushNotificationDelegate
     }
 
-    func receivedNotificationResponse(
-        _ notificationResponse: UNNotificationResponse,
-        completionHandler: @escaping () -> Void
-    ) {
-        Task { @MainActor in
-            if (notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier) {
-                await self.eventEmitter.addEvent(
-                    NotificationResponseEvent(
-                        response: notificationResponse
-                    )
-                )
-            }
+    @MainActor
+    func receivedForegroundNotification(_ userInfo: [AnyHashable : Any]) async {
+        await self.eventEmitter.addEvent(
+            PushReceivedEvent(
+                userInfo: userInfo,
+                isForeground: true
+            )
+        )
 
-            guard
-                let forward = forwardPushDelegate?.receivedNotificationResponse
-            else {
-                completionHandler()
-                return
-            }
-            forward(notificationResponse, completionHandler)
-        }
+        await forwardPushDelegate?.receivedForegroundNotification(userInfo)
     }
 
-    func receivedBackgroundNotification(
-        _ userInfo: [AnyHashable : Any],
-        completionHandler: @escaping (UIBackgroundFetchResult
-    ) -> Void) {
-        Task { @MainActor in
+    @MainActor
+    func receivedBackgroundNotification(_ userInfo: [AnyHashable : Any]) async -> UIBackgroundFetchResult {
+        await self.eventEmitter.addEvent(
+            PushReceivedEvent(
+                userInfo: userInfo,
+                isForeground: false
+            )
+        )
+
+        return await forwardPushDelegate?.receivedBackgroundNotification(userInfo) ?? .noData
+    }
+
+    @MainActor
+    func receivedNotificationResponse(_ notificationResponse: UNNotificationResponse) async {
+        if (notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier) {
             await self.eventEmitter.addEvent(
-                PushReceivedEvent(
-                    userInfo: userInfo,
-                    isForeground: false
+                NotificationResponseEvent(
+                    response: notificationResponse
                 )
             )
-
-            guard
-                let forward = forwardPushDelegate?.receivedBackgroundNotification
-            else {
-                completionHandler(.noData)
-                return
-            }
-            forward(userInfo, completionHandler)
         }
+
+        await forwardPushDelegate?.receivedNotificationResponse(notificationResponse)
     }
 
-    func receivedForegroundNotification(
-        _ userInfo: [AnyHashable : Any],
-        completionHandler: @escaping () -> Void
-    ) {
-        Task { @MainActor in
-            await self.eventEmitter.addEvent(
-                PushReceivedEvent(
-                    userInfo: userInfo,
-                    isForeground: true
-                )
+    @MainActor
+    func extendPresentationOptions(_ options: UNNotificationPresentationOptions, notification: UNNotification) async -> UNNotificationPresentationOptions {
+        guard
+            let forward = forwardPushDelegate?.extendPresentationOptions
+        else {
+            let overrides = await AirshipProxy.shared.push.presentationOptions(
+                notification: notification
             )
-
-            guard
-                let forward = forwardPushDelegate?.receivedForegroundNotification
-            else {
-                completionHandler()
-                return
-            }
-            forward(userInfo, completionHandler)
+            return overrides ?? options
         }
-    }
 
-    func extendPresentationOptions(
-        _ options: UNNotificationPresentationOptions,
-        notification: UNNotification,
-        completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
-        Task { @MainActor in
-            guard
-                let forward = forwardPushDelegate?.extendPresentationOptions
-            else {
-                let overrides = await AirshipProxy.shared.push.presentationOptions(
-                    notification: notification
-                )
-                completionHandler(overrides ?? options)
-                return
-            }
-
-            forward(options, notification, completionHandler)
-        }
-    }
-
-    @preconcurrency @MainActor
-    func extend(
-        _ options: UNNotificationPresentationOptions,
-        notification: UNNotification
-    ) -> UNNotificationPresentationOptions {
-        return forwardPushDelegate?.extend?(options, notification: notification) ?? options
+        return await forward(options, notification)
     }
 }
 
@@ -162,40 +118,39 @@ extension AirshipDelegate: RegistrationDelegate {
         AirshipPluginForwardDelegates.shared.registrationDelegate
     }
 
-    @preconcurrency @MainActor
-    func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
+    nonisolated func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
         let token = AirshipUtils.deviceTokenStringFromDeviceToken(deviceToken)
-        Task {
+        Task { @MainActor in
             await self.eventEmitter.addEvent(
                 PushTokenReceivedEvent(
                     pushToken: token
                 ),
                 replacePending: true
             )
+
+            forwardRegistrationDelegate?.apnsRegistrationSucceeded(withDeviceToken: deviceToken)
         }
-
-        forwardRegistrationDelegate?.apnsRegistrationSucceeded?(withDeviceToken: deviceToken)
     }
 
-    @preconcurrency @MainActor
-    func apnsRegistrationFailedWithError(_ error: Error) {
-        forwardRegistrationDelegate?.apnsRegistrationFailedWithError?(error)
+    nonisolated func apnsRegistrationFailedWithError(_ error: Error) {
+        Task { @MainActor in
+            forwardRegistrationDelegate?.apnsRegistrationFailedWithError(error)
+        }
     }
 
-    @preconcurrency @MainActor
-    func notificationAuthorizedSettingsDidChange(
-        _ authorizedSettings: UAAuthorizedNotificationSettings
+    nonisolated func notificationAuthorizedSettingsDidChange(
+        _ authorizedSettings: AirshipAuthorizedNotificationSettings
     ) {
-        Task {
+        Task { @MainActor in
             await self.eventEmitter.addEvent(
                 AuthorizedNotificationSettingsChangedEvent(
                     authorizedSettings: authorizedSettings
                 ),
                 replacePending: true
             )
-        }
 
-        forwardRegistrationDelegate?.notificationAuthorizedSettingsDidChange?(authorizedSettings)
+            forwardRegistrationDelegate?.notificationAuthorizedSettingsDidChange(authorizedSettings)
+        }
     }
 }
 

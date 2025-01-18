@@ -28,17 +28,16 @@ public class AirshipAnalyticsProxy {
         }
         
         // Value
-        let customEvent: CustomEvent!
-        if let value = event["eventValue"] as? NSNumber {
-            customEvent = CustomEvent(name: name, value: value)
-        } else  if let value = event["eventValue"] as? String {
-            customEvent = CustomEvent(name: name, stringValue: value)
+        var customEvent: CustomEvent = if let value = event["eventValue"] as? Double {
+            CustomEvent(name: name, value: value)
+        } else if let value = event["eventValue"] as? String, let double = Double(value) {
+            CustomEvent(name: name, value: double)
         } else {
-            customEvent = CustomEvent(name: name)
+            CustomEvent(name: name)
         }
         
         if let properties = event["properties"] as? [String: Any] {
-            customEvent.properties = properties
+            try customEvent.setProperties(properties)
         }
 
         if let transactionID = event["transactionId"] as? String {

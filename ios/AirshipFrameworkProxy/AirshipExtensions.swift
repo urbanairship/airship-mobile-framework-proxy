@@ -11,7 +11,7 @@ import AirshipPreferenceCenter
 #endif
 
 
-extension UAAuthorizationStatus {
+extension UNAuthorizationStatus {
     var name: String {
         get throws {
             switch (self) {
@@ -34,23 +34,23 @@ extension UAAuthorizationStatus {
     }
 }
 
-extension UAAuthorizedNotificationSettings {
-    private static let nameMap: [String: UAAuthorizedNotificationSettings] = [
-        "alert": UAAuthorizedNotificationSettings.alert,
-        "badge": UAAuthorizedNotificationSettings.badge,
-        "sound": UAAuthorizedNotificationSettings.sound,
-        "announcement": UAAuthorizedNotificationSettings.announcement,
-        "car_play": UAAuthorizedNotificationSettings.carPlay,
-        "critical_alert": UAAuthorizedNotificationSettings.criticalAlert,
-        "notification_center": UAAuthorizedNotificationSettings.notificationCenter,
-        "scheduled_delivery": UAAuthorizedNotificationSettings.scheduledDelivery,
-        "time_sensitive": UAAuthorizedNotificationSettings.timeSensitive,
-        "lock_screen": UAAuthorizedNotificationSettings.lockScreen
+extension AirshipAuthorizedNotificationSettings {
+    private static let nameMap: [String: AirshipAuthorizedNotificationSettings] = [
+        "alert": .alert,
+        "badge": .badge,
+        "sound": .sound,
+        "announcement": .announcement,
+        "car_play": .carPlay,
+        "critical_alert": .criticalAlert,
+        "notification_center": .notificationCenter,
+        "scheduled_delivery": .scheduledDelivery,
+        "time_sensitive": .timeSensitive,
+        "lock_screen": .lockScreen
     ]
 
     var names: [String] {
         var names: [String] = []
-        UAAuthorizedNotificationSettings.nameMap.forEach { key, value in
+        AirshipAuthorizedNotificationSettings.nameMap.forEach { key, value in
             if (self.contains(value)) {
                 names.append(key)
             }
@@ -117,9 +117,9 @@ extension AirshipFeature {
     }
 }
 
-extension UANotificationOptions {
+extension UNAuthorizationOptions {
 
-    static let nameMap: [String: UANotificationOptions] = [
+    static let nameMap: [String: UNAuthorizationOptions] = [
         "alert": .alert,
         "badge": .badge,
         "sound": .sound,
@@ -129,15 +129,15 @@ extension UANotificationOptions {
         "provisional": .provisional
     ]
 
-    static func parse(_ names: [Any]) throws -> UANotificationOptions {
+    static func parse(_ names: [Any]) throws -> UNAuthorizationOptions {
         guard let names = names as? [String] else {
             throw AirshipErrors.error("Invalid options \(names)")
         }
 
-        var options: UANotificationOptions = []
+        var options: UNAuthorizationOptions = []
 
         try names.forEach { name in
-            guard let option = UANotificationOptions.nameMap[name.lowercased()] else {
+            guard let option = UNAuthorizationOptions.nameMap[name.lowercased()] else {
                 throw AirshipErrors.error("Invalid option \(name)")
             }
             options.update(with: option)
@@ -148,7 +148,7 @@ extension UANotificationOptions {
 
     var names: [String] {
         var names: [String] = []
-        UANotificationOptions.nameMap.forEach { key, value in
+        UNAuthorizationOptions.nameMap.forEach { key, value in
             if (self.contains(value)) {
                 names.append(key)
             }

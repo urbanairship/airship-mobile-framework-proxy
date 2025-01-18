@@ -50,7 +50,7 @@ public class AirshipContactProxy {
 
         lists.forEach { (key, value) in
             converted[key] = value.map { scope in
-                scope.stringValue
+                scope.rawValue
             }
         }
         

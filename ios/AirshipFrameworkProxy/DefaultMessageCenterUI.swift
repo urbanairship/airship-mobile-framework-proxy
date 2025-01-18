@@ -35,7 +35,7 @@ public class DefaultMessageCenterUI {
 
         self.currentDisplay = open(
             scene: scene,
-            theme: MessageCenter.shared.theme
+            theme: Airship.messageCenter.theme
         )
     }
 
@@ -52,7 +52,7 @@ public class DefaultMessageCenterUI {
         self.currentDisplay = openMessageView(
             scene: scene,
             messageID: messageID,
-            theme: MessageCenter.shared.theme
+            theme: Airship.messageCenter.theme
         )
     }
 
@@ -70,7 +70,7 @@ public class DefaultMessageCenterUI {
 
         let viewController = MessageCenterViewControllerFactory.make(
             theme: theme,
-            predicate: MessageCenter.shared.predicate,
+            predicate: Airship.messageCenter.predicate,
             controller: self.controller
         ) {
             cancellable.cancel()

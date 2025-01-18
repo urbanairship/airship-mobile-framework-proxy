@@ -16,7 +16,7 @@ public struct NotificationStatus: Sendable, Equatable, Codable {
         self.isPushTokenRegistered = airshipStatus.isPushTokenRegistered
         self.isUserOptedIn = airshipStatus.isUserOptedIn
         self.isOptedIn = airshipStatus.isOptedIn
-        self.notificationPermissionStatus = airshipStatus.displayNotificationStatus.stringValue
+        self.notificationPermissionStatus = airshipStatus.displayNotificationStatus.rawValue
     }
 
     public let isUserNotificationsEnabled: Bool
