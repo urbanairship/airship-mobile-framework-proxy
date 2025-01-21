@@ -9,18 +9,18 @@ import AirshipCore
 import AirshipPreferenceCenter
 #endif
 
-public class AirshipPreferenceCenterProxy {
+public final class AirshipPreferenceCenterProxy: Sendable {
 
     private let proxyStore: ProxyStore
 
-    private let preferenceCenterProvider: () throws -> PreferenceCenter
+    private let preferenceCenterProvider: @Sendable () throws -> PreferenceCenter
     private var preferenceCenter: PreferenceCenter {
         get throws { try preferenceCenterProvider() }
     }
 
     init(
         proxyStore: ProxyStore,
-        preferenceCenterProvider: @escaping () throws -> PreferenceCenter
+        preferenceCenterProvider: @Sendable @escaping () throws -> PreferenceCenter
     ) {
         self.proxyStore = proxyStore
         self.preferenceCenterProvider = preferenceCenterProvider
@@ -31,6 +31,7 @@ public class AirshipPreferenceCenterProxy {
         try self.preferenceCenter.open(preferenceCenterID)
     }
 
+    @MainActor
     public func setAutoLaunchPreferenceCenter(
         _ autoLaunch: Bool,
         preferenceCenterID: String

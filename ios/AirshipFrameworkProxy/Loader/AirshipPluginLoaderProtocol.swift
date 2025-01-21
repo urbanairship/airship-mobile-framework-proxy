@@ -1,6 +1,6 @@
 /* Copyright Airship and Contributors */
 
-import UIKit
+public import UIKit
 
 public protocol AirshipPluginLoaderProtocol: NSObject {
     @MainActor

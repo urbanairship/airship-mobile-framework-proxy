@@ -9,21 +9,21 @@ import AirshipCore
 import AirshipMessageCenter
 #endif
 
-public enum AirshipMessageCenterProxyError: Error {
+public enum AirshipMessageCenterProxyError: Error, Sendable {
     case messageNotFound
     case refreshFailed
 }
 
-public class AirshipMessageCenterProxy {
+public final class AirshipMessageCenterProxy: Sendable {
     private let proxyStore: ProxyStore
-    private let messageCenterProvider: () throws -> MessageCenterProtocol
-    private var messageCenter: MessageCenterProtocol {
+    private let messageCenterProvider: @Sendable () throws -> MessageCenter
+    private var messageCenter: MessageCenter {
         get throws { try messageCenterProvider() }
     }
 
     init(
         proxyStore: ProxyStore,
-        messageCenterProvider: @escaping () throws -> MessageCenterProtocol
+        messageCenterProvider: @Sendable @escaping () throws -> MessageCenter
     ) {
         self.proxyStore = proxyStore
         self.messageCenterProvider = messageCenterProvider
@@ -53,104 +53,60 @@ public class AirshipMessageCenterProxy {
         try self.messageCenter.dismiss()
     }
 
-    public func getMessages() async throws -> [AirshipMessageCenterMessage] {
-        return try await self.messageCenter.messages
+    public var messages: [AirshipMessageCenterMessage] {
+        get async throws {
+            return try await self.messageCenter.inbox.messages.map {
+                AirshipMessageCenterMessage(message: $0)
+            }
+        }
     }
 
     public func getMessage(messageID: String) async throws -> AirshipMessageCenterMessage {
-        return try await self.messageCenter.message(forID: messageID)
-    }
-
-    public func getUnreadCount() async throws -> Int {
-        return try await self.messageCenter.unreadCount
-    }
-
-    public func deleteMessage(
-        messageID: String
-    ) async throws {
-        try await self.messageCenter.deleteMessage(
-            messageID: messageID
-        )
-    }
-
-    public func markMessageRead(
-        messageID:String
-    ) async throws {
-        try await self.messageCenter.markMessageRead(
-            messageID: messageID
-        )
-    }
-
-    public func refresh() async throws {
-        guard try await self.messageCenter.refresh() else {
-            throw AirshipMessageCenterProxyError.refreshFailed
-        }
-    }
-
-    public func setAutoLaunchDefaultMessageCenter(_ enabled: Bool) {
-        self.proxyStore.autoDisplayMessageCenter = enabled
-    }
-}
-
-protocol MessageCenterProtocol: AnyObject {
-    @MainActor
-    func display()
-    @MainActor
-    func display(messageID: String)
-    @MainActor
-    func dismiss()
-    func message(forID messageID: String) async throws -> AirshipMessageCenterMessage
-    var messages: [AirshipMessageCenterMessage] { get async }
-    func deleteMessage(messageID: String) async throws
-    func markMessageRead(messageID: String) async throws
-    func refresh() async throws -> Bool
-    var unreadCount: Int { get async }
-}
-
-extension MessageCenter: MessageCenterProtocol {
-    var unreadCount: Int {
-        get async {
-            return await self.inbox.unreadCount
-        }
-    }
-
-    func refresh() async throws -> Bool {
-        return await inbox.refreshMessages()
-    }
-
-
-    func message(forID messageID: String) async throws -> AirshipMessageCenterMessage {
-        guard let message = await self.inbox.message(forID: messageID) else {
+        guard let message = try await self.messageCenter.inbox.message(forID: messageID) else {
             throw AirshipMessageCenterProxyError.messageNotFound
         }
 
         return AirshipMessageCenterMessage(message: message)
     }
 
-    var messages: [AirshipMessageCenterMessage] {
-        get async {
-            return await self.inbox.messages.map {
-                AirshipMessageCenterMessage(message: $0)
-            }
+    public var unreadCount: Int {
+        get async throws {
+            return try await self.messageCenter.inbox.unreadCount
         }
     }
 
-    func deleteMessage(messageID: String) async throws {
-        guard await self.inbox.message(forID: messageID) != nil else {
+    public func deleteMessage(
+        messageID: String
+    ) async throws {
+        guard try await self.messageCenter.inbox.message(forID: messageID) != nil else {
             throw AirshipMessageCenterProxyError.messageNotFound
         }
-        return await self.inbox.delete(messageIDs: [messageID])
+        return try await self.messageCenter.inbox.delete(messageIDs: [messageID])
     }
 
-    func markMessageRead(messageID: String) async throws {
-        guard await self.inbox.message(forID: messageID) != nil else {
+    public func markMessageRead(
+        messageID:String
+    ) async throws {
+        guard try await self.messageCenter.inbox.message(forID: messageID) != nil else {
             throw AirshipMessageCenterProxyError.messageNotFound
         }
-        return await self.inbox.markRead(messageIDs: [messageID])
+        return try await self.messageCenter.inbox.markRead(messageIDs: [messageID])
+    }
+
+    public func refresh() async throws {
+        guard try await self.messageCenter.inbox.refreshMessages() else {
+            throw AirshipMessageCenterProxyError.refreshFailed
+        }
+    }
+
+    @MainActor
+    public func setAutoLaunchDefaultMessageCenter(_ enabled: Bool) {
+        self.proxyStore.autoDisplayMessageCenter = enabled
     }
 }
 
-public struct AirshipMessageCenterMessage: Codable {
+
+public struct AirshipMessageCenterMessage: Codable, Sendable {
     let title: String
     let identifier: String
     let sentDate: Int

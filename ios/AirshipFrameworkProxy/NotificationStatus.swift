@@ -36,23 +36,5 @@ public struct NotificationStatus: Sendable, Equatable, Codable {
         case isOptedIn
         case notificationPermissionStatus
     }
-
-    var toMap: [String: Any] {
-        var map: [String: Any] = [
-            "isUserNotificationsEnabled": self.isUserNotificationsEnabled,
-            "areNotificationsAllowed": self.areNotificationsAllowed,
-            "isPushPrivacyFeatureEnabled": self.isPushPrivacyFeatureEnabled,
-            "isPushTokenRegistered": self.isPushTokenRegistered,
-            "isOptedIn": self.isOptedIn,
-            "isUserOptedIn": self.isUserOptedIn
-        ]
-
-        if let notificationPermissionStatus {
-            map["notificationPermissionStatus"] = notificationPermissionStatus
-        }
-
-        return map
-    }
-
 }
 

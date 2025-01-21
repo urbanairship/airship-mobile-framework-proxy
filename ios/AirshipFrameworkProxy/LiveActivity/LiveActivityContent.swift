@@ -1,9 +1,9 @@
 /* Copyright Airship and Contributors */
 
 #if canImport(AirshipKit)
-import AirshipKit
+public import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+public import AirshipCore
 #endif
 
 public struct LiveActivityContent: Sendable, Equatable, Codable, Hashable {

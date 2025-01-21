@@ -3,9 +3,9 @@
 import Foundation
 
 #if canImport(AirshipKit)
-import AirshipKit
+public import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+public import AirshipCore
 #endif
 
 public protocol AirshipPluginExtenderProtocol: NSObject {
@@ -17,6 +17,5 @@ public protocol AirshipPluginExtenderProtocol: NSObject {
 }
 
 public extension AirshipPluginExtenderProtocol {
-    static func extendConfig(config: AirshipConfig) {
-    }
+    static func extendConfig(config: AirshipConfig) {}
 }

@@ -64,7 +64,7 @@ public final class AirshipFeatureFlagManagerProxy: Sendable {
 
 // We encode `isEligible` as snake case breaking the APIs for react. This
 // wraps it so we can return camelCase like all other APIs.
-public struct FeatureFlagProxy: Codable {
+public struct FeatureFlagProxy: Codable, Sendable {
     let isEligible: Bool
     let exists: Bool
     let variables: AirshipJSON?

@@ -36,6 +36,7 @@
 		6E142EC1296F85CD00F71E23 /* TagGroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E6D296E3DEB00F71E23 /* TagGroupOperation.swift */; };
 		6E142EC2296F87DA00F71E23 /* AirshipProxyEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E142E8D296F852300F71E23 /* AirshipProxyEventEmitter.swift */; };
 		6E1EEE772BD2D34C00B45A87 /* AirshipProxyEventEmitterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1EEE762BD2D34B00B45A87 /* AirshipProxyEventEmitterTest.swift */; };
+		6E2DA79E2D4056E9000E9143 /* ProxyPushPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E2DA79D2D4056E5000E9143 /* ProxyPushPayload.swift */; };
 		6E3A02912CA60B2B00B0C5CF /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3A02902CA60B2600B0C5CF /* LiveActivityManager.swift */; };
 		6E3A02942CA60B8500B0C5CF /* LiveActivityInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3A02932CA60B8200B0C5CF /* LiveActivityInfo.swift */; };
 		6E3A02962CA60B9200B0C5CF /* LiveActivityContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3A02952CA60B8F00B0C5CF /* LiveActivityContent.swift */; };
@@ -99,6 +100,7 @@
 		6E142E96296F852300F71E23 /* AirshipProxyEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipProxyEvent.swift; sourceTree = "<group>"; };
 		6E142E97296F852300F71E23 /* AirshipPreferenceCenterProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirshipPreferenceCenterProxy.swift; sourceTree = "<group>"; };
 		6E1EEE762BD2D34B00B45A87 /* AirshipProxyEventEmitterTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipProxyEventEmitterTest.swift; sourceTree = "<group>"; };
+		6E2DA79D2D4056E5000E9143 /* ProxyPushPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyPushPayload.swift; sourceTree = "<group>"; };
 		6E3A02902CA60B2600B0C5CF /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		6E3A02932CA60B8200B0C5CF /* LiveActivityInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityInfo.swift; sourceTree = "<group>"; };
 		6E3A02952CA60B8F00B0C5CF /* LiveActivityContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityContent.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 		6E142E4E296E3A8800F71E23 /* AirshipFrameworkProxy */ = {
 			isa = PBXGroup;
 			children = (
+				6E2DA79D2D4056E5000E9143 /* ProxyPushPayload.swift */,
 				6EC9A28A2CC963A800FFF4C5 /* AirshipPluginForwardListeners.swift */,
 				6ED117B32CA75D1B00C41C56 /* Loader */,
 				6E3A028F2CA60B1C00B0C5CF /* LiveActivity */,
@@ -481,6 +484,7 @@
 				6E142EBC296F85CD00F71E23 /* AttributeOperation.swift in Sources */,
 				6E142EBD296F85CD00F71E23 /* ProxyConfig.swift in Sources */,
 				6EFB83DA2979BE7F0008BEB5 /* ScopedSubscriptionListOperation.swift in Sources */,
+				6E2DA79E2D4056E9000E9143 /* ProxyPushPayload.swift in Sources */,
 				6E142EBE296F85CD00F71E23 /* ProxyStore.swift in Sources */,
 				6EC755402A4A494C00851ABB /* NotificationStatus.swift in Sources */,
 				6EC9A28B2CC963B100FFF4C5 /* AirshipPluginForwardListeners.swift in Sources */,
@@ -685,7 +689,20 @@
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
+				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
+				SWIFT_UPCOMING_FEATURE_DISABLE_OUTWARD_ACTOR_ISOLATION = YES;
+				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
+				SWIFT_UPCOMING_FEATURE_FORWARD_TRAILING_CLOSURES = YES;
+				SWIFT_UPCOMING_FEATURE_GLOBAL_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_IMPLICIT_OPEN_EXISTENTIALS = YES;
+				SWIFT_UPCOMING_FEATURE_IMPORT_OBJC_FORWARD_DECLS = YES;
+				SWIFT_UPCOMING_FEATURE_INFER_SENDABLE_FROM_CAPTURES = YES;
+				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
+				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
+				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -715,7 +732,20 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
+				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
+				SWIFT_UPCOMING_FEATURE_DISABLE_OUTWARD_ACTOR_ISOLATION = YES;
+				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
+				SWIFT_UPCOMING_FEATURE_FORWARD_TRAILING_CLOSURES = YES;
+				SWIFT_UPCOMING_FEATURE_GLOBAL_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_IMPLICIT_OPEN_EXISTENTIALS = YES;
+				SWIFT_UPCOMING_FEATURE_IMPORT_OBJC_FORWARD_DECLS = YES;
+				SWIFT_UPCOMING_FEATURE_INFER_SENDABLE_FROM_CAPTURES = YES;
+				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
+				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
+				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

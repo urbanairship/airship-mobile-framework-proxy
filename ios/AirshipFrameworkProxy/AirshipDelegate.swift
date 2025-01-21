@@ -55,42 +55,55 @@ final class AirshipDelegate {
 extension AirshipDelegate: PushNotificationDelegate {
 
     @MainActor
-    private var forwardPushDelegate: PushNotificationDelegate? {
+    private var forwardPushDelegate: (any PushNotificationDelegate)? {
         AirshipPluginForwardDelegates.shared.pushNotificationDelegate
     }
 
     @MainActor
     func receivedForegroundNotification(_ userInfo: [AnyHashable : Any]) async {
-        await self.eventEmitter.addEvent(
-            PushReceivedEvent(
-                userInfo: userInfo,
-                isForeground: true
+        do {
+            await self.eventEmitter.addEvent(
+                try PushReceivedEvent(
+                    userInfo: userInfo,
+                    isForeground: true
+                )
             )
-        )
+        } catch {
+            AirshipLogger.error("Failed to generate PushReceivedEvent \(error)")
+        }
 
         await forwardPushDelegate?.receivedForegroundNotification(userInfo)
     }
 
     @MainActor
     func receivedBackgroundNotification(_ userInfo: [AnyHashable : Any]) async -> UIBackgroundFetchResult {
-        await self.eventEmitter.addEvent(
-            PushReceivedEvent(
-                userInfo: userInfo,
-                isForeground: false
+        do {
+            await self.eventEmitter.addEvent(
+                try PushReceivedEvent(
+                    userInfo: userInfo,
+                    isForeground: false
+                )
             )
-        )
+        } catch {
+            AirshipLogger.error("Failed to generate PushReceivedEvent \(error)")
+        }
 
         return await forwardPushDelegate?.receivedBackgroundNotification(userInfo) ?? .noData
     }
 
     @MainActor
     func receivedNotificationResponse(_ notificationResponse: UNNotificationResponse) async {
-        if (notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier) {
-            await self.eventEmitter.addEvent(
-                NotificationResponseEvent(
-                    response: notificationResponse
+
+        do {
+            if (notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier) {
+                await self.eventEmitter.addEvent(
+                    try NotificationResponseEvent(
+                        response: notificationResponse
+                    )
                 )
-            )
+            }
+        } catch {
+            AirshipLogger.error("Failed to generate NotificationResponseEvent \(error)")
         }
 
         await forwardPushDelegate?.receivedNotificationResponse(notificationResponse)
@@ -101,10 +114,15 @@ extension AirshipDelegate: PushNotificationDelegate {
         guard
             let forward = forwardPushDelegate?.extendPresentationOptions
         else {
-            let overrides = await AirshipProxy.shared.push.presentationOptions(
-                notification: notification
-            )
-            return overrides ?? options
+            do {
+                let overrides = try  await AirshipProxy.shared.push.presentationOptions(
+                    notification: notification
+                )
+                return overrides ?? options
+            } catch {
+                AirshipLogger.error("Failed to extendPresentationOptions \(error)")
+                return options
+            }
         }
 
         return await forward(options, notification)
@@ -114,7 +132,7 @@ extension AirshipDelegate: PushNotificationDelegate {
 
 extension AirshipDelegate: RegistrationDelegate {
     @MainActor
-    private var forwardRegistrationDelegate: RegistrationDelegate? {
+    private var forwardRegistrationDelegate: (any RegistrationDelegate)? {
         AirshipPluginForwardDelegates.shared.registrationDelegate
     }
 
@@ -132,7 +150,7 @@ extension AirshipDelegate: RegistrationDelegate {
         }
     }
 
-    nonisolated func apnsRegistrationFailedWithError(_ error: Error) {
+    nonisolated func apnsRegistrationFailedWithError(_ error: any Error) {
         Task { @MainActor in
             forwardRegistrationDelegate?.apnsRegistrationFailedWithError(error)
         }

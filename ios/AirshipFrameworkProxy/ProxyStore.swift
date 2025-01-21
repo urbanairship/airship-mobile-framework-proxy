@@ -1,7 +1,7 @@
 /* Copyright Airship and Contributors */
 
 import Foundation
-import UserNotifications
+public import UserNotifications
 
 #if canImport(AirshipKit)
 import AirshipKit
@@ -9,23 +9,23 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public class ProxyStore {
+public final class ProxyStore: Sendable {
 
     static let shared: ProxyStore = ProxyStore()
 
-    private let defaults: UserDefaults = UserDefaults(
-        suiteName: "airship-framework-proxy"
-    )!
-
-    private let encoder = JSONEncoder()
-    private let decoder = JSONDecoder()
+    private var defaults: UserDefaults  {
+        UserDefaults(suiteName: "airship-framework-proxy")!
+    }
 
     private let configKey = "config"
     private let foregroundPresentationOptionsKey = "foregroundPresentationOptions"
     private let autoDisplayMessageCenterKey = "autoDisplayMessageCenter"
     private let lastNotificationStatusKey = "lastNotificationStatus"
 
+    @MainActor
     public var defaultAutoDisplayMessageCenter: Bool = true
+
+    @MainActor
     public var defaultPresentationOptions: UNNotificationPresentationOptions = []
 
 
@@ -38,6 +38,7 @@ public class ProxyStore {
         }
     }
 
+    @MainActor
     public var foregroundPresentationOptions: UNNotificationPresentationOptions {
         get {
             guard 
@@ -58,6 +59,7 @@ public class ProxyStore {
         }
     }
 
+    @MainActor
     public var autoDisplayMessageCenter: Bool {
         get {
             return readValue(autoDisplayMessageCenterKey) ?? defaultAutoDisplayMessageCenter
@@ -116,7 +118,7 @@ public class ProxyStore {
         }
 
         do {
-            return try decoder.decode(T.self, from: data)
+            return try JSONDecoder().decode(T.self, from: data)
         } catch {
             AirshipLogger.error("Failed to decode value for key \(key): \(error)")
             return nil
@@ -138,7 +140,7 @@ public class ProxyStore {
         }
 
         do {
-            let data = try encoder.encode(codable)
+            let data = try JSONEncoder().encode(codable)
             writeValue(data, forKey: key)
         } catch {
             AirshipLogger.error("Failed to write codable for key \(key): \(error)")

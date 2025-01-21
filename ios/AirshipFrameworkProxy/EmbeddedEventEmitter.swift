@@ -1,7 +1,7 @@
 /* Copyright Airship and Contributors */
 
 import Foundation
-import Combine
+@preconcurrency import Combine
 
 #if canImport(AirshipKit)
 import AirshipKit
@@ -15,7 +15,7 @@ public actor EmbeddedEventEmitter {
         proxyEventEmitter: AirshipProxyEventEmitter.shared
     )
 
-    private var lastEvent: AirshipProxyEvent?
+    private var lastEvent: (any AirshipProxyEvent)?
     private var task: Task<Void, Never>?
 
 

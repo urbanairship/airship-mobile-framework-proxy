@@ -3,25 +3,25 @@
 import Foundation
 
 #if canImport(AirshipKit)
-import AirshipKit
+public import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+public import AirshipCore
 #endif
 
 public enum AirshipActionProxyError: Error {
     case actionNotFound
-    case actionError(Error?)
+    case actionError((any Error)?)
     case actionRejectedArguments
 }
 
-public class AirshipActionProxy: NSObject {
+public final class AirshipActionProxy: Sendable {
 
-    private let actionRunnerProvider: () throws -> AirshipActionRunnerProtocol
-    private var actionRunner: AirshipActionRunnerProtocol {
+    private let actionRunnerProvider: @Sendable () throws -> any AirshipActionRunnerProtocol
+    private var actionRunner: any AirshipActionRunnerProtocol {
         get throws { try actionRunnerProvider() }
     }
 
-    init(actionRunnerProvider: @escaping () throws -> AirshipActionRunnerProtocol) {
+    init(actionRunnerProvider: @Sendable @escaping () throws -> any AirshipActionRunnerProtocol) {
         self.actionRunnerProvider = actionRunnerProvider
     }
 
@@ -47,12 +47,12 @@ public class AirshipActionProxy: NSObject {
     }
 }
 
-protocol AirshipActionRunnerProtocol: AnyObject {
+protocol AirshipActionRunnerProtocol: AnyObject, Sendable {
     func runAction(_ name: String, value: AirshipJSON?) async -> ActionResult
 }
 
 
-class AirshipActionRunner: AirshipActionRunnerProtocol {
+final class AirshipActionRunner: AirshipActionRunnerProtocol {
     func runAction(_ name: String, value: AirshipJSON?) async -> ActionResult {
         return await ActionRunner.run(
             actionName: name,

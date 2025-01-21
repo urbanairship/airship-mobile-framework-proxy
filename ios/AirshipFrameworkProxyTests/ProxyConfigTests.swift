@@ -77,7 +77,7 @@ final class ProxyConfigTests: XCTestCase {
             from: fullConfig.data(using: .utf8)!
         )
 
-        let airshipConfig = AirshipConfig()
+        var airshipConfig = AirshipConfig()
         airshipConfig.applyProxyConfig(proxyConfig: proxyConfig)
 
         XCTAssertEqual(

@@ -75,14 +75,14 @@ class TagOperationTest: XCTestCase {
             action: TagOperation.Action.addTags,
             tags: ["oneTag", "anotherTag", "andALastOne"]
         )
-        try operation.apply(editor: editor)
+        operation.apply(editor: editor)
         XCTAssertEqual(editor.currentTags, ["oneTag", "anotherTag", "andALastOne"])
         
         let nextOperation = TagOperation(
             action: TagOperation.Action.removeTags,
             tags: ["anotherTag", "andALastOne"]
         )
-        try nextOperation.apply(editor: editor)
+        nextOperation.apply(editor: editor)
         XCTAssertEqual(editor.currentTags, ["oneTag"])
     }
 

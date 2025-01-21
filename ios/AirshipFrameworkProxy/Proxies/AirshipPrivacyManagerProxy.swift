@@ -3,20 +3,20 @@
 import Foundation
 
 #if canImport(AirshipKit)
-import AirshipKit
+public import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+public import AirshipCore
 #endif
 
-public class AirshipPrivacyManagerProxy {
+public final class AirshipPrivacyManagerProxy: Sendable {
 
-    private let privacyManagerProvider: () throws -> AirshipPrivacyManagerProtocol
-    private var privacyManager: AirshipPrivacyManagerProtocol {
+    private let privacyManagerProvider: @Sendable () throws -> AirshipPrivacyManager
+    private var privacyManager: AirshipPrivacyManager {
         get throws { try privacyManagerProvider() }
     }
 
     init(
-        privacyManagerProvider: @escaping () throws -> AirshipPrivacyManagerProtocol
+        privacyManagerProvider: @Sendable @escaping () throws -> AirshipPrivacyManager
     ) {
         self.privacyManagerProvider = privacyManagerProvider
     }
@@ -95,12 +95,3 @@ public class AirshipPrivacyManagerProxy {
         )
     }
 }
-
-protocol AirshipPrivacyManagerProtocol: AnyObject {
-    var enabledFeatures: AirshipFeature { get set}
-    func enableFeatures(_ features: AirshipFeature)
-    func disableFeatures(_ features: AirshipFeature)
-    func isEnabled(_ feature: AirshipFeature) -> Bool
-}
-
-extension AirshipPrivacyManager: AirshipPrivacyManagerProtocol {}

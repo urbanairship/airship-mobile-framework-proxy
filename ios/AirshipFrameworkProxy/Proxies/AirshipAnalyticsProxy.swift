@@ -8,14 +8,14 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public class AirshipAnalyticsProxy {
+public final class AirshipAnalyticsProxy: Sendable {
 
-    private let analyticsProvider: () throws -> AirshipAnalyticsProtocol
-    private var analytics: AirshipAnalyticsProtocol {
+    private let analyticsProvider: @Sendable () throws -> any AirshipAnalyticsProtocol
+    private var analytics: any AirshipAnalyticsProtocol {
         get throws { try analyticsProvider() }
     }
 
-    init(analyticsProvider: @escaping () throws -> AirshipAnalyticsProtocol) {
+    init(analyticsProvider: @Sendable  @escaping () throws -> any AirshipAnalyticsProtocol) {
         self.analyticsProvider = analyticsProvider
     }
 

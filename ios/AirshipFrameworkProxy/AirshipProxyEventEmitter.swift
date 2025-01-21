@@ -1,20 +1,20 @@
 import Foundation
-import Combine
+@preconcurrency public import Combine
 
 public actor AirshipProxyEventEmitter {
-    private let updateContinuation: AsyncStream<AirshipProxyEvent>.Continuation
-    public let pendingEventAdded: AsyncStream<AirshipProxyEvent>
+    private let updateContinuation: AsyncStream<any AirshipProxyEvent>.Continuation
+    public let pendingEventAdded: AsyncStream<any AirshipProxyEvent>
     public static let shared = AirshipProxyEventEmitter()
-    private nonisolated let eventSubject = PassthroughSubject<AirshipProxyEvent, Never>()
+    private nonisolated let eventSubject = PassthroughSubject<any AirshipProxyEvent, Never>()
 
-    private var pendingEvents: [AirshipProxyEvent] = []
+    private var pendingEvents: [any AirshipProxyEvent] = []
 
-    public nonisolated var pendingEventPublisher: AnyPublisher<AirshipProxyEvent, Never> {
+    public nonisolated var pendingEventPublisher: AnyPublisher<any AirshipProxyEvent, Never> {
         eventSubject.eraseToAnyPublisher()
     }
 
     init() {
-        var escapee: AsyncStream<AirshipProxyEvent>.Continuation!
+        var escapee: AsyncStream<any AirshipProxyEvent>.Continuation!
         self.pendingEventAdded = AsyncStream { continuation in
             escapee = continuation
         }
@@ -33,9 +33,9 @@ public actor AirshipProxyEventEmitter {
 
     public func takePendingEvents(
         type: AirshipProxyEventType
-    ) -> [AirshipProxyEvent] {
+    ) -> [any AirshipProxyEvent] {
 
-        var result: [AirshipProxyEvent] = []
+        var result: [any AirshipProxyEvent] = []
         
         pendingEvents.removeAll(where: { event in
             if event.type == type {
@@ -51,7 +51,7 @@ public actor AirshipProxyEventEmitter {
 
     public func processPendingEvents(
         type: AirshipProxyEventType?,
-        handler: (AirshipProxyEvent) -> Bool
+        handler: (any AirshipProxyEvent) -> Bool
     ) {
         let types: Set<AirshipProxyEventType> = if let type = type {
             Set([type])
@@ -68,7 +68,7 @@ public actor AirshipProxyEventEmitter {
         })
     }
 
-    func addEvent(_ event: AirshipProxyEvent, replacePending: Bool = false) {
+    func addEvent(_ event: any AirshipProxyEvent, replacePending: Bool = false) {
         if replacePending {
             self.pendingEvents.removeAll { event.type == $0.type }
         }
