@@ -93,8 +93,11 @@ public class AirshipMessageCenterProxy {
 }
 
 protocol MessageCenterProtocol: AnyObject {
+    @MainActor
     func display()
+    @MainActor
     func display(messageID: String)
+    @MainActor
     func dismiss()
     func message(forID messageID: String) async throws -> AirshipMessageCenterMessage
     var messages: [AirshipMessageCenterMessage] { get async }

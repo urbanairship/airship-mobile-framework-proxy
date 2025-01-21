@@ -22,6 +22,10 @@ import com.urbanairship.push.NotificationListener
 import com.urbanairship.push.PushListener
 import com.urbanairship.push.PushMessage
 import com.urbanairship.push.PushTokenListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 internal class AirshipListener(
     private val proxyStore: ProxyStore,
@@ -36,6 +40,7 @@ internal class AirshipListener(
     AirshipChannelListener,
     InboxListener
 {
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val isAppForegrounded: Boolean
         get() {
             return GlobalActivityMonitor.shared(UAirship.getApplicationContext()).isAppForegrounded
@@ -119,13 +124,16 @@ internal class AirshipListener(
     }
 
     override fun onInboxUpdated() {
-        eventEmitter.addEvent(
-            MessageCenterUpdatedEvent(
-                MessageCenter.shared().inbox.unreadCount,
-                MessageCenter.shared().inbox.count
-            ),
-            replacePending = true
-        )
+        scope.launch {
+            eventEmitter.addEvent(
+                MessageCenterUpdatedEvent(
+                    MessageCenter.shared().inbox.getUnreadCount(),
+                    MessageCenter.shared().inbox.getCount()
+                ),
+                replacePending = true
+            )
+        }
+
     }
 
 }

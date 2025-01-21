@@ -13,19 +13,20 @@ public class AirshipPreferenceCenterProxy {
 
     private let proxyStore: ProxyStore
 
-    private let preferenceCenterProvider: () throws -> AirshipPreferenceCenterProtocol
-    private var preferenceCenter: AirshipPreferenceCenterProtocol {
+    private let preferenceCenterProvider: () throws -> PreferenceCenter
+    private var preferenceCenter: PreferenceCenter {
         get throws { try preferenceCenterProvider() }
     }
 
     init(
         proxyStore: ProxyStore,
-        preferenceCenterProvider: @escaping () throws -> AirshipPreferenceCenterProtocol
+        preferenceCenterProvider: @escaping () throws -> PreferenceCenter
     ) {
         self.proxyStore = proxyStore
         self.preferenceCenterProvider = preferenceCenterProvider
     }
-
+    
+    @MainActor
     public func displayPreferenceCenter(preferenceCenterID: String) throws {
         try self.preferenceCenter.open(preferenceCenterID)
     }
@@ -56,10 +57,3 @@ public class AirshipPreferenceCenterProxy {
         return converted
     }
 }
-
-protocol AirshipPreferenceCenterProtocol: AnyObject {
-    func open(_ preferenceCenterID: String)
-    func jsonConfig(preferenceCenterID: String) async throws -> Data
-}
-
-extension PreferenceCenter: AirshipPreferenceCenterProtocol {}

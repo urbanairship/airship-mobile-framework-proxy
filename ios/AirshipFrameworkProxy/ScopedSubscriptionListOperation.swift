@@ -35,7 +35,7 @@ public struct ScopedSubscriptionListOperation: Decodable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.action = try container.decode(ScopedSubscriptionListOperation.Action.self, forKey: .action)
         self.listID = try container.decode(String.self, forKey: .listID)
-        self.scope = try ChannelScope.fromString(container.decode(String.self, forKey: .scope))
+        self.scope = try container.decode(ChannelScope.self, forKey: .scope)
     }
 
     func apply(editor: ScopedSubscriptionListEditor) {
