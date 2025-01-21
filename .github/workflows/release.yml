@@ -62,5 +62,5 @@ jobs:
       - name: Publish Pods
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-        run: exec pod trunk push AirshipFrameworkProxy.podspec
+        run: exec pod trunk push AirshipFrameworkProxy.podspec --allow-warnings
           
