@@ -1,6 +1,5 @@
 package com.urbanairship.android.framework.proxy.proxies
 
-import com.urbanairship.PendingResult
 import com.urbanairship.android.framework.proxy.AttributeOperation
 import com.urbanairship.android.framework.proxy.ScopedSubscriptionListOperation
 import com.urbanairship.android.framework.proxy.TagGroupOperation
@@ -25,14 +24,10 @@ public class ContactProxy internal constructor(private val contactProvider: () -
         return contactProvider().namedUserId
     }
 
-    public fun getSubscriptionLists(): PendingResult<Map<String, List<String>>> {
-        val pendingResult = PendingResult<Map<String, List<String>>>()
-        contactProvider().fetchSubscriptionListsPendingResult().addResultCallback { result ->
-            pendingResult.result = result?.mapValues { entry ->
-                entry.value.map { it.toString() }
-            }
+    public suspend fun getSubscriptionLists(): Map<String, List<String>> {
+        return contactProvider().fetchSubscriptionLists().getOrThrow().mapValues { entry ->
+            entry.value.map { it.toString() }
         }
-        return pendingResult
     }
 
     public fun notifyRemoteLogin() {
