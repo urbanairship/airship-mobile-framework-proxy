@@ -8,8 +8,8 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public struct ScopedSubscriptionListOperation: Decodable, Equatable {
-    enum Action: String, Codable {
+public struct ScopedSubscriptionListOperation: Decodable, Equatable, Sendable {
+    enum Action: String, Codable, Sendable {
         case subscribe
         case unsubscribe
     }
@@ -24,14 +24,13 @@ public struct ScopedSubscriptionListOperation: Decodable, Equatable {
         self.scope = scope
     }
 
-
     private enum CodingKeys: String, CodingKey {
         case action = "action"
         case listID = "listId"
         case scope = "scope"
     }
 
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.action = try container.decode(ScopedSubscriptionListOperation.Action.self, forKey: .action)
         self.listID = try container.decode(String.self, forKey: .listID)

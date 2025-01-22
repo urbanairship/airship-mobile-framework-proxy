@@ -8,14 +8,14 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public class AirshipContactProxy {
+public final class AirshipContactProxy: Sendable {
 
-    private let contactProvider: () throws -> AirshipContactProtocol
-    private var contact: AirshipContactProtocol {
+    private let contactProvider: @Sendable () throws -> any AirshipContactProtocol
+    private var contact: any AirshipContactProtocol {
         get throws { try contactProvider() }
     }
 
-    init(contactProvider: @escaping () throws -> AirshipContactProtocol) {
+    init(contactProvider: @Sendable @escaping () throws -> any AirshipContactProtocol) {
         self.contactProvider = contactProvider
     }
 
@@ -39,8 +39,10 @@ public class AirshipContactProxy {
         try self.contact.notifyRemoteLogin()
     }
 
-    public func getNamedUser() async throws -> String? {
-        return try await self.contact.namedUserID
+    public var namedUserID: String? {
+        get async throws {
+            return try await self.contact.namedUserID
+        }
     }
 
     public func getSubscriptionLists() async throws -> [String: [String]] {
@@ -57,15 +59,6 @@ public class AirshipContactProxy {
         return converted
     }
 
-    public func editTagGroups(json: Any) throws {
-        let data = try AirshipJSONUtils.data(json)
-        let operations = try JSONDecoder().decode(
-            [TagGroupOperation].self,
-            from: data
-        )
-        try self.editTagGroups(operations: operations)
-    }
-
     public func editTagGroups(operations: [TagGroupOperation]) throws {
         try self.contact.editTagGroups { editor in
             operations.forEach { operation in
@@ -74,33 +67,12 @@ public class AirshipContactProxy {
         }
     }
 
-    @objc
-    public func editAttributes(json: Any) throws {
-        let data = try AirshipJSONUtils.data(json)
-        let operations = try JSONDecoder().decode(
-            [AttributeOperation].self,
-            from: data
-        )
-        try editAttributes(operations: operations)
-    }
-
-
     public func editAttributes(operations: [AttributeOperation]) throws {
         let editor = try self.contact.editAttributes()
         try operations.forEach { operation in
             try operation.apply(editor: editor)
         }
         editor.apply()
-    }
-
-    public func editSubscriptionLists(json: Any) throws {
-        let data = try AirshipJSONUtils.data(json)
-        let operations = try JSONDecoder().decode(
-            [ScopedSubscriptionListOperation].self,
-            from: data
-        )
-
-        try self.editSubscriptionLists(operations: operations)
     }
 
     public func editSubscriptionLists(

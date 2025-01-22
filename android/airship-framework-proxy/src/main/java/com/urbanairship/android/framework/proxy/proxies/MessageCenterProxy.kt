@@ -2,7 +2,6 @@ package com.urbanairship.android.framework.proxy.proxies
 
 import android.content.Intent
 import android.net.Uri
-import com.urbanairship.PendingResult
 import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.MessageCenterMessage
 import com.urbanairship.android.framework.proxy.ProxyLogger
@@ -83,16 +82,12 @@ public class MessageCenterProxy internal constructor(
     }
 
 
-    public suspend fun markMessageRead(messageId: String) {
+    public fun markMessageRead(messageId: String) {
         messageCenterProvider().inbox.markMessagesRead(messageId)
     }
 
-    public fun refreshInbox(): PendingResult<Boolean> {
-        val pendingResult = PendingResult<Boolean>()
-        messageCenterProvider().inbox.fetchMessages {
-            pendingResult.result = it
-        }
-        return pendingResult
+    public suspend fun refreshInbox(): Boolean {
+        return messageCenterProvider().inbox.fetchMessages()
     }
 
     public suspend fun getUnreadMessagesCount(): Int {

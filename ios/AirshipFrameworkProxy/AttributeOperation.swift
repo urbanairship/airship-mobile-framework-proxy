@@ -7,13 +7,13 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public struct AttributeOperation: Decodable, Equatable {
+public struct AttributeOperation: Decodable, Equatable, Sendable {
     enum Action: String, Decodable {
         case setAttribute = "set"
         case removeAttribute = "remove"
     }
 
-    enum ValueType: String, Decodable {
+    enum ValueType: String, Decodable, Sendable {
         case string
         case number
         case date
@@ -31,7 +31,7 @@ public struct AttributeOperation: Decodable, Equatable {
         case valueType = "type"
     }
 
-    func apply(editor: AttributeOperationEditor) throws {
+    func apply(editor: any AttributeOperationEditor) throws {
         switch(action) {
         case .removeAttribute:
             editor.remove(attribute)

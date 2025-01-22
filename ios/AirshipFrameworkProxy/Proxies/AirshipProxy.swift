@@ -4,9 +4,9 @@ import Foundation
 import Combine
 
 #if canImport(AirshipKit)
-import AirshipKit
+public import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+public import AirshipCore
 import AirshipAutomation
 import AirshipMessageCenter
 import AirshipFeatureFlags
@@ -24,17 +24,22 @@ public protocol AirshipProxyDelegate {
     func onAirshipReady()
 }
 
-public class AirshipProxy {
+public final class AirshipProxy: Sendable {
 
-    private static let extender: AirshipPluginExtenderProtocol.Type? = {
-        NSClassFromString("AirshipPluginExtender") as? AirshipPluginExtenderProtocol.Type
+    private static let extender: (any AirshipPluginExtenderProtocol.Type)? = {
+        NSClassFromString("AirshipPluginExtender") as? any AirshipPluginExtenderProtocol.Type
     }()
 
-    public var delegate: AirshipProxyDelegate?
+    @MainActor
+    public var delegate: (any AirshipProxyDelegate)?
+    @MainActor
     private var migrateCalled: Bool = false
+    @MainActor
     private var subscriptions: Set<AnyCancellable> = Set()
 
     private let proxyStore: ProxyStore
+
+    @MainActor
     private var airshipDelegate: AirshipDelegate?
 
     public let locale: AirshipLocaleProxy

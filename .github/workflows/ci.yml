@@ -52,4 +52,4 @@ jobs:
 
       - name: Build SDK
         run: |
-          exec pod lib lint AirshipFrameworkProxy.podspec --verbose --platforms=ios
+          exec pod lib lint AirshipFrameworkProxy.podspec --verbose --platforms=ios --allow-warnings

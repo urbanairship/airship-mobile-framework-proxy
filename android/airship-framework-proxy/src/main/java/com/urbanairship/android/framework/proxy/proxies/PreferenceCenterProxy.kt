@@ -14,8 +14,8 @@ public class PreferenceCenterProxy internal constructor(
         preferenceCenterProvider().open(preferenceCenterId)
     }
 
-    public fun getPreferenceCenterConfig(preferenceCenterId: String): PendingResult<JsonValue> {
-        return preferenceCenterProvider().getJsonConfigPendingResult(preferenceCenterId)
+    public suspend fun getPreferenceCenterConfig(preferenceCenterId: String): JsonValue? {
+        return preferenceCenterProvider().getJsonConfig(preferenceCenterId)
     }
 
     public fun setAutoLaunchPreferenceCenter(preferenceID: String, autoLaunch: Boolean) {

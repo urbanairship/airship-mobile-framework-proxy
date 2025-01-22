@@ -1,6 +1,5 @@
 package com.urbanairship.android.framework.proxy.proxies
 
-import com.urbanairship.PendingResult
 import com.urbanairship.android.framework.proxy.AttributeOperation
 import com.urbanairship.android.framework.proxy.SubscriptionListOperation
 import com.urbanairship.android.framework.proxy.TagGroupOperation
@@ -45,8 +44,8 @@ public class ChannelProxy internal constructor(private val channelProvider: () -
         return channelProvider().tags
     }
 
-    public fun getSubscriptionLists(): PendingResult<Set<String>> {
-        return channelProvider().fetchSubscriptionListsPendingResult()
+    public suspend fun getSubscriptionLists(): Set<String> {
+        return channelProvider().fetchSubscriptionLists().getOrThrow()
     }
 
     public fun editSubscriptionLists(operations: JsonValue) {

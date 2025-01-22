@@ -1,4 +1,5 @@
 import XCTest
+import AirshipKit
 @testable import AirshipFrameworkProxy
 
 final class AirshipProxyEventEmitterTest: XCTestCase {
@@ -28,7 +29,9 @@ final class AirshipProxyEventEmitterTest: XCTestCase {
 }
 
 fileprivate struct TestEvent: AirshipProxyEvent {
+    typealias T = AirshipJSON
+
     var type: AirshipProxyEventType
-    var body: [String : Any] = [:]
+    var body: AirshipJSON  = .bool(true)
 }
 

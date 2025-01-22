@@ -3,27 +3,27 @@
 import Foundation
 
 #if canImport(AirshipKit)
-import AirshipKit
+public import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+public import AirshipCore
 #endif
 
 /// Plugin forward delegates
 @MainActor
-public class AirshipPluginForwardDelegates {
+public final class AirshipPluginForwardDelegates {
     /// Shared instance
     public static let shared: AirshipPluginForwardDelegates = AirshipPluginForwardDelegates()
 
     /// Deep link delegate
-    public var deepLinkDelegate: AirshipPluginDeepLinkDelegate?
+    public var deepLinkDelegate: (any AirshipPluginDeepLinkDelegate)?
 
     /// Push notification delegate.
     /// Note:  Implementing `extendPresentationOptions(_:notification:completionHandler:)`
     /// will break handling of request options per notification in plugins that support that feature.
-    public var pushNotificationDelegate: PushNotificationDelegate?
+    public var pushNotificationDelegate: (any PushNotificationDelegate)?
 
     /// Registration delegate
-    public var registrationDelegate: RegistrationDelegate?
+    public var registrationDelegate: (any RegistrationDelegate)?
 
     private init() {}
 }

@@ -2,7 +2,6 @@
 //  AirshipFrameworkProxy.h
 //  AirshipFrameworkProxy
 //
-//  Created by Ryan Lepinski on 1/10/23.
 //
 
 #import <Foundation/Foundation.h>

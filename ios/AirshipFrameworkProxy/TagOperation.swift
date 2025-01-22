@@ -8,8 +8,8 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public struct TagOperation: Decodable, Equatable {
-    enum Action: String, Codable {
+public struct TagOperation: Decodable, Equatable, Sendable {
+    enum Action: String, Codable, Sendable {
         case removeTags = "remove"
         case addTags = "add"
     }
@@ -22,7 +22,7 @@ public struct TagOperation: Decodable, Equatable {
         case tags = "tags"
     }
 
-    func apply(editor: TagOperationEditor) {
+    func apply(editor: any TagOperationEditor) {
         switch(action) {
         case .removeTags:
             editor.remove(tags)

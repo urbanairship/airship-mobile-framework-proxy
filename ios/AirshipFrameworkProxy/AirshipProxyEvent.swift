@@ -23,165 +23,206 @@ public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case liveActivitiesUpdated
 }
 
-public protocol AirshipProxyEvent {
+public protocol AirshipProxyEvent: Sendable {
+    associatedtype T: Codable
+
     var type: AirshipProxyEventType { get }
-    var body: [String: Any] { get }
+    var body: T { get }
 }
 
 struct DeepLinkEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = AirshipProxyEventType.deepLinkReceived
-    let body: [String: Any]
+    let body: Body
 
     init(_ deepLink: URL) {
-        self.body = ["deepLink": deepLink.absoluteString]
+        self.body = Body(deepLink: deepLink.absoluteString)
+    }
+
+    struct Body: Codable, Sendable {
+        let deepLink: String
     }
 }
 
 struct LiveActivitiesUpdatedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = AirshipProxyEventType.liveActivitiesUpdated
-    let body: [String: Any]
+    let body: Body
 
     init(_ liveActivities: [LiveActivityInfo]) {
-        let info =  try? AirshipJSON.wrap(liveActivities).unWrap()
-        self.body = ["activities": info ?? []]
+        self.body = Body(activities: liveActivities)
+    }
+
+    struct Body: Codable, Sendable {
+        let activities: [LiveActivityInfo]
     }
 }
 
 struct ChannelCreatedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .channelCreated
-    let body: [String: Any]
+    let body: Body
 
     init(_ channelID: String) {
-        self.body = ["channelId": channelID]
+        self.body = Body(channelId: channelID)
+    }
+
+    struct Body: Codable, Sendable {
+        let channelId: String
     }
 }
 
 struct MessageCenterUpdatedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .messageCenterUpdated
-    let body: [String: Any]
+    let body: Body
 
     init(messageCount: Int, unreadCount: Int) {
-        self.body = [
-            "messageCount": messageCount,
-            "messageUnreadCount": unreadCount
-        ]
+        self.body = Body(messageCount: messageCount, unreadCount: unreadCount)
+    }
+
+    struct Body: Codable, Sendable {
+        let messageCount: Int
+        let unreadCount: Int
     }
 }
 
 struct DisplayMessageCenterEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .displayMessageCenter
-    let body: [String: Any]
+    let body: Body
 
     init(messageID: String? = nil) {
-        if let messageID = messageID {
-            self.body = [
-                "messageId": messageID
-            ]
-        } else {
-            self.body = [:]
-        }
+        self.body = Body(messageId: messageID)
+    }
 
+    struct Body: Codable, Sendable {
+        let messageId: String?
     }
 }
 
 struct DisplayPreferenceCenterEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .displayPreferenceCenter
-    let body: [String: Any]
+    let body: Body
 
     init(preferenceCenterID: String) {
-        self.body = [
-            "preferenceCenterId": preferenceCenterID
-        ]
+        self.body = Body(preferenceCenterId: preferenceCenterID)
+    }
+
+    struct Body: Codable, Sendable {
+        let preferenceCenterId: String
     }
 }
 
 struct NotificationResponseEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .notificationResponseReceived
-    let body: [String : Any]
+    let body: Body
 
     @MainActor
-    init(response: UNNotificationResponse) {
-        var body: [String: Any] = [:]
-        body["pushPayload"] = PushUtils.contentPayload(
-            response.notification.request.content.userInfo,
-            notificationID: response.notification.request.identifier
-        )
-
-        if (response.actionIdentifier == UNNotificationDefaultActionIdentifier) {
-            body["isForeground"] = true
+    init(response: UNNotificationResponse) throws {
+        let isForegorund: Bool = if (response.actionIdentifier == UNNotificationDefaultActionIdentifier) {
+            true
         } else {
             if let action = PushUtils.findAction(response) {
-                body["isForeground"] = action.options.contains(.foreground)
+                action.options.contains(.foreground)
             } else {
-                body["isForeground"] = true
+                true
             }
-            body["actionId"] = response.actionIdentifier
         }
 
-        self.body = body
+        let actionId: String? = if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            nil
+        } else {
+            response.actionIdentifier
+        }
+
+        self.body = Body(
+            pushPayload: try ProxyPushPayload(
+                notification: response.notification
+            ),
+            isForeground: isForegorund,
+            actionId: actionId
+        )
+    }
+
+    struct Body: Codable, Sendable {
+        let pushPayload: ProxyPushPayload
+        let isForeground: Bool
+        let actionId: String?
     }
 }
 
 struct PushReceivedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .pushReceived
-    let body: [String : Any]
+    let body: Body
 
-    init(userInfo: [AnyHashable : Any], isForeground: Bool) {
-        self.body = [
-            "pushPayload": PushUtils.contentPayload(userInfo),
-            "isForeground": isForeground
-        ]
+    init(userInfo: [AnyHashable : Any], isForeground: Bool) throws {
+        self.body = Body(
+            pushPayload: try ProxyPushPayload(userInfo: userInfo),
+            isForeground: isForeground
+        )
+    }
+
+    struct Body: Codable, Sendable {
+        let pushPayload: ProxyPushPayload
+        let isForeground: Bool
     }
 }
 
 struct PushTokenReceivedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .pushTokenReceived
-    let body: [String : Any]
+    let body: Body
 
     init(pushToken: String) {
-        self.body = ["pushToken": pushToken]
+        self.body = Body(pushToken: pushToken)
+    }
+
+    struct Body: Codable, Sendable {
+        let pushToken: String
     }
 }
 
 
 struct NotificationStatusChangedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .notificationStatusChanged
-
-    let body: [String: Any]
+    let body: Body
 
     init(
         status: NotificationStatus
     ) {
-        self.body = [
-            "status": status.toMap
-        ]
+        self.body = Body(status: status)
+    }
+
+    struct Body: Codable, Sendable {
+        let status: NotificationStatus
     }
 }
 
 
 struct AuthorizedNotificationSettingsChangedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .authorizedNotificationSettingsChanged
-
-    let body: [String: Any]
+    let body: Body
 
     init(
         authorizedSettings: AirshipAuthorizedNotificationSettings
     ) {
-        self.body = [
-            "authorizedSettings": authorizedSettings.names
-        ]
+        self.body = Body(authorizedSettings: authorizedSettings.names)
     }
 
+    struct Body: Codable, Sendable {
+        let authorizedSettings: [String]
+    }
 }
 
 struct EmbeddedInfoUpdatedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .pendingEmbeddedUpdated
-    let body: [String: Any]
+    let body: Body
 
     init(pending: [AirshipEmbeddedInfo]) {
-        self.body = [
-            "pending": pending.map { ["embeddedId": $0.embeddedID] }
-        ]
+        self.body = Body(pending: pending.map { Embedded(embeddedId: $0.embeddedID) })
+    }
+
+    struct Body: Codable, Sendable {
+        let pending: [Embedded]
+    }
+
+    struct Embedded: Codable, Sendable {
+        let embeddedId: String
     }
 }
 

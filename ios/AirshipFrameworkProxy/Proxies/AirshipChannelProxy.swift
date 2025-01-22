@@ -8,13 +8,13 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public class AirshipChannelProxy {
-    private let channelProvider: () throws -> AirshipChannelProtocol
-    private var channel: AirshipChannelProtocol {
+public final class AirshipChannelProxy: Sendable {
+    private let channelProvider: @Sendable () throws -> any AirshipChannelProtocol
+    private var channel: any AirshipChannelProtocol {
         get throws { try channelProvider() }
     }
 
-    init(channelProvider: @escaping () throws -> AirshipChannelProtocol) {
+    init(channelProvider: @Sendable @escaping () throws -> any AirshipChannelProtocol) {
         self.channelProvider = channelProvider
     }
 
@@ -33,16 +33,6 @@ public class AirshipChannelProxy {
             editor.remove(tags)
         }
     }
-    
-    @objc
-    public func editTags(json: Any) throws {
-        let data = try AirshipJSONUtils.data(json)
-        let operations = try JSONDecoder().decode(
-            [TagOperation].self,
-            from: data
-        )
-        try self.editTags(operations: operations)
-    }
 
     public func editTags(operations: [TagOperation]) throws {
         try self.channel.editTags { editor in
@@ -52,26 +42,20 @@ public class AirshipChannelProxy {
         }
     }
 
-    public func getTags() throws -> [String] {
-        return try self.channel.tags
+    public var tags: [String] {
+        get throws {
+            return try self.channel.tags
+        }
     }
 
-    public func getSubscriptionLists() async throws -> [String] {
+    public func fetchSubscriptionLists() async throws -> [String] {
         return try await self.channel.fetchSubscriptionLists()
     }
 
-    public func getChannelId() throws -> String? {
-        return try self.channel.identifier
-    }
-
-    @objc
-    public func editTagGroups(json: Any) throws {
-        let data = try AirshipJSONUtils.data(json)
-        let operations = try JSONDecoder().decode(
-            [TagGroupOperation].self,
-            from: data
-        )
-        try self.editTagGroups(operations: operations)
+    public var channelID: String? {
+        get throws {
+            return try self.channel.identifier
+        }
     }
 
     public func editTagGroups(operations: [TagGroupOperation]) throws {
@@ -81,16 +65,6 @@ public class AirshipChannelProxy {
             }
         }
     }
-
-    public func editAttributes(json: Any) throws {
-        let data = try AirshipJSONUtils.data(json)
-        let operations = try JSONDecoder().decode(
-            [AttributeOperation].self,
-            from: data
-        )
-        try editAttributes(operations: operations)
-    }
-
 
     public func editAttributes(operations: [AttributeOperation]) throws {
         let editor = try self.channel.editAttributes()

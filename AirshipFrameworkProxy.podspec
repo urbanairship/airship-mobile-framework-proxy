@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
    s.module_name             = "AirshipFrameworkProxy"
    s.ios.deployment_target   = "15.0"
    s.requires_arc            = true
-   s.swift_version           = "5.0"
+   s.swift_version           = "6.0"
    s.source_files            = "ios/AirshipFrameworkProxy/**/*.{h,m,swift}"
    s.dependency                'Airship', "19.0.0"
    s.source_files            = 'ios/AirshipFrameworkProxyLoader/**/*.{swift,h,m,c,cc,mm,cpp}', 'ios/AirshipFrameworkProxy/**/*.{swift,h,m,c,cc,mm,cpp}'

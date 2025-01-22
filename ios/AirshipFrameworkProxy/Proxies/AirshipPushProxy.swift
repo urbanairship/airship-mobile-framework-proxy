@@ -1,27 +1,28 @@
 /* Copyright Urban Airship and Contributors */
 
 import Foundation
-import UserNotifications
+public import UserNotifications
 
 #if canImport(AirshipKit)
-import AirshipKit
+public import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+public import AirshipCore
 #endif
 
-public class AirshipPushProxy {
+public final class AirshipPushProxy: Sendable {
 
+    @MainActor
     public var presentationOptionOverrides: ((PresentationOptionsOverridesRequest) -> Void)?
-    
+
     private let proxyStore: ProxyStore
-    private let pushProvider: () throws -> AirshipPushProtocol
-    private var push: AirshipPushProtocol {
+    private let pushProvider: @Sendable () throws -> any AirshipPushProtocol
+    private var push: any AirshipPushProtocol {
         get throws { try pushProvider() }
     }
 
     init(
         proxyStore: ProxyStore,
-        pushProvider: @escaping () throws -> AirshipPushProtocol
+        pushProvider: @Sendable @escaping () throws -> any AirshipPushProtocol
     ) {
         self.proxyStore = proxyStore
         self.pushProvider = pushProvider
@@ -58,17 +59,20 @@ public class AirshipPushProxy {
         try self.push.notificationOptions = options
     }
 
+    @MainActor
     public func setForegroundPresentationOptions(
-        names:[String]
+        names: [String]
     ) throws {
         let options = try UNNotificationPresentationOptions.parse(names)
         try self.push.defaultPresentationOptions = options
         self.proxyStore.foregroundPresentationOptions = options
     }
 
-    public func getNotificationStatus() async throws -> [String: Any] {
-        let status = try await self.push.notificationStatus
-        return NotificationStatus(airshipStatus: status).toMap
+    public var notificationStatus: NotificationStatus {
+        get async throws {
+            let status = try await self.push.notificationStatus
+            return NotificationStatus(airshipStatus: status)
+        }
     }
 
     public func getAuthorizedNotificationSettings() throws -> [String] {
@@ -137,32 +141,24 @@ public class AirshipPushProxy {
         )
     }
 
-    @objc
-    public func getActiveNotifications() async -> [[String: Any]] {
-        return await withCheckedContinuation { continuation in
-            UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-                let result = notifications.map { notification in
-                    PushUtils.contentPayload(
-                        notification.request.content.userInfo,
-                        notificationID: notification.request.identifier
-                    )
-                }
-                continuation.resume(returning: result)
-            }
+    public func getActiveNotifications() async throws -> [ProxyPushPayload] {
+        let notifications = await UNUserNotificationCenter.current().deliveredNotifications()
+        return try notifications.map { notification in
+            try ProxyPushPayload(notification: notification)
         }
     }
         
     @MainActor
-    func presentationOptions(notification: UNNotification) async -> UNNotificationPresentationOptions? {
+    func presentationOptions(notification: UNNotification) async throws -> UNNotificationPresentationOptions? {
         guard let overrides = self.presentationOptionOverrides else {
             return nil
         }
-        
+
+        let payload = try ProxyPushPayload(
+            notification: notification
+        )
+
         return await withCheckedContinuation{ continuation  in
-            let payload = PushUtils.contentPayload(
-                notification.request.content.userInfo,
-                notificationID: notification.request.identifier
-            )
             let request = PresentationOptionsOverridesRequest(pushPayload: payload) { options in
                 continuation.resume(returning: options)
             }
@@ -172,10 +168,10 @@ public class AirshipPushProxy {
     }
 }
 
-public class PresentationOptionsOverridesRequest {
-    private let onResult: (UNNotificationPresentationOptions?) -> Void
-    public let pushPayload: [String: Any]
-    init(pushPayload: [String: Any], onResult: @escaping (UNNotificationPresentationOptions?) -> Void) {
+public final class PresentationOptionsOverridesRequest: Sendable {
+    private let onResult: @Sendable (UNNotificationPresentationOptions?) -> Void
+    public let pushPayload: ProxyPushPayload
+    init(pushPayload: ProxyPushPayload, onResult: @Sendable @escaping (UNNotificationPresentationOptions?) -> Void) {
         self.pushPayload = pushPayload
         self.onResult = onResult
     }

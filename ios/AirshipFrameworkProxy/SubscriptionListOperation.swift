@@ -8,8 +8,8 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public struct SubscriptionListOperation: Decodable {
-    enum Action: String, Codable {
+public struct SubscriptionListOperation: Decodable, Sendable {
+    enum Action: String, Codable, Sendable {
         case subscribe
         case unsubscribe
     }

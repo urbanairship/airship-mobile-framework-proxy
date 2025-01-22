@@ -8,14 +8,14 @@ import AirshipKit
 import AirshipCore
 #endif
 
-public class AirshipLocaleProxy {
+public final class AirshipLocaleProxy: Sendable {
 
-    private let localeProvider: () throws -> AirshipLocaleManagerProtocol
-    private var locale: AirshipLocaleManagerProtocol {
+    private let localeProvider: @Sendable () throws -> any AirshipLocaleManagerProtocol
+    private var locale: any AirshipLocaleManagerProtocol {
         get throws { try localeProvider() }
     }
 
-    init(localeProvider: @escaping () throws -> any AirshipLocaleManagerProtocol) {
+    init(localeProvider: @Sendable @escaping () throws -> any AirshipLocaleManagerProtocol) {
         self.localeProvider = localeProvider
     }
 
@@ -30,8 +30,10 @@ public class AirshipLocaleProxy {
 
     }
 
-    public func getCurrentLocale() throws -> String {
-        return try self.locale.currentLocale.identifier
+    public var currentLocale: String {
+        get throws {
+            return try self.locale.currentLocale.identifier
+        }
     }
 
     public func clearLocale() throws {

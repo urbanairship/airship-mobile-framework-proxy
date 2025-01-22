@@ -1,6 +1,6 @@
 /* Copyright Airship and Contributors */
 
-import UIKit
+public import UIKit
 
 #if canImport(AirshipKit)
 import AirshipKit
@@ -11,8 +11,8 @@ import AirshipCore
 @objc
 @MainActor
 public class AirshipFrameworkProxyLoader: NSObject {
-    private static let pluginLoader: AirshipPluginLoaderProtocol.Type? = {
-        NSClassFromString("AirshipPluginLoader") as? AirshipPluginLoaderProtocol.Type
+    private static let pluginLoader: (any AirshipPluginLoaderProtocol.Type)? = {
+        NSClassFromString("AirshipPluginLoader") as? any AirshipPluginLoaderProtocol.Type
     }()
 
     @objc

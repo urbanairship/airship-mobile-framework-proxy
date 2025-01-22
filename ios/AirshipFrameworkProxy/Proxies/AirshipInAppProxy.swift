@@ -9,14 +9,14 @@ import AirshipCore
 import AirshipAutomation
 #endif
 
-public class AirshipInAppProxy {
+public final class AirshipInAppProxy: Sendable {
 
-    private let inAppProvider: () throws -> AirshipInAppProtocol
-    private var inApp: AirshipInAppProtocol {
+    private let inAppProvider: @Sendable () throws -> InAppAutomation
+    private var inApp: InAppAutomation {
         get throws { try inAppProvider() }
     }
 
-    init(inAppProvider: @escaping () throws -> any AirshipInAppProtocol) {
+    init(inAppProvider: @Sendable @escaping () throws -> InAppAutomation) {
         self.inAppProvider = inAppProvider
     }
 
@@ -33,37 +33,18 @@ public class AirshipInAppProxy {
 
     @MainActor
     public func getDisplayInterval() throws -> Int {
-        return Int(try self.inApp.displayInterval * 1000)
+        return Int(try self.inApp.inAppMessaging.displayInterval * 1000)
     }
 
     @MainActor
-    public func setDisplayInterval(_ displayInterval: Int) throws {
-        let seconds = Double(displayInterval)/1000.0
-        try self.inApp.displayInterval = seconds
+    public func setDisplayInterval(milliseconds: Int) throws {
+        let seconds = Double(milliseconds)/1000.0
+        try self.inApp.inAppMessaging.displayInterval = seconds
     }
 
     public func resendLastEmbeddedEvent() {
         Task {
             await EmbeddedEventEmitter.shared.resendLastEvent()
-        }
-    }
-}
-
-protocol AirshipInAppProtocol: AnyObject {
-    @MainActor
-    var displayInterval: TimeInterval { get set }
-    @MainActor
-    var isPaused: Bool { get set }
-}
-
-extension InAppAutomation : AirshipInAppProtocol {
-    @MainActor
-    var displayInterval: TimeInterval {
-        get {
-            self.inAppMessaging.displayInterval
-        }
-        set {
-            self.inAppMessaging.displayInterval = newValue
         }
     }
 }

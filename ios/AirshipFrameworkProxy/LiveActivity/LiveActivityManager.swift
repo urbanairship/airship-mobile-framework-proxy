@@ -1,6 +1,6 @@
 /* Copyright Airship and Contributors */
 
-import ActivityKit
+public import ActivityKit
 
 #if canImport(AirshipKit)
 import AirshipKit
@@ -13,15 +13,15 @@ public actor LiveActivityManager: Sendable {
 
     public static let shared = LiveActivityManager()
 
-    fileprivate struct Entry {
-        let list: () throws -> [LiveActivityInfo]
-        let start: (LiveActivityRequest.Start) async throws -> LiveActivityInfo
-        let update: (LiveActivityRequest.Update) async throws -> Bool
-        let end: (LiveActivityRequest.End) async throws -> Bool
-        let track: (String) -> Void
+    fileprivate struct Entry: Sendable {
+        var list: @Sendable () throws -> [LiveActivityInfo]
+        var start: @Sendable (LiveActivityRequest.Start) async throws -> LiveActivityInfo
+        var update: @Sendable (LiveActivityRequest.Update) async throws -> Bool
+        var end: @Sendable (LiveActivityRequest.End) async throws -> Bool
+        var track: @Sendable (String) -> Void
 
-        let pushToStartUpdates: ((@escaping @Sendable () async -> Void)) -> Void
-        let activityUpdates: (String, (@escaping @Sendable (LiveActivityInfo?) async -> Void)) -> Void
+        var pushToStartUpdates: @Sendable ((@escaping @Sendable () async -> Void)) -> Void
+        var activityUpdates: @Sendable (String, (@escaping @Sendable (LiveActivityInfo?) async -> Void)) -> Void
     }
 
     private var entries: [String: Entry] = [:]
@@ -33,9 +33,9 @@ public actor LiveActivityManager: Sendable {
 
     public actor Configurator {
         fileprivate var entries: [String: Entry] = [:]
-        private var restorer: LiveActivityRestorer
+        private var restorer: any LiveActivityRestorer
 
-        init(restorer: LiveActivityRestorer) {
+        init(restorer: any LiveActivityRestorer) {
             self.restorer = restorer
         }
 
@@ -290,7 +290,7 @@ extension LiveActivityManager.Entry {
             return try LiveActivityInfo(activity: activity, attributesType: attributesType)
         }
 
-        self.track = { activityID in
+        self.track = { @Sendable activityID in
             Self.track(
                 type,
                 activityID:activityID,

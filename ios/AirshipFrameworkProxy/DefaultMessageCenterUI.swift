@@ -12,7 +12,7 @@ import AirshipMessageCenter
 @MainActor
 public class DefaultMessageCenterUI {
     static let shared: DefaultMessageCenterUI = DefaultMessageCenterUI()
-    private var currentDisplay: AirshipMainActorCancellable?
+    private var currentDisplay: (any AirshipMainActorCancellable)?
     private var controller: MessageCenterController = MessageCenterController()
 
     func dismiss() {
@@ -59,7 +59,7 @@ public class DefaultMessageCenterUI {
     private func open(
         scene: UIWindowScene,
         theme: MessageCenterTheme?
-    ) -> AirshipMainActorCancellable {
+    ) -> any AirshipMainActorCancellable {
         var window: UIWindow? = UIWindow(windowScene: scene)
 
         let cancellable = AirshipMainActorCancellableBlock {
@@ -88,7 +88,7 @@ public class DefaultMessageCenterUI {
         scene: UIWindowScene,
         messageID: String,
         theme: MessageCenterTheme?
-    ) -> AirshipMainActorCancellable {
+    ) -> any AirshipMainActorCancellable {
         var window: UIWindow? = UIWindow(windowScene: scene)
 
         let cancellable = AirshipMainActorCancellableBlock {
