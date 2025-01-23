@@ -19,8 +19,11 @@ public enum AirshipProxyError: Error {
 }
 
 public protocol AirshipProxyDelegate {
+    @MainActor
     func migrateData(store: ProxyStore)
+    @MainActor
     func loadDefaultConfig() -> AirshipConfig
+    @MainActor
     func onAirshipReady()
 }
 
