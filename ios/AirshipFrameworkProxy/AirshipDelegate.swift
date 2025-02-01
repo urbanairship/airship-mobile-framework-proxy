@@ -136,9 +136,10 @@ extension AirshipDelegate: RegistrationDelegate {
         AirshipPluginForwardDelegates.shared.registrationDelegate
     }
 
-    nonisolated func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
+    @MainActor
+    func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
         let token = AirshipUtils.deviceTokenStringFromDeviceToken(deviceToken)
-        Task { @MainActor in
+        Task {
             await self.eventEmitter.addEvent(
                 PushTokenReceivedEvent(
                     pushToken: token
@@ -150,16 +151,18 @@ extension AirshipDelegate: RegistrationDelegate {
         }
     }
 
-    nonisolated func apnsRegistrationFailedWithError(_ error: any Error) {
-        Task { @MainActor in
+    @MainActor
+    func apnsRegistrationFailedWithError(_ error: any Error) {
+        Task {
             forwardRegistrationDelegate?.apnsRegistrationFailedWithError(error)
         }
     }
 
-    nonisolated func notificationAuthorizedSettingsDidChange(
+    @MainActor
+    func notificationAuthorizedSettingsDidChange(
         _ authorizedSettings: AirshipAuthorizedNotificationSettings
     ) {
-        Task { @MainActor in
+        Task {
             await self.eventEmitter.addEvent(
                 AuthorizedNotificationSettingsChangedEvent(
                     authorizedSettings: authorizedSettings
