@@ -2,6 +2,8 @@
 
 import Foundation
 import UserNotifications
+import UIKit
+
 #if canImport(AirshipKit)
 import AirshipKit
 import Combine
