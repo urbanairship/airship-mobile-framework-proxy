@@ -43,6 +43,10 @@ public final class AirshipActionProxy: Sendable {
             throw AirshipActionProxyError.actionRejectedArguments
         case .error(let actionError):
             throw AirshipActionProxyError.actionError(actionError)
+        @unknown default:
+            throw AirshipErrors.error(
+                "Unknown ActionResult \(result)"
+            )
         }
     }
 }
