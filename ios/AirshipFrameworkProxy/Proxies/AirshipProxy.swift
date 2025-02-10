@@ -189,23 +189,18 @@ public final class AirshipProxy: Sendable {
         Airship.preferenceCenter.openDelegate = self.airshipDelegate
         Airship.messageCenter.displayDelegate = self.airshipDelegate
 
-        Airship.push.notificationStatusPublisher
-            .map { status in
-                NotificationStatus(airshipStatus: status)
+        Task {
+            let updates = await Airship.push.notificationStatusUpdates.map {
+                NotificationStatus(airshipStatus: $0)
             }
-            .filter { [proxyStore] status in
-                status != proxyStore.lastNotificationStatus
-            }
-            .sink { status in
-                Task {
-                    await AirshipProxyEventEmitter.shared.addEvent(
-                        NotificationStatusChangedEvent(status: status),
-                        replacePending: true
-                    )
-                }
-            }
-            .store(in: &self.subscriptions)
 
+            for await update in updates {
+                AirshipProxyEventEmitter.shared.addEvent(
+                    NotificationStatusChangedEvent(status: update),
+                    replacePending: true
+                )
+            }
+        }
 
         Task {
             await EmbeddedEventEmitter.shared.start()

@@ -73,19 +73,6 @@ public final class ProxyStore: Sendable {
         }
     }
 
-    public var lastNotificationStatus: NotificationStatus? {
-        get {
-            return readCodable(lastNotificationStatusKey)
-        }
-
-        set {
-            writeCodable(
-                newValue,
-                forKey: lastNotificationStatusKey
-            )
-        }
-    }
-
     private func preferenceCenterKey(
         _ preferenceCenterID: String
     ) -> String {

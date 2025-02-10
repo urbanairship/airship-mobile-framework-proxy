@@ -11,18 +11,10 @@ import AirshipCore
 
 
 public actor EmbeddedEventEmitter {
-    static let shared: EmbeddedEventEmitter = EmbeddedEventEmitter(
-        proxyEventEmitter: AirshipProxyEventEmitter.shared
-    )
+    static let shared: EmbeddedEventEmitter = EmbeddedEventEmitter()
 
     private var lastEvent: (any AirshipProxyEvent)?
     private var task: Task<Void, Never>?
-
-
-    private let proxyEventEmitter: AirshipProxyEventEmitter
-    init(proxyEventEmitter: AirshipProxyEventEmitter) {
-        self.proxyEventEmitter = proxyEventEmitter
-    }
 
     func start() {
         task?.cancel()

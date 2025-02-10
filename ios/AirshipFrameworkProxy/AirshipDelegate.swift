@@ -30,7 +30,7 @@ final class AirshipDelegate {
 
     func messageCenterInboxUpdated() {
         Task {
-            await self.eventEmitter.addEvent(
+            self.eventEmitter.addEvent(
                 MessageCenterUpdatedEvent(
                     messageCount: await Airship.messageCenter.inbox.messages.count,
                     unreadCount: await Airship.messageCenter.inbox.unreadCount
@@ -46,11 +46,9 @@ final class AirshipDelegate {
             return
         }
 
-        Task {
-            await self.eventEmitter.addEvent(
-                ChannelCreatedEvent(channelID)
-            )
-        }
+        self.eventEmitter.addEvent(
+            ChannelCreatedEvent(channelID)
+        )
     }
 
 }
@@ -65,7 +63,7 @@ extension AirshipDelegate: PushNotificationDelegate {
     @MainActor
     func receivedForegroundNotification(_ userInfo: [AnyHashable : Any]) async {
         do {
-            await self.eventEmitter.addEvent(
+            self.eventEmitter.addEvent(
                 try PushReceivedEvent(
                     userInfo: userInfo,
                     isForeground: true
@@ -81,7 +79,7 @@ extension AirshipDelegate: PushNotificationDelegate {
     @MainActor
     func receivedBackgroundNotification(_ userInfo: [AnyHashable : Any]) async -> UIBackgroundFetchResult {
         do {
-            await self.eventEmitter.addEvent(
+            self.eventEmitter.addEvent(
                 try PushReceivedEvent(
                     userInfo: userInfo,
                     isForeground: false
@@ -99,7 +97,7 @@ extension AirshipDelegate: PushNotificationDelegate {
 
         do {
             if (notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier) {
-                await self.eventEmitter.addEvent(
+                self.eventEmitter.addEvent(
                     try NotificationResponseEvent(
                         response: notificationResponse
                     )
@@ -142,16 +140,14 @@ extension AirshipDelegate: RegistrationDelegate {
     @MainActor
     func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
         let token = AirshipUtils.deviceTokenStringFromDeviceToken(deviceToken)
-        Task {
-            await self.eventEmitter.addEvent(
-                PushTokenReceivedEvent(
-                    pushToken: token
-                ),
-                replacePending: true
-            )
+        self.eventEmitter.addEvent(
+            PushTokenReceivedEvent(
+                pushToken: token
+            ),
+            replacePending: true
+        )
 
-            forwardRegistrationDelegate?.apnsRegistrationSucceeded(withDeviceToken: deviceToken)
-        }
+        forwardRegistrationDelegate?.apnsRegistrationSucceeded(withDeviceToken: deviceToken)
     }
 
     @MainActor
@@ -165,16 +161,14 @@ extension AirshipDelegate: RegistrationDelegate {
     func notificationAuthorizedSettingsDidChange(
         _ authorizedSettings: AirshipAuthorizedNotificationSettings
     ) {
-        Task {
-            await self.eventEmitter.addEvent(
-                AuthorizedNotificationSettingsChangedEvent(
-                    authorizedSettings: authorizedSettings
-                ),
-                replacePending: true
-            )
+        self.eventEmitter.addEvent(
+            AuthorizedNotificationSettingsChangedEvent(
+                authorizedSettings: authorizedSettings
+            ),
+            replacePending: true
+        )
 
-            forwardRegistrationDelegate?.notificationAuthorizedSettingsDidChange(authorizedSettings)
-        }
+        forwardRegistrationDelegate?.notificationAuthorizedSettingsDidChange(authorizedSettings)
     }
 }
 
@@ -186,13 +180,11 @@ extension AirshipDelegate: MessageCenterDisplayDelegate {
             return
         }
 
-        Task {
-            await self.eventEmitter.addEvent(
-                DisplayMessageCenterEvent(
-                    messageID: messageID
-                )
+        self.eventEmitter.addEvent(
+            DisplayMessageCenterEvent(
+                messageID: messageID
             )
-        }
+        )
     }
 
     func displayMessageCenter() {
@@ -201,11 +193,9 @@ extension AirshipDelegate: MessageCenterDisplayDelegate {
             return
         }
 
-        Task {
-            await self.eventEmitter.addEvent(
-                DisplayMessageCenterEvent()
-            )
-        }
+        self.eventEmitter.addEvent(
+            DisplayMessageCenterEvent()
+        )
     }
 
     func dismissMessageCenter() {
@@ -225,13 +215,11 @@ extension AirshipDelegate: PreferenceCenterOpenDelegate {
             return false
         }
 
-        Task {
-            await self.eventEmitter.addEvent(
-                DisplayPreferenceCenterEvent(
-                    preferenceCenterID: preferenceCenterID
-                )
+        self.eventEmitter.addEvent(
+            DisplayPreferenceCenterEvent(
+                preferenceCenterID: preferenceCenterID
             )
-        }
+        )
 
         return true
     }
@@ -243,7 +231,7 @@ extension AirshipDelegate: DeepLinkDelegate {
     ) async {
         let delegate = AirshipPluginForwardDelegates.shared.deepLinkDelegate
         guard await delegate?.receivedDeepLink(deepLink) == true else {
-            await self.eventEmitter.addEvent(
+            self.eventEmitter.addEvent(
                 DeepLinkEvent(deepLink)
             )
             return
