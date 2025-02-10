@@ -28,7 +28,7 @@ public final class AirshipActionProxy: Sendable {
     public func runAction(
         _ name: String,
         value: AirshipJSON?
-    ) async throws -> Any? {
+    ) async throws -> AirshipJSON {
         let result = try await self.actionRunner.runAction(
             name,
             value: value

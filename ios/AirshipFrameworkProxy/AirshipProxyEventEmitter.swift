@@ -1,7 +1,8 @@
 import Foundation
 @preconcurrency public import Combine
 
-public actor AirshipProxyEventEmitter {
+@MainActor
+public final class AirshipProxyEventEmitter {
     private let updateContinuation: AsyncStream<any AirshipProxyEvent>.Continuation
     public let pendingEventAdded: AsyncStream<any AirshipProxyEvent>
     public static let shared = AirshipProxyEventEmitter()

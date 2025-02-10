@@ -3,9 +3,9 @@
 import Foundation
 
 #if canImport(AirshipKit)
-import AirshipKit
+public import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+public import AirshipCore
 import AirshipPreferenceCenter
 #endif
 
@@ -44,17 +44,11 @@ public final class AirshipPreferenceCenterProxy: Sendable {
 
     public func getPreferenceCenterConfig(
         preferenceCenterID: String
-    ) async throws -> [String: Any] {
+    ) async throws -> AirshipJSON {
         let config = try await self.preferenceCenter.jsonConfig(
             preferenceCenterID: preferenceCenterID
         )
 
-        guard
-            let converted = try JSONSerialization.jsonObject(with: config) as? [String: Any]
-        else {
-            throw AirshipErrors.error("Invalid preference config")
-        }
-
-        return converted
+        return try AirshipJSON.from(data: config)
     }
 }
