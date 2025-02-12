@@ -75,12 +75,12 @@ struct MessageCenterUpdatedEvent: AirshipProxyEvent {
     let body: Body
 
     init(messageCount: Int, unreadCount: Int) {
-        self.body = Body(messageCount: messageCount, unreadCount: unreadCount)
+        self.body = Body(messageCount: messageCount, messageUnreadCount: unreadCount)
     }
 
     struct Body: Codable, Sendable {
         let messageCount: Int
-        let unreadCount: Int
+        let messageUnreadCount: Int
     }
 }
 
