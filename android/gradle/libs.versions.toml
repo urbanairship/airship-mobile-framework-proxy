@@ -1,7 +1,7 @@
 [versions]
 
 # Airship
-airshipProxy = '13.0.0'
+airshipProxy = '13.0.1'
 airship = '19.1.0'
 
 # Gradle plugins
