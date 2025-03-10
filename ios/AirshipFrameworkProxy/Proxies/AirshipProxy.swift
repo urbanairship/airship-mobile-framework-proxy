@@ -261,7 +261,7 @@ public final class AirshipProxy: Sendable {
             airshipConfig.applyProxyConfig(proxyConfig: config)
         }
 
-        AirshipProxy.extender?.extendConfig(config: airshipConfig)
+        AirshipProxy.extender?.extendConfig(config: &airshipConfig)
 
         return airshipConfig
     }
