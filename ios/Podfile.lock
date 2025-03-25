@@ -1,25 +1,25 @@
 PODS:
-  - Airship (19.1.0):
-    - Airship/Automation (= 19.1.0)
-    - Airship/Basement (= 19.1.0)
-    - Airship/Core (= 19.1.0)
-    - Airship/FeatureFlags (= 19.1.0)
-    - Airship/MessageCenter (= 19.1.0)
-    - Airship/PreferenceCenter (= 19.1.0)
-  - Airship/Automation (19.1.0):
+  - Airship (19.1.1):
+    - Airship/Automation (= 19.1.1)
+    - Airship/Basement (= 19.1.1)
+    - Airship/Core (= 19.1.1)
+    - Airship/FeatureFlags (= 19.1.1)
+    - Airship/MessageCenter (= 19.1.1)
+    - Airship/PreferenceCenter (= 19.1.1)
+  - Airship/Automation (19.1.1):
     - Airship/Core
-  - Airship/Basement (19.1.0)
-  - Airship/Core (19.1.0):
+  - Airship/Basement (19.1.1)
+  - Airship/Core (19.1.1):
     - Airship/Basement
-  - Airship/FeatureFlags (19.1.0):
+  - Airship/FeatureFlags (19.1.1):
     - Airship/Core
-  - Airship/MessageCenter (19.1.0):
+  - Airship/MessageCenter (19.1.1):
     - Airship/Core
-  - Airship/PreferenceCenter (19.1.0):
+  - Airship/PreferenceCenter (19.1.1):
     - Airship/Core
 
 DEPENDENCIES:
-  - Airship (= 19.1.0)
+  - Airship (= 19.1.1)
 
 SPEC REPOS:
   trunk:
