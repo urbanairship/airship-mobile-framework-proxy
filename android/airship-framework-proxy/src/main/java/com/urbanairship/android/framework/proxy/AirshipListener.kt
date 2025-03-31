@@ -76,7 +76,7 @@ internal class AirshipListener(
 
     override fun onNotificationPosted(notificationInfo: NotificationInfo) {
         eventEmitter.addEvent(PushReceivedEvent(notificationInfo, isAppForegrounded))
-        AirshipPluginForwardListeners.notificationListener?.onNotificationPosted(notificationInfo)
+        AirshipPluginExtensions.forwardNotificationListener?.onNotificationPosted(notificationInfo)
     }
 
     override fun onNotificationOpened(notificationInfo: NotificationInfo): Boolean {
@@ -84,7 +84,7 @@ internal class AirshipListener(
             NotificationResponseEvent(notificationInfo, null)
         )
 
-        return AirshipPluginForwardListeners.notificationListener?.onNotificationOpened(notificationInfo) ?: false
+        return AirshipPluginExtensions.forwardNotificationListener?.onNotificationOpened(notificationInfo) ?: false
     }
 
     override fun onNotificationForegroundAction(
@@ -94,7 +94,7 @@ internal class AirshipListener(
         eventEmitter.addEvent(
             NotificationResponseEvent(notificationInfo, notificationActionButtonInfo)
         )
-        return AirshipPluginForwardListeners.notificationListener?.onNotificationForegroundAction(notificationInfo, notificationActionButtonInfo) ?: false
+        return AirshipPluginExtensions.forwardNotificationListener?.onNotificationForegroundAction(notificationInfo, notificationActionButtonInfo) ?: false
     }
 
     override fun onNotificationBackgroundAction(
@@ -104,18 +104,23 @@ internal class AirshipListener(
         eventEmitter.addEvent(
             NotificationResponseEvent(notificationInfo, notificationActionButtonInfo)
         )
-        AirshipPluginForwardListeners.notificationListener?.onNotificationBackgroundAction(notificationInfo, notificationActionButtonInfo)
+        AirshipPluginExtensions.forwardNotificationListener?.onNotificationBackgroundAction(notificationInfo, notificationActionButtonInfo)
     }
 
     override fun onNotificationDismissed(notificationInfo: NotificationInfo) {
-        AirshipPluginForwardListeners.notificationListener?.onNotificationDismissed(notificationInfo)
+        AirshipPluginExtensions.forwardNotificationListener?.onNotificationDismissed(notificationInfo)
     }
 
     override fun onDeepLink(deepLink: String): Boolean {
-        if (AirshipPluginForwardListeners.deepLinkListener?.onDeepLink(deepLink) != true) {
-            eventEmitter.addEvent(DeepLinkEvent(deepLink))
+        val override = AirshipPluginExtensions.onDeepLink?.invoke(deepLink) ?: AirshipPluginOverride.UseDefault
+        when(override) {
+            is AirshipPluginOverride.Override -> {
+                ProxyLogger.debug("Deeplink handling for $deepLink overridden by plugin extension")
+            }
+            is AirshipPluginOverride.UseDefault -> {
+                eventEmitter.addEvent(DeepLinkEvent(deepLink))
+            }
         }
-
         return true
     }
 

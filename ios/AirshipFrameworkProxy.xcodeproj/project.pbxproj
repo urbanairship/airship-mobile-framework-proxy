@@ -45,7 +45,7 @@
 		6E5AD11A2C82388900EDC110 /* EmbeddedEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5AD1192C82388900EDC110 /* EmbeddedEventEmitter.swift */; };
 		6EC7553E2A4A449300851ABB /* DefaultMessageCenterUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC7553D2A4A449300851ABB /* DefaultMessageCenterUI.swift */; };
 		6EC755402A4A494C00851ABB /* NotificationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC7553F2A4A494C00851ABB /* NotificationStatus.swift */; };
-		6EC9A28B2CC963B100FFF4C5 /* AirshipPluginForwardListeners.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC9A28A2CC963A800FFF4C5 /* AirshipPluginForwardListeners.swift */; };
+		6EC9A28B2CC963B100FFF4C5 /* AirshipPluginExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC9A28A2CC963A800FFF4C5 /* AirshipPluginExtensions.swift */; };
 		6ED117AF2CA750F400C41C56 /* AirshipFrameworkProxyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED117AE2CA750F000C41C56 /* AirshipFrameworkProxyLoader.swift */; };
 		6ED117B22CA75D1500C41C56 /* AirshipPluginLoaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED117B12CA75D0F00C41C56 /* AirshipPluginLoaderProtocol.swift */; };
 		6ED117B52CA75D2300C41C56 /* AirshipPluginExtenderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED117B42CA75D2300C41C56 /* AirshipPluginExtenderProtocol.swift */; };
@@ -109,7 +109,7 @@
 		6E5AD1192C82388900EDC110 /* EmbeddedEventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddedEventEmitter.swift; sourceTree = "<group>"; };
 		6EC7553D2A4A449300851ABB /* DefaultMessageCenterUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultMessageCenterUI.swift; sourceTree = "<group>"; };
 		6EC7553F2A4A494C00851ABB /* NotificationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationStatus.swift; sourceTree = "<group>"; };
-		6EC9A28A2CC963A800FFF4C5 /* AirshipPluginForwardListeners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipPluginForwardListeners.swift; sourceTree = "<group>"; };
+		6EC9A28A2CC963A800FFF4C5 /* AirshipPluginExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipPluginExtensions.swift; sourceTree = "<group>"; };
 		6ED117A82CA74F9100C41C56 /* UAirshipFrameworkProxyLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UAirshipFrameworkProxyLoader.h; sourceTree = "<group>"; };
 		6ED117A92CA74F9100C41C56 /* UAirshipFrameworkProxyLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UAirshipFrameworkProxyLoader.m; sourceTree = "<group>"; };
 		6ED117AE2CA750F000C41C56 /* AirshipFrameworkProxyLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipFrameworkProxyLoader.swift; sourceTree = "<group>"; };
@@ -168,8 +168,8 @@
 		6E142E4E296E3A8800F71E23 /* AirshipFrameworkProxy */ = {
 			isa = PBXGroup;
 			children = (
+				6E2A39652D9B3ED4000248E4 /* Extension */,
 				6E2DA79D2D4056E5000E9143 /* ProxyPushPayload.swift */,
-				6EC9A28A2CC963A800FFF4C5 /* AirshipPluginForwardListeners.swift */,
 				6ED117B32CA75D1B00C41C56 /* Loader */,
 				6E3A028F2CA60B1C00B0C5CF /* LiveActivity */,
 				6EFB83D82979BB1F0008BEB5 /* Proxies */,
@@ -206,6 +206,15 @@
 			path = AirshipFrameworkProxyTests;
 			sourceTree = "<group>";
 		};
+		6E2A39652D9B3ED4000248E4 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				6EC9A28A2CC963A800FFF4C5 /* AirshipPluginExtensions.swift */,
+				6ED117B42CA75D2300C41C56 /* AirshipPluginExtenderProtocol.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		6E3A028F2CA60B1C00B0C5CF /* LiveActivity */ = {
 			isa = PBXGroup;
 			children = (
@@ -238,7 +247,6 @@
 			isa = PBXGroup;
 			children = (
 				6ED117B12CA75D0F00C41C56 /* AirshipPluginLoaderProtocol.swift */,
-				6ED117B42CA75D2300C41C56 /* AirshipPluginExtenderProtocol.swift */,
 				6ED117AE2CA750F000C41C56 /* AirshipFrameworkProxyLoader.swift */,
 			);
 			path = Loader;
@@ -487,7 +495,7 @@
 				6E2DA79E2D4056E9000E9143 /* ProxyPushPayload.swift in Sources */,
 				6E142EBE296F85CD00F71E23 /* ProxyStore.swift in Sources */,
 				6EC755402A4A494C00851ABB /* NotificationStatus.swift in Sources */,
-				6EC9A28B2CC963B100FFF4C5 /* AirshipPluginForwardListeners.swift in Sources */,
+				6EC9A28B2CC963B100FFF4C5 /* AirshipPluginExtensions.swift in Sources */,
 				6E142EBF296F85CD00F71E23 /* PushUtils.swift in Sources */,
 				6E142EC0296F85CD00F71E23 /* SubscriptionListOperation.swift in Sources */,
 				6E142EC2296F87DA00F71E23 /* AirshipProxyEventEmitter.swift in Sources */,
