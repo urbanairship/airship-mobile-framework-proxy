@@ -21,10 +21,10 @@ public object AirshipPluginExtensions {
      * A function that allows overriding the behavior when a deep link is triggered.
      *
      * This function is invoked when a deep link is detected. It should return an
-     * `AirshipPluginOverride<Nothing>`, which will determine whether the default deep link behavior
+     * `AirshipPluginOverride<Unit>`, which will determine whether the default deep link behavior
      * should be used (`UseDefault`) or if the behavior should be overridden (`Override()`).
      *
-     * @return An `AirshipPluginOverride<Boolean>` that determines whether to override the default deep link handling.
+     * @return An `AirshipPluginOverride<Unit>` that determines whether to override the default deep link handling.
      */
     public var onDeepLink: ((deepLink: String) -> AirshipPluginOverride<Unit>)? = null
 
@@ -82,5 +82,3 @@ public sealed class AirshipPluginOverride<out T> {
         public fun Override(): Override<Unit> = Override(Unit)
     }
 }
-
-
