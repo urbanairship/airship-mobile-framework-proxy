@@ -93,12 +93,23 @@ public abstract class BaseAutopilot : Autopilot() {
         val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)
         airship.pushManager.notificationProvider = notificationProvider
         airship.pushManager.foregroundNotificationDisplayPredicate = Predicate { message ->
-            AirshipProxy.shared(context).push.foregroundNotificationDisplayPredicate?.let { predicate ->
-                runBlocking {
-                    predicate.apply(Utils.notificationMap(message))
+            return@Predicate runBlocking {
+                val override = AirshipPluginExtensions.onShouldDisplayForegroundNotification?.invoke(message) ?: AirshipPluginOverride.UseDefault
+                return@runBlocking when(override) {
+                    is AirshipPluginOverride.Override -> {
+                        override.result
+                    }
+                    is AirshipPluginOverride.UseDefault -> {
+                        AirshipProxy.shared(context).push.foregroundNotificationDisplayPredicate?.apply(
+                            Utils.notificationMap(
+                                message
+                            )
+                        ) ?: proxyStore.isForegroundNotificationsEnabled
+                    }
                 }
-            } ?: proxyStore.isForegroundNotificationsEnabled
+            }
         }
+
         loadCustomNotificationChannels(context, airship)
         loadCustomNotificationButtonGroups(context, airship)
 
