@@ -26,7 +26,7 @@ public object AirshipPluginExtensions {
      *
      * @return An `AirshipPluginOverride<Boolean>` that determines whether to override the default deep link handling.
      */
-    public var onDeepLink: ((deepLink: String) -> AirshipPluginOverride<Nothing>)? = null
+    public var onDeepLink: ((deepLink: String) -> AirshipPluginOverride<Unit>)? = null
 
     /**
      * A suspend function that allows overriding the decision of whether to display a foreground notification.
@@ -76,4 +76,11 @@ public sealed class AirshipPluginOverride<out T> {
      * @param result The value that overrides the default behavior.
      */
     public data class Override<T>(val result: T) : AirshipPluginOverride<T>()
+
+    public companion object {
+        @JvmStatic
+        public fun Override(): Override<Unit> = Override(Unit)
+    }
 }
+
+
