@@ -57,7 +57,7 @@ extension AirshipDelegate: PushNotificationDelegate {
 
     @MainActor
     private var forwardPushDelegate: (any AirshipPluginPushNotificationDelegate)? {
-        AirshipPluginHooks.shared.pushNotificationForwardDelegate
+        AirshipPluginExtensions.shared.pushNotificationForwardDelegate
     }
 
     @MainActor
@@ -111,7 +111,7 @@ extension AirshipDelegate: PushNotificationDelegate {
 
     @MainActor
     func extendPresentationOptions(_ options: UNNotificationPresentationOptions, notification: UNNotification) async -> UNNotificationPresentationOptions {
-        let override = await AirshipPluginHooks.shared.onWillPresentForegroundNotification?(notification) ?? .useDefault
+        let override = await AirshipPluginExtensions.shared.onWillPresentForegroundNotification?(notification) ?? .useDefault
         switch(override) {
         case .override(let options):
             AirshipLogger.debug("Presentation options overriden by plugin hooks \(options)")
@@ -134,7 +134,7 @@ extension AirshipDelegate: PushNotificationDelegate {
 extension AirshipDelegate: RegistrationDelegate {
     @MainActor
     private var forwardRegistrationDelegate: (any RegistrationDelegate)? {
-        AirshipPluginHooks.shared.registrationForwardDelegate
+        AirshipPluginExtensions.shared.registrationForwardDelegate
     }
 
     @MainActor
@@ -229,7 +229,7 @@ extension AirshipDelegate: DeepLinkDelegate {
     func receivedDeepLink(
         _ deepLink: URL
     ) async {
-        let override = await AirshipPluginHooks.shared.onDeepLink?(deepLink) ?? .useDefault
+        let override = await AirshipPluginExtensions.shared.onDeepLink?(deepLink) ?? .useDefault
         switch(override) {
         case .override:
             AirshipLogger.debug("Deeplink handling overridden by plugin hooks \(deepLink)")
