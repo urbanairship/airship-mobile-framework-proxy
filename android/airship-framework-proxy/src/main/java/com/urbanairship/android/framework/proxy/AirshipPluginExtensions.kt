@@ -24,6 +24,8 @@ public object AirshipPluginExtensions {
      * `AirshipPluginOverride<Unit>`, which will determine whether the default deep link behavior
      * should be used (`UseDefault`) or if the behavior should be overridden (`Override()`).
      *
+     * @note If set, [AirshipPluginForwardListeners] will be ignored.
+     *
      * @return An `AirshipPluginOverride<Unit>` that determines whether to override the default deep link handling.
      */
     public var onDeepLink: ((deepLink: String) -> AirshipPluginOverride<Unit>)? = null

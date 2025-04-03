@@ -46,6 +46,11 @@ internal class AirshipListener(
             return GlobalActivityMonitor.shared(UAirship.getApplicationContext()).isAppForegrounded
         }
 
+    private val forwardNotificationListener: NotificationListener?
+        get() {
+            return AirshipPluginExtensions.forwardNotificationListener ?: AirshipPluginForwardListeners.notificationListener
+        }
+
     override fun onShowMessageCenter(messageId: String?): Boolean {
         return if (proxyStore.isAutoLaunchMessageCenterEnabled) {
             false
@@ -76,7 +81,7 @@ internal class AirshipListener(
 
     override fun onNotificationPosted(notificationInfo: NotificationInfo) {
         eventEmitter.addEvent(PushReceivedEvent(notificationInfo, isAppForegrounded))
-        AirshipPluginExtensions.forwardNotificationListener?.onNotificationPosted(notificationInfo)
+        forwardNotificationListener?.onNotificationPosted(notificationInfo)
     }
 
     override fun onNotificationOpened(notificationInfo: NotificationInfo): Boolean {
@@ -84,7 +89,7 @@ internal class AirshipListener(
             NotificationResponseEvent(notificationInfo, null)
         )
 
-        return AirshipPluginExtensions.forwardNotificationListener?.onNotificationOpened(notificationInfo) ?: false
+        return forwardNotificationListener?.onNotificationOpened(notificationInfo) ?: false
     }
 
     override fun onNotificationForegroundAction(
@@ -94,7 +99,7 @@ internal class AirshipListener(
         eventEmitter.addEvent(
             NotificationResponseEvent(notificationInfo, notificationActionButtonInfo)
         )
-        return AirshipPluginExtensions.forwardNotificationListener?.onNotificationForegroundAction(notificationInfo, notificationActionButtonInfo) ?: false
+        return forwardNotificationListener?.onNotificationForegroundAction(notificationInfo, notificationActionButtonInfo) ?: false
     }
 
     override fun onNotificationBackgroundAction(
@@ -104,20 +109,27 @@ internal class AirshipListener(
         eventEmitter.addEvent(
             NotificationResponseEvent(notificationInfo, notificationActionButtonInfo)
         )
-        AirshipPluginExtensions.forwardNotificationListener?.onNotificationBackgroundAction(notificationInfo, notificationActionButtonInfo)
+        forwardNotificationListener?.onNotificationBackgroundAction(notificationInfo, notificationActionButtonInfo)
     }
 
     override fun onNotificationDismissed(notificationInfo: NotificationInfo) {
-        AirshipPluginExtensions.forwardNotificationListener?.onNotificationDismissed(notificationInfo)
+        forwardNotificationListener?.onNotificationDismissed(notificationInfo)
     }
 
     override fun onDeepLink(deepLink: String): Boolean {
-        val override = AirshipPluginExtensions.onDeepLink?.invoke(deepLink) ?: AirshipPluginOverride.UseDefault
+        val override = AirshipPluginExtensions.onDeepLink?.invoke(deepLink)
+        if (override == null) {
+            if (AirshipPluginForwardListeners.deepLinkListener?.onDeepLink(deepLink) == true) {
+                ProxyLogger.debug("Deeplink handling for $deepLink overridden by deprecated forward delegate")
+                return true
+            }
+        }
+
         when(override) {
             is AirshipPluginOverride.Override -> {
                 ProxyLogger.debug("Deeplink handling for $deepLink overridden by plugin extension")
             }
-            is AirshipPluginOverride.UseDefault -> {
+            is AirshipPluginOverride.UseDefault, null -> {
                 eventEmitter.addEvent(DeepLinkEvent(deepLink))
             }
         }
