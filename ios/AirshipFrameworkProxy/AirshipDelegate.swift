@@ -61,6 +61,11 @@ extension AirshipDelegate: PushNotificationDelegate {
     }
 
     @MainActor
+    private var deprecatedPushDelegate: (any PushNotificationDelegate)? {
+        AirshipPluginForwardDelegates.shared.storage.pushNotificationDelegate
+    }
+
+    @MainActor
     func receivedForegroundNotification(_ userInfo: [AnyHashable : Any]) async {
         do {
             self.eventEmitter.addEvent(
@@ -73,7 +78,12 @@ extension AirshipDelegate: PushNotificationDelegate {
             AirshipLogger.error("Failed to generate PushReceivedEvent \(error)")
         }
 
-        await forwardPushDelegate?.receivedForegroundNotification(userInfo)
+        guard let forwardPushDelegate else {
+            await self.deprecatedPushDelegate?.receivedForegroundNotification(userInfo)
+            return
+        }
+
+        await forwardPushDelegate.receivedForegroundNotification(userInfo)
     }
 
     @MainActor
@@ -89,7 +99,11 @@ extension AirshipDelegate: PushNotificationDelegate {
             AirshipLogger.error("Failed to generate PushReceivedEvent \(error)")
         }
 
-        return await forwardPushDelegate?.receivedBackgroundNotification(userInfo) ?? .noData
+        guard let forwardPushDelegate else {
+            return await self.deprecatedPushDelegate?.receivedBackgroundNotification(userInfo) ?? .noData
+        }
+
+        return await forwardPushDelegate.receivedBackgroundNotification(userInfo)
     }
 
     @MainActor
@@ -106,17 +120,28 @@ extension AirshipDelegate: PushNotificationDelegate {
             AirshipLogger.error("Failed to generate NotificationResponseEvent \(error)")
         }
 
-        await forwardPushDelegate?.receivedNotificationResponse(notificationResponse)
+        guard let forwardPushDelegate else {
+            await self.deprecatedPushDelegate?.receivedNotificationResponse(notificationResponse)
+            return
+        }
+
+
+        await forwardPushDelegate.receivedNotificationResponse(notificationResponse)
     }
 
     @MainActor
     func extendPresentationOptions(_ options: UNNotificationPresentationOptions, notification: UNNotification) async -> UNNotificationPresentationOptions {
-        let override = await AirshipPluginExtensions.shared.onWillPresentForegroundNotification?(notification) ?? .useDefault
+        let override = await AirshipPluginExtensions.shared.onWillPresentForegroundNotification?(notification)
+
+        if override == nil, forwardPushDelegate == nil, let deprecated = self.deprecatedPushDelegate {
+            return await deprecated.extendPresentationOptions(options, notification: notification)
+        }
+
         switch(override) {
         case .override(let options):
             AirshipLogger.debug("Presentation options overriden by plugin hooks \(options)")
             return options
-        case .useDefault:
+        case .useDefault, .none:
             do {
                 let overrides = try await AirshipProxy.shared.push.presentationOptions(
                     notification: notification
@@ -134,7 +159,7 @@ extension AirshipDelegate: PushNotificationDelegate {
 extension AirshipDelegate: RegistrationDelegate {
     @MainActor
     private var forwardRegistrationDelegate: (any RegistrationDelegate)? {
-        AirshipPluginExtensions.shared.registrationForwardDelegate
+        AirshipPluginExtensions.shared.registrationForwardDelegate ?? AirshipPluginForwardDelegates.shared.storage.registrationDelegate
     }
 
     @MainActor
@@ -152,9 +177,7 @@ extension AirshipDelegate: RegistrationDelegate {
 
     @MainActor
     func apnsRegistrationFailedWithError(_ error: any Error) {
-        Task {
-            forwardRegistrationDelegate?.apnsRegistrationFailedWithError(error)
-        }
+        forwardRegistrationDelegate?.apnsRegistrationFailedWithError(error)
     }
 
     @MainActor

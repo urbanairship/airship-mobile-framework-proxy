@@ -30,6 +30,7 @@ public final class AirshipPluginExtensions {
     ///
     /// - Parameter url: The `URL` to be handled.
     /// - Returns: An `AirshipPluginOverride<Void>` that specifies whether to handle the deep link or use the default behavior.
+    /// - Note: If set, `AirshipPluginForwardDelegates.deepLinkDelegate` will be ignored.
     public var onDeepLink: (@MainActor (URL) async -> AirshipPluginOverride<Void>)?
 
     /// A closure that allows overriding the notification presentation behavior when a push notification is received in the foreground.
@@ -43,12 +44,15 @@ public final class AirshipPluginExtensions {
     ///
     /// - Parameter notification: The `UNNotification` that is about to be presented.
     /// - Returns: An `AirshipPluginOverride<UNNotificationPresentationOptions>` specifying how to present the notification.
+    /// - Note: If set, `AirshipPluginForwardDelegates.notificationDelegate.extendPresentationOptions(_:notification:completionHandler:)` will be ignored.
     public var onWillPresentForegroundNotification: (@MainActor (UNNotification) async -> AirshipPluginOverride<UNNotificationPresentationOptions>)?
 
     /// A delegate for forwarding push notification events.
+    /// - Note: If set, `AirshipPluginForwardDelegates.pushNotificationDelegate` will be ignored.
     public var pushNotificationForwardDelegate: (any AirshipPluginPushNotificationDelegate)?
 
     /// A delegate for forwarding device registration events.
+    /// /// - Note: If set, `AirshipPluginForwardDelegates.registrationDelegate` will be ignored.
     public var registrationForwardDelegate: (any RegistrationDelegate)?
 
     private init() {}

@@ -24,6 +24,8 @@ public object AirshipPluginExtensions {
      * `AirshipPluginOverride<Unit>`, which will determine whether the default deep link behavior
      * should be used (`UseDefault`) or if the behavior should be overridden (`Override()`).
      *
+     * @note If set, [AirshipPluginForwardListeners.deepLinkListener] will be ignored.
+     *
      * @return An `AirshipPluginOverride<Unit>` that determines whether to override the default deep link handling.
      */
     public var onDeepLink: ((deepLink: String) -> AirshipPluginOverride<Unit>)? = null
@@ -44,6 +46,8 @@ public object AirshipPluginExtensions {
      *
      * This listener is invoked when a notification needs to be forwarded to another handler, such as a custom
      * notification handler. It allows the app to intercept notifications and forward them to another listener.
+     *
+     * @note If set, [AirshipPluginForwardListeners.notificationListener] will be ignored.
      */
     public var forwardNotificationListener: NotificationListener? = null
 }
