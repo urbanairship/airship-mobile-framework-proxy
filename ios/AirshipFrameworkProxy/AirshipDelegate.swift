@@ -133,18 +133,15 @@ extension AirshipDelegate: PushNotificationDelegate {
     func extendPresentationOptions(_ options: UNNotificationPresentationOptions, notification: UNNotification) async -> UNNotificationPresentationOptions {
         let override = await AirshipPluginExtensions.shared.onWillPresentForegroundNotification?(notification)
 
-        guard let override else {
-            if forwardPushDelegate == nil {
-                return await self.deprecatedPushDelegate?.extendPresentationOptions(options, notification: notification) ?? options
-            }
-            return options
+        if override == nil, forwardPushDelegate == nil, let deprecated = self.deprecatedPushDelegate {
+            return await deprecated.extendPresentationOptions(options, notification: notification)
         }
 
         switch(override) {
         case .override(let options):
             AirshipLogger.debug("Presentation options overriden by plugin hooks \(options)")
             return options
-        case .useDefault:
+        case .useDefault, .none:
             do {
                 let overrides = try await AirshipProxy.shared.push.presentationOptions(
                     notification: notification
