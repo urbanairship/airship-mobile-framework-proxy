@@ -8,7 +8,7 @@ import com.urbanairship.push.NotificationListener
 /**
  * Optional forward listeners for the plugin.
  */
-@depreacted("Use AirshipPluginExtensions instead.")
+@Deprecated("Use AirshipPluginExtensions instead.")
 public object AirshipPluginForwardListeners {
     /**
      * Deep link listener

@@ -46,6 +46,7 @@ internal class AirshipListener(
             return GlobalActivityMonitor.shared(UAirship.getApplicationContext()).isAppForegrounded
         }
 
+    @Suppress("deprecation")
     private val forwardNotificationListener: NotificationListener?
         get() {
             return AirshipPluginExtensions.forwardNotificationListener ?: AirshipPluginForwardListeners.notificationListener
@@ -116,6 +117,7 @@ internal class AirshipListener(
         forwardNotificationListener?.onNotificationDismissed(notificationInfo)
     }
 
+    @Suppress("deprecation")
     override fun onDeepLink(deepLink: String): Boolean {
         val override = AirshipPluginExtensions.onDeepLink?.invoke(deepLink)
         if (override == null) {
