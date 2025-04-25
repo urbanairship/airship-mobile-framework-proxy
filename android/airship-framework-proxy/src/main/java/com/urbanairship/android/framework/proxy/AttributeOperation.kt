@@ -3,37 +3,51 @@ package com.urbanairship.android.framework.proxy
 import com.urbanairship.channel.AttributeEditor
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
+import com.urbanairship.json.optionalField
+import com.urbanairship.json.requireField
 import java.util.*
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 public enum class AttributeOperationAction {
     REMOVE, SET
 }
 
 public enum class AttributeValueType {
-    STRING, NUMBER, DATE
+    STRING, NUMBER, DATE, JSON
 }
 
 public data class AttributeOperation(
     public val attribute: String,
     public val value: JsonValue?,
     public val valueType: AttributeValueType?,
-    public val action: AttributeOperationAction
+    public val action: AttributeOperationAction,
+    public val instanceId: String?,
+    public val expiry: Date?
 ) {
     public constructor(json: JsonMap) : this(
-        attribute = json.require("key").requireString(),
+        attribute = json.requireField("key"),
         value = json.get("value"),
-        valueType = json.opt("type").string?.let {
+        valueType = json.optionalField<String>("type")?.let {
             AttributeValueType.valueOf(it.uppercase())
         },
         action = AttributeOperationAction.valueOf(
-            json.require("action").requireString().uppercase()
-        )
+            json.requireField<String>("action").uppercase()
+        ),
+        instanceId = json.optionalField("instance_id"),
+        expiry = json.optionalField<Long>("expiration_milliseconds")?.let {
+            Date(it)
+        }
     )
 }
 
 internal fun AttributeOperation.applyOperation(editor: AttributeEditor) {
     when (action) {
-        AttributeOperationAction.REMOVE -> editor.removeAttribute(attribute)
+        AttributeOperationAction.REMOVE -> if (instanceId == null) {
+            editor.removeAttribute(attribute)
+        } else {
+            editor.removeAttribute(attribute, instanceId)
+        }
         AttributeOperationAction.SET -> {
             when (requireNotNull(valueType)) {
                 AttributeValueType.DATE -> editor.setAttribute(
@@ -47,6 +61,12 @@ internal fun AttributeOperation.applyOperation(editor: AttributeEditor) {
                 AttributeValueType.NUMBER -> editor.setAttribute(
                     attribute,
                     requireNotNull(value).getDouble(0.0)
+                )
+                AttributeValueType.JSON ->  editor.setAttribute(
+                    attribute,
+                    requireNotNull(instanceId),
+                    expiry,
+                    requireNotNull(value).requireMap(),
                 )
             }
         }

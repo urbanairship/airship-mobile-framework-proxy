@@ -226,7 +226,6 @@ class AttributeOperationTest: XCTestCase {
     func testApplyInvalidDate() throws {
         let editor = TestEditor()
 
-
         do {
             try AttributeOperation(
                 action: .setAttribute,
