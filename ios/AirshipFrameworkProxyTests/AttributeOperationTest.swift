@@ -265,6 +265,8 @@ class AttributeOperationTest: XCTestCase {
 
 fileprivate class TestEditor: AttributeOperationEditor {
 
+    
+
     var removes: Set<String> = Set()
     var sets: [String: AnyHashable] = [:]
 
@@ -286,5 +288,13 @@ fileprivate class TestEditor: AttributeOperationEditor {
     func set(string: String, attribute: String) {
         removes.remove(attribute)
         sets[attribute] = string
+    }
+
+    func remove(attribute: String, instanceID: String) throws {
+
+    }
+
+    func set(json: [String : AirshipKit.AirshipJSON], attribute: String, instanceID: String, expiration: Date?) throws {
+
     }
 }

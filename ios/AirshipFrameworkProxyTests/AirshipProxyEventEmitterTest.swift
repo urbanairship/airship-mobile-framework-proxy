@@ -2,28 +2,29 @@ import XCTest
 import AirshipKit
 @testable import AirshipFrameworkProxy
 
+@MainActor
 final class AirshipProxyEventEmitterTest: XCTestCase {
 
     private let emitter = AirshipProxyEventEmitter()
 
 
     func testProcessPendingOrder() async {
-        await emitter.addEvent(TestEvent(type: .channelCreated))
-        await emitter.addEvent(TestEvent(type: .deepLinkReceived))
-        await emitter.addEvent(TestEvent(type: .channelCreated))
+        emitter.addEvent(TestEvent(type: .channelCreated))
+        emitter.addEvent(TestEvent(type: .deepLinkReceived))
+        emitter.addEvent(TestEvent(type: .channelCreated))
 
-        var hasEvents = await emitter.hasAnyEvents()
+        var hasEvents = emitter.hasAnyEvents()
         XCTAssertTrue(hasEvents)
 
         var order: [AirshipProxyEventType] = []
-        await emitter.processPendingEvents(type: nil) { event in
+        emitter.processPendingEvents(type: nil) { event in
             order.append(event.type)
             return true
         }
 
         XCTAssertEqual(order, [.channelCreated, .deepLinkReceived, .channelCreated])
 
-        hasEvents = await emitter.hasAnyEvents()
+        hasEvents = emitter.hasAnyEvents()
         XCTAssertFalse(hasEvents)
     }
 }
