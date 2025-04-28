@@ -1,10 +1,12 @@
-import XCTest
+import Testing
 
 @testable import AirshipFrameworkProxy
 import AirshipKit
 
-class AttributeOperationTest: XCTestCase {
+struct AttributeOperationTest {
+    private let editor = TestEditor()
 
+    @Test
     func testRemove() throws {
         let json = """
             {
@@ -23,9 +25,33 @@ class AttributeOperationTest: XCTestCase {
             valueType: nil
         )
 
-        XCTAssertEqual(expected, parsed)
+        assert(expected == parsed)
     }
 
+    @Test
+    func testRemoveJSON() throws {
+        let json = """
+            {
+                "key": "some attribute",
+                "instance_id": "some instance id",
+                "action": "remove"
+            }
+        """
+
+        let parsed = try JSONDecoder().decode(AttributeOperation.self, from: json.data(using: .utf8)!)
+
+        let expected = AttributeOperation(
+            action: .removeAttribute,
+            attribute: "some attribute",
+            value: nil,
+            valueType: nil,
+            instanceID: "some instance id"
+        )
+
+        assert(expected == parsed)
+    }
+
+    @Test
     func tesSetDate() throws {
         let json = """
             {
@@ -36,19 +62,19 @@ class AttributeOperationTest: XCTestCase {
             }
         """
 
-
         let parsed = try JSONDecoder().decode(AttributeOperation.self, from: json.data(using: .utf8)!)
 
         let expected = AttributeOperation(
             action: .setAttribute,
-            attribute: "some-attribute",
+            attribute: "some attribute",
             value: try AirshipJSON.wrap(1682681877000),
             valueType: .date
         )
 
-        XCTAssertEqual(expected, parsed)
+        assert(expected == parsed)
     }
 
+    @Test
     func testSetString() throws {
         let json = """
             {
@@ -69,9 +95,10 @@ class AttributeOperationTest: XCTestCase {
             valueType: .string
         )
 
-        XCTAssertEqual(expected, parsed)
+        assert(expected == parsed)
     }
 
+    @Test
     func testSetNumber() throws {
         let json = """
             {
@@ -92,20 +119,106 @@ class AttributeOperationTest: XCTestCase {
             valueType: .number
         )
 
-        XCTAssertEqual(expected, parsed)
+        assert(expected == parsed)
     }
 
-    func testApplyRemove() throws {
-        let editor = TestEditor()
-        let operation = AttributeOperation(action: .removeAttribute, attribute: "some attribute", value: nil, valueType: nil)
-        try operation.apply(editor: editor)
+    @Test
+    func testSetJSON() throws {
+        let json = """
+            {
+                "key": "some attribute",
+                "action": "set",
+                "value": {
+                    "foo": "bar"
+                },
+                "type": "json",
+                "instance_id": "some instance id"
+            }
+        """
 
-        XCTAssertEqual(editor.removes, ["some attribute"])
-        XCTAssertTrue(editor.sets.isEmpty)
+
+        let parsed = try JSONDecoder().decode(AttributeOperation.self, from: json.data(using: .utf8)!)
+
+        let expected = AttributeOperation(
+            action: .setAttribute,
+            attribute: "some attribute",
+            value: AirshipJSON.object(["foo": .string("bar")]),
+            valueType: .json,
+            instanceID: "some instance id"
+        )
+
+        assert(expected == parsed)
     }
 
-    func testApplySetString() throws {
-        let editor = TestEditor()
+    @Test
+    func testApplyRemove() async throws {
+        let operation = AttributeOperation(
+            action: .removeAttribute,
+            attribute: "some attribute",
+            value: nil,
+            valueType: nil
+        )
+
+        try await confirmation { continuation in
+            editor.onMutation = { mutation in
+                assert(mutation == .remove(attribute: "some attribute"))
+                continuation.confirm()
+            }
+
+            try operation.apply(editor: editor)
+        }
+    }
+
+    @Test
+    func testApplyRemoveJSON() async throws {
+        let operation = AttributeOperation(
+            action: .removeAttribute,
+            attribute: "some attribute",
+            value: nil,
+            valueType: nil,
+            instanceID: "some instance"
+        )
+
+        try await confirmation { continuation in
+            editor.onMutation = { mutation in
+                assert(mutation == .remove(attribute: "some attribute", instanceID: "some instance"))
+                continuation.confirm()
+            }
+
+            try operation.apply(editor: editor)
+        }
+    }
+
+    @Test
+    func testApplyJSON() async throws {
+        let operation = AttributeOperation(
+            action: .setAttribute,
+            attribute: "some attribute",
+            value: .object(["neat": .string("story")]),
+            valueType: .json,
+            instanceID: "some instance",
+            expirationMilliseconds: 1000
+        )
+
+        try await confirmation { continuation in
+            editor.onMutation = { mutation in
+                let expected = TestEditor.Mutation.set(
+                    value: ["neat": AirshipJSON.string("story")],
+                    attribute: "some attribute",
+                    instanceID: "some instance",
+                    expiration: Date(timeIntervalSince1970: 1.0)
+                )
+                assert(mutation == expected)
+                continuation.confirm()
+            }
+
+            try operation.apply(editor: editor)
+        }
+    }
+
+
+    @Test
+    func testApplySetString() async throws {
         let operation = AttributeOperation(
             action: .setAttribute,
             attribute: "some attribute",
@@ -113,13 +226,22 @@ class AttributeOperationTest: XCTestCase {
             valueType: .string
         )
 
-        try operation.apply(editor: editor)
-        XCTAssertEqual(editor.sets, ["some attribute": "neat"])
-        XCTAssertTrue(editor.removes.isEmpty)
+        try await confirmation { continuation in
+            editor.onMutation = { mutation in
+                let expected = TestEditor.Mutation.set(
+                    value: "neat",
+                    attribute: "some attribute"
+                )
+                assert(mutation == expected)
+                continuation.confirm()
+            }
+
+            try operation.apply(editor: editor)
+        }
     }
 
-    func testApplyNumber() throws {
-        let editor = TestEditor()
+    @Test
+    func testApplyNumber() async throws {
         let operation = AttributeOperation(
             action: .setAttribute,
             attribute: "some attribute",
@@ -127,13 +249,22 @@ class AttributeOperationTest: XCTestCase {
             valueType: .number
         )
 
-        try operation.apply(editor: editor)
-        XCTAssertEqual(editor.sets, ["some attribute": 100.1])
-        XCTAssertTrue(editor.removes.isEmpty)
+        try await confirmation { continuation in
+            editor.onMutation = { mutation in
+                let expected = TestEditor.Mutation.set(
+                    value: 100.1,
+                    attribute: "some attribute"
+                )
+                assert(mutation == expected)
+                continuation.confirm()
+            }
+
+            try operation.apply(editor: editor)
+        }
     }
 
-    func testApplyDate() throws {
-        let editor = TestEditor()
+    @Test
+    func testApplyDate() async throws {
         let operation = AttributeOperation(
             action: .setAttribute,
             attribute: "some attribute",
@@ -141,14 +272,22 @@ class AttributeOperationTest: XCTestCase {
             valueType: .date
         )
 
-        try operation.apply(editor: editor)
-        XCTAssertEqual(editor.sets, ["some attribute": Date(timeIntervalSince1970: 1682681877)])
-        XCTAssertTrue(editor.removes.isEmpty)
+        try await confirmation { continuation in
+            editor.onMutation = { mutation in
+                let expected = TestEditor.Mutation.set(
+                    value: Date(timeIntervalSince1970: 1682681877),
+                    attribute: "some attribute"
+                )
+                assert(mutation == expected)
+                continuation.confirm()
+            }
+
+            try operation.apply(editor: editor)
+        }
     }
 
+    @Test
     func testApplyInvalidString() throws {
-        let editor = TestEditor()
-
         do {
             try AttributeOperation(
                 action: .setAttribute,
@@ -156,7 +295,7 @@ class AttributeOperationTest: XCTestCase {
                 value: .number(10.0),
                 valueType: .string
             ).apply(editor: editor)
-            XCTFail("should throw")
+            assertionFailure("should throw")
         } catch {}
 
         do {
@@ -166,9 +305,8 @@ class AttributeOperationTest: XCTestCase {
                 value: .null,
                 valueType: .string
             ).apply(editor: editor)
-            XCTFail("should throw")
+            assertionFailure("should throw")
         } catch {}
-
 
         do {
             try AttributeOperation(
@@ -177,17 +315,12 @@ class AttributeOperationTest: XCTestCase {
                 value: try! AirshipJSON.wrap(["cool": "beans"]),
                 valueType: .string
             ).apply(editor: editor)
-            XCTFail("should throw")
+            assertionFailure("should throw")
         } catch {}
-
-        XCTAssertTrue(editor.sets.isEmpty)
-        XCTAssertTrue(editor.removes.isEmpty)
     }
 
+    @Test
     func testApplyInvalidNumber() throws {
-        let editor = TestEditor()
-
-
         do {
             try AttributeOperation(
                 action: .setAttribute,
@@ -195,7 +328,7 @@ class AttributeOperationTest: XCTestCase {
                 value: .string("hello"),
                 valueType: .number
             ).apply(editor: editor)
-            XCTFail("should throw")
+            assertionFailure("should throw")
         } catch {}
 
         do {
@@ -205,7 +338,7 @@ class AttributeOperationTest: XCTestCase {
                 value: .null,
                 valueType: .number
             ).apply(editor: editor)
-            XCTFail("should throw")
+            assertionFailure("should throw")
         } catch {}
 
 
@@ -216,16 +349,13 @@ class AttributeOperationTest: XCTestCase {
                 value: try! AirshipJSON.wrap(["cool": "beans"]),
                 valueType: .number
             ).apply(editor: editor)
-            XCTFail("should throw")
+            assertionFailure("should throw")
         } catch {}
 
-        XCTAssertTrue(editor.sets.isEmpty)
-        XCTAssertTrue(editor.removes.isEmpty)
     }
 
+    @Test
     func testApplyInvalidDate() throws {
-        let editor = TestEditor()
-
         do {
             try AttributeOperation(
                 action: .setAttribute,
@@ -233,7 +363,7 @@ class AttributeOperationTest: XCTestCase {
                 value: .string("1682681877000"),
                 valueType: .date
             ).apply(editor: editor)
-            XCTFail("should throw")
+            assertionFailure("should throw")
         } catch {}
 
         do {
@@ -243,7 +373,7 @@ class AttributeOperationTest: XCTestCase {
                 value: .null,
                 valueType: .date
             ).apply(editor: editor)
-            XCTFail("should throw")
+            assertionFailure("should throw")
         } catch {}
 
 
@@ -255,45 +385,39 @@ class AttributeOperationTest: XCTestCase {
                 valueType: .date
             ).apply(editor: editor)
         } catch {}
-
-
-        XCTAssertTrue(editor.sets.isEmpty)
-        XCTAssertTrue(editor.removes.isEmpty)
     }
 }
 
 fileprivate class TestEditor: AttributeOperationEditor {
+    enum Mutation: Equatable, Hashable {
+        case set(value: AnyHashable, attribute: String, instanceID: String? = nil, expiration: Date? = nil)
+        case remove(attribute: String, instanceID: String? = nil)
+    }
 
-    
-
-    var removes: Set<String> = Set()
-    var sets: [String: AnyHashable] = [:]
+    var onMutation: ((Mutation) -> Void)? = nil
 
     func remove(_ attribute: String) {
-        removes.insert(attribute)
-        sets[attribute] = nil
-    }
-
-    func set(date: Date, attribute: String) {
-        removes.remove(attribute)
-        sets[attribute] = date
-    }
-
-    func set(double: Double, attribute: String) {
-        removes.remove(attribute)
-        sets[attribute] = double
-    }
-
-    func set(string: String, attribute: String) {
-        removes.remove(attribute)
-        sets[attribute] = string
+        onMutation!(.remove(attribute: attribute))
     }
 
     func remove(attribute: String, instanceID: String) throws {
-
+        onMutation!(.remove(attribute: attribute, instanceID: instanceID))
     }
 
-    func set(json: [String : AirshipKit.AirshipJSON], attribute: String, instanceID: String, expiration: Date?) throws {
+    func set(date: Date, attribute: String) {
+        onMutation!(.set(value: date, attribute: attribute))
+    }
 
+    func set(double: Double, attribute: String) {
+        onMutation!(.set(value: double, attribute: attribute))
+    }
+
+    func set(string: String, attribute: String) {
+        onMutation!(.set(value: string, attribute: attribute))
+    }
+
+
+    func set(json: [String : AirshipKit.AirshipJSON], attribute: String, instanceID: String, expiration: Date?) throws {
+        onMutation!(.set(value: json, attribute: attribute, instanceID: instanceID, expiration: expiration))
     }
 }
