@@ -3,7 +3,7 @@
 import Foundation
 import Combine
 import UserNotifications
-import UIKit
+public import UIKit
 
 #if canImport(AirshipKit)
 public import AirshipKit

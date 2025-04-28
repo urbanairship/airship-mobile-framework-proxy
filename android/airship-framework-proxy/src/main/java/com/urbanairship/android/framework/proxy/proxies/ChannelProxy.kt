@@ -7,6 +7,8 @@ import com.urbanairship.android.framework.proxy.TagOperation
 import com.urbanairship.android.framework.proxy.applyOperation
 import com.urbanairship.channel.AirshipChannel
 import com.urbanairship.json.JsonValue
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 
 public class ChannelProxy internal constructor(private val channelProvider: () -> AirshipChannel) {
     public fun enableChannelCreation() {
@@ -15,6 +17,10 @@ public class ChannelProxy internal constructor(private val channelProvider: () -
 
     public fun getChannelId(): String? {
         return channelProvider().id
+    }
+
+    public suspend fun waitForChannelId(): String {
+        return channelProvider().channelIdFlow.filterNotNull().first()
     }
 
     public fun addTag(tag: String) {

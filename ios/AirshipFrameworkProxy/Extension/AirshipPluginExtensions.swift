@@ -1,6 +1,8 @@
 /* Copyright Urban Airship and Contributors */
 
 import Foundation
+public import UserNotifications
+public import UIKit
 
 #if canImport(AirshipKit)
 public import AirshipKit

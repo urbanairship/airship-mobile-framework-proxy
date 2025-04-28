@@ -58,6 +58,18 @@ public final class AirshipChannelProxy: Sendable {
         }
     }
 
+    public func waitForChannelID() async throws -> String {
+        if let channelID = try self.channel.identifier {
+            return channelID
+        }
+
+        for await update in try self.channel.identifierUpdates {
+            return update
+        }
+
+        throw AirshipErrors.error("Failed to wait for Channel ID")
+    }
+
     public func editTagGroups(operations: [TagGroupOperation]) throws {
         try self.channel.editTagGroups { editor in
             operations.forEach { operation in
