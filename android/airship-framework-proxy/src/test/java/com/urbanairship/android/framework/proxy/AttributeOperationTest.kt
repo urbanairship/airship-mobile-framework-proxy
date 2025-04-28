@@ -3,6 +3,7 @@ package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.channel.AttributeEditor
 import com.urbanairship.json.JsonValue
+import com.urbanairship.json.jsonMapOf
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.verify
@@ -35,6 +36,55 @@ public class AttributeOperationTest {
 
         assertEquals(expected, parsed)
     }
+
+    @Test
+    public fun testRemoveJson() {
+        val json = """
+            {
+                "key": "some attribute",
+                "action": "remove",
+                "instance_id": "Some instance"
+            }
+        """
+
+        val parsed = AttributeOperation(json = JsonValue.parseString(json).requireMap())
+
+        val expected = AttributeOperation(
+            attribute = "some attribute",
+            value = null,
+            action = AttributeOperationAction.REMOVE,
+            valueType = null,
+            instanceId = "Some instance"
+        )
+
+        assertEquals(expected, parsed)
+    }
+
+    @Test
+    public fun testJson() {
+        val json = """
+            {
+                "key": "some attribute",
+                "action": "set",
+                "value": { "foo": "bar" },
+                "type": "json",
+                "instance_id": "instance"
+            }
+        """
+
+        val parsed = AttributeOperation(json = JsonValue.parseString(json).requireMap())
+
+        val expected = AttributeOperation(
+            attribute = "some attribute",
+            value = jsonMapOf("foo" to "bar").toJsonValue(),
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.JSON,
+            instanceId = "instance"
+        )
+
+        assertEquals(expected, parsed)
+    }
+
     @Test
     public fun testDate() {
         val json = """
@@ -105,6 +155,30 @@ public class AttributeOperationTest {
     }
 
     @Test
+    public fun testApplyJson() {
+        val editor = mockk<AttributeEditor>(relaxed = true)
+
+        val operation  = AttributeOperation(
+            attribute = "some attribute",
+            value = jsonMapOf("foo" to "bar").toJsonValue(),
+            action = AttributeOperationAction.SET,
+            valueType = AttributeValueType.JSON,
+            instanceId = "instance id",
+            expiry = Date(1000)
+        )
+
+        operation.applyOperation(editor)
+
+        verify { editor.setAttribute(
+            attribute = "some attribute",
+            instanceId = "instance id",
+            expiration = Date(1000),
+            json = jsonMapOf("foo" to "bar")
+        ) }
+        confirmVerified(editor)
+    }
+
+    @Test
     public fun testApplyString() {
         val editor = mockk<AttributeEditor>(relaxed = true)
 
@@ -169,6 +243,24 @@ public class AttributeOperationTest {
         operation.applyOperation(editor)
 
         verify { editor.removeAttribute("some attribute") }
+        confirmVerified(editor)
+    }
+
+    @Test
+    public fun testApplyRemoveJson() {
+        val editor = mockk<AttributeEditor>(relaxed = true)
+
+        val operation = AttributeOperation(
+            attribute = "some attribute",
+            value = null,
+            action = AttributeOperationAction.REMOVE,
+            valueType = null,
+            instanceId = "some instance"
+        )
+
+        operation.applyOperation(editor)
+
+        verify { editor.removeAttribute("some attribute", "some instance") }
         confirmVerified(editor)
     }
 

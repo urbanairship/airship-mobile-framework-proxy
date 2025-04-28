@@ -22,8 +22,8 @@ public data class AttributeOperation(
     public val value: JsonValue?,
     public val valueType: AttributeValueType?,
     public val action: AttributeOperationAction,
-    public val instanceId: String?,
-    public val expiry: Date?
+    public val instanceId: String? = null,
+    public val expiry: Date? = null
 ) {
     public constructor(json: JsonMap) : this(
         attribute = json.requireField("key"),
