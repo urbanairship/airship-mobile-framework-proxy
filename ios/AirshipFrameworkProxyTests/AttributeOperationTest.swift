@@ -1,7 +1,7 @@
 import Testing
 
 @testable import AirshipFrameworkProxy
-import AirshipKit
+import AirshipCore
 
 struct AttributeOperationTest {
     private let editor = TestEditor()
@@ -417,7 +417,7 @@ fileprivate class TestEditor: AttributeOperationEditor {
     }
 
 
-    func set(json: [String : AirshipKit.AirshipJSON], attribute: String, instanceID: String, expiration: Date?) throws {
+    func set(json: [String : AirshipJSON], attribute: String, instanceID: String, expiration: Date?) throws {
         onMutation!(.set(value: json, attribute: attribute, instanceID: instanceID, expiration: expiration))
     }
 }

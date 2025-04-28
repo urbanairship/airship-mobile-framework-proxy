@@ -153,7 +153,6 @@
 				6E142E4E296E3A8800F71E23 /* AirshipFrameworkProxy */,
 				6E142E58296E3A8800F71E23 /* AirshipFrameworkProxyTests */,
 				6E142E4D296E3A8800F71E23 /* Products */,
-				E795D17A6D8B67EA12AE176D /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -271,13 +270,6 @@
 				6E0D94F02A7D52F400781BC7 /* AirshipFeatureFlagManagerProxy.swift */,
 			);
 			path = Proxies;
-			sourceTree = "<group>";
-		};
-		E795D17A6D8B67EA12AE176D /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

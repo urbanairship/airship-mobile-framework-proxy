@@ -1,7 +1,7 @@
 import XCTest
 
 @testable import AirshipFrameworkProxy
-import AirshipKit
+import AirshipCore
 
 class ScopedSubscriptionListOperationTest: XCTestCase {
 

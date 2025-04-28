@@ -1,6 +1,6 @@
 import XCTest
 import AirshipFrameworkProxy;
-import AirshipKit;
+import AirshipCore
 
 final class ProxyConfigTests: XCTestCase {
 

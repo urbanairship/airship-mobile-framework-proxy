@@ -1,5 +1,5 @@
 import XCTest
-import AirshipKit
+import AirshipCore
 @testable import AirshipFrameworkProxy
 
 @MainActor

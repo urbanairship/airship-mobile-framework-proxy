@@ -1,6 +1,7 @@
 import XCTest
 @testable import AirshipFrameworkProxy
-import AirshipKit
+import AirshipCore
+import AirshipFeatureFlags
 
 class FeatureTests: XCTestCase {
 
