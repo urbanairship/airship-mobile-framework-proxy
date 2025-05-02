@@ -60,7 +60,7 @@ public class DefaultMessageCenterUI {
         scene: UIWindowScene,
         theme: MessageCenterTheme?
     ) -> any AirshipMainActorCancellable {
-        var window: UIWindow? = UIWindow(windowScene: scene)
+        var window: UIWindow? = AirshipWindowFactory.shared.makeWindow(windowScene: scene)
 
         let cancellable = AirshipMainActorCancellableBlock {
             window?.windowLevel = .normal
@@ -89,7 +89,7 @@ public class DefaultMessageCenterUI {
         messageID: String,
         theme: MessageCenterTheme?
     ) -> any AirshipMainActorCancellable {
-        var window: UIWindow? = UIWindow(windowScene: scene)
+        var window: UIWindow? = AirshipWindowFactory.shared.makeWindow(windowScene: scene)
 
         let cancellable = AirshipMainActorCancellableBlock {
             window?.windowLevel = .normal
