@@ -47,6 +47,23 @@ public object Utils {
         }
     }
 
+    public fun parseLogPrivacyLevel(privacyLevel: String): AirshipConfigOptions.PrivacyLevel {
+        return when (privacyLevel.lowercase().trim()) {
+            "public" -> AirshipConfigOptions.PrivacyLevel.PUBLIC
+            "private" -> AirshipConfigOptions.PrivacyLevel.PRIVATE
+            else -> {
+                throw JsonException("Invalid log privacy level: $privacyLevel")
+            }
+        }
+    }
+
+    public fun logPrivacyLevelString(privacyLevel: AirshipConfigOptions.PrivacyLevel): String {
+        return when (privacyLevel) {
+            AirshipConfigOptions.PrivacyLevel.PUBLIC -> "public"
+            AirshipConfigOptions.PrivacyLevel.PRIVATE -> "private"
+        }
+    }
+
     public fun parseFeatures(value: JsonValue): PrivacyManager.Feature {
         if (value.isJsonList) {
             return PrivacyManager.Feature.fromJson(value) ?: PrivacyManager.Feature.NONE
