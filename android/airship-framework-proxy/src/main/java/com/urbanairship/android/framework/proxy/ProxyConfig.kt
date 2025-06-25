@@ -1,5 +1,6 @@
 package com.urbanairship.android.framework.proxy
 
+import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.AirshipConfigOptions.Site
 import com.urbanairship.PrivacyManager.Feature
 import com.urbanairship.json.JsonMap
@@ -77,18 +78,25 @@ public data class ProxyConfig(
     }
 
     public data class Android(
-        val appStoreUri: String?, val fcmFirebaseAppName: String?, val notificationConfig: NotificationConfig?
+        val appStoreUri: String?,
+        val fcmFirebaseAppName: String?,
+        val notificationConfig: NotificationConfig?,
+        val logPrivacyLevel: AirshipConfigOptions.PrivacyLevel?
     ) : JsonSerializable {
 
         override fun toJsonValue(): JsonValue = JsonMap.newBuilder()
             .putOpt("appStoreUri", appStoreUri)
             .putOpt("fcmFirebaseAppName", fcmFirebaseAppName)
             .putOpt("notificationConfig", notificationConfig)
+            .putOpt("logPrivacyLevel", logPrivacyLevel?.let { Utils.logPrivacyLevelString(it) })
             .build()
             .toJsonValue()
 
-        internal constructor(config: JsonMap) : this(appStoreUri = config.get("appStoreUri")?.string,
+        internal constructor(config: JsonMap) : this(
+            appStoreUri = config.get("appStoreUri")?.string,
             fcmFirebaseAppName = config.get("fcmFirebaseAppName")?.string,
-            notificationConfig = config.get("notificationConfig")?.map?.let { NotificationConfig(it) })
+            notificationConfig = config.get("notificationConfig")?.map?.let { NotificationConfig(it) },
+            logPrivacyLevel = config.get("logPrivacyLevel")?.string?.let { Utils.parseLogPrivacyLevel(it) }
+        )
     }
 }

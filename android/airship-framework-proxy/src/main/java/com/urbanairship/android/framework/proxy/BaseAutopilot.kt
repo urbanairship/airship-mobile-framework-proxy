@@ -190,12 +190,20 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
         this.setDevelopmentAppKey(it.appKey)
             .setDevelopmentAppSecret(it.appSecret)
             .setDevelopmentLogLevel(it.logLevel ?: Log.DEBUG)
+
+        proxyConfig.androidConfig?.logPrivacyLevel?.let { privacyLevel ->
+            this.setDevelopmentLogPrivacyLevel(privacyLevel)
+        }
     }
 
     proxyConfig.productionEnvironment?.let {
         this.setProductionAppKey(it.appKey)
             .setProductionAppSecret(it.appSecret)
             .setProductionLogLevel(it.logLevel ?: Log.DEBUG)
+
+        proxyConfig.androidConfig?.logPrivacyLevel?.let { privacyLevel ->
+            this.setProductionLogPrivacyLevel(privacyLevel)
+        }
     }
 
     proxyConfig.defaultEnvironment?.let {
