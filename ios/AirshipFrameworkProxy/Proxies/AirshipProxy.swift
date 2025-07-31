@@ -182,7 +182,7 @@ public final class AirshipProxy: Sendable {
         self.airshipDelegate = AirshipDelegate(proxyStore: proxyStore)
 
         AirshipLogger.debug("Taking off! \(airshipConfig)")
-        try Airship.takeOff(airshipConfig, launchOptions: launchOptions)
+        try Airship.takeOff(airshipConfig)
         Airship.deepLinkDelegate = self.airshipDelegate
         Airship.push.registrationDelegate = self.airshipDelegate
         Airship.push.pushNotificationDelegate = self.airshipDelegate
