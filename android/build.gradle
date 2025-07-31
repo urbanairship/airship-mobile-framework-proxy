@@ -37,7 +37,7 @@ nexusPublishing {
 
                 username.set(user)
                 password.set(pass)
-                if (!profileId.isNullOrEmpty()) {
+                if (profileId != null && !profileId.isEmpty()) {
                     stagingProfileId.set(profileId)
                 }
             }
