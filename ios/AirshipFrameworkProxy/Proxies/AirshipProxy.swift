@@ -125,7 +125,7 @@ public final class AirshipProxy: Sendable {
 
     }
 
-
+    @available(*, deprecated, message: "Use AirshipProxy.takeOff(json:) instead")
     @MainActor
     public func takeOff(
         json: Any,
@@ -136,10 +136,22 @@ public final class AirshipProxy: Sendable {
             from: try AirshipJSONUtils.data(json)
         )
 
-        return try takeOff(config: proxyConfig, launchOptions: launchOptions)
-
+        return try takeOff(config: proxyConfig)
     }
 
+    @MainActor
+    public func takeOff(
+        json: Any
+    ) throws -> Bool {
+        let proxyConfig = try JSONDecoder().decode(
+            ProxyConfig.self,
+            from: try AirshipJSONUtils.data(json)
+        )
+
+        return try takeOff(config: proxyConfig)
+    }
+
+    @available(*, deprecated, message: "Use AirshipProxy.takeOff(config:) instead")
     @MainActor
     public func takeOff(
         config: ProxyConfig,
@@ -147,6 +159,15 @@ public final class AirshipProxy: Sendable {
     ) throws -> Bool {
         self.proxyStore.config = config
         try? attemptTakeOff(launchOptions: launchOptions)
+        return Airship.isFlying
+    }
+
+    @MainActor
+    public func takeOff(
+        config: ProxyConfig
+    ) throws -> Bool {
+        self.proxyStore.config = config
+        try? attemptTakeOff()
         return Airship.isFlying
     }
 
@@ -162,10 +183,16 @@ public final class AirshipProxy: Sendable {
         }
     }
 
+    @available(*, deprecated, message: "Use AirshipProxy.attemptTakeOff(_:) instead")
     @MainActor
     public func attemptTakeOff(
         launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) throws {
+        try attemptTakeOff()
+    }
+
+    @MainActor
+    public func attemptTakeOff() throws {
         guard !Airship.isFlying else {
             return;
         }
@@ -174,8 +201,6 @@ public final class AirshipProxy: Sendable {
             self.delegate?.migrateData(store: self.proxyStore)
             migrateCalled = true
         }
-
-        AirshipLogger.debug("attemptTakeOff: \(String(describing: launchOptions))")
 
         let airshipConfig = makeConfig()
 
