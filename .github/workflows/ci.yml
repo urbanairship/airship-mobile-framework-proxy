@@ -50,6 +50,9 @@ jobs:
       - name: Install Coreutils
         run: brew install coreutils
 
+      - name: Select Xcode version
+        run: sudo xcode-select -s '/Applications/Xcode_16.4.app/Contents/Developer'
+
       - name: Build SDK
         run: |
           cd ios
