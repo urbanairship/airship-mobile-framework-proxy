@@ -15,7 +15,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/urbanairship/ios-library.git", from: "19.8.2")
+        .package(url: "https://github.com/urbanairship/ios-library.git", from: "19.8.3")
     ],
     targets: [
         .target(
