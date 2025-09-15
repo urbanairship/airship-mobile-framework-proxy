@@ -179,23 +179,6 @@ struct PushTokenReceivedEvent: AirshipProxyEvent {
     }
 }
 
-struct OverridePresentationOptionsEvent: AirshipProxyEvent {
-    let type: AirshipProxyEventType = .overridePresentationOptions
-    let body: Body
-
-    init(
-        pushPayload: ProxyPushPayload,
-        requestId: String
-    ) {
-        self.body = Body(pushPayload: pushPayload, requestId: requestId)
-    }
-
-    struct Body: Codable, Sendable {
-        let pushPayload: ProxyPushPayload
-        let requestId: String
-    }
-}
-
 struct NotificationStatusChangedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .notificationStatusChanged
     let body: Body
