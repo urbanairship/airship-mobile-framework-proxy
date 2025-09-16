@@ -19,6 +19,7 @@ public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case pushReceived
     case notificationStatusChanged
     case authorizedNotificationSettingsChanged
+    case overridePresentationOptions
 
     case pendingEmbeddedUpdated
     case liveActivitiesUpdated
@@ -177,7 +178,6 @@ struct PushTokenReceivedEvent: AirshipProxyEvent {
         let pushToken: String
     }
 }
-
 
 struct NotificationStatusChangedEvent: AirshipProxyEvent {
     let type: AirshipProxyEventType = .notificationStatusChanged
