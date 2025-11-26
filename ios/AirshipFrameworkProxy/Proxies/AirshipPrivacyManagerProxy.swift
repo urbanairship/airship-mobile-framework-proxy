@@ -10,13 +10,13 @@ public import AirshipCore
 
 public final class AirshipPrivacyManagerProxy: Sendable {
 
-    private let privacyManagerProvider: @Sendable () throws -> AirshipPrivacyManager
-    private var privacyManager: AirshipPrivacyManager {
+    private let privacyManagerProvider: @Sendable () throws -> any AirshipPrivacyManager
+    private var privacyManager: any AirshipPrivacyManager {
         get throws { try privacyManagerProvider() }
     }
 
     init(
-        privacyManagerProvider: @Sendable @escaping () throws -> AirshipPrivacyManager
+        privacyManagerProvider: @Sendable @escaping () throws -> any AirshipPrivacyManager
     ) {
         self.privacyManagerProvider = privacyManagerProvider
     }

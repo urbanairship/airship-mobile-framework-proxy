@@ -10,12 +10,12 @@ import AirshipCore
 
 public final class AirshipLocaleProxy: Sendable {
 
-    private let localeProvider: @Sendable () throws -> any AirshipLocaleManagerProtocol
-    private var locale: any AirshipLocaleManagerProtocol {
+    private let localeProvider: @Sendable () throws -> any AirshipLocaleManager
+    private var locale: any AirshipLocaleManager {
         get throws { try localeProvider() }
     }
 
-    init(localeProvider: @Sendable @escaping () throws -> any AirshipLocaleManagerProtocol) {
+    init(localeProvider: @Sendable @escaping () throws -> any AirshipLocaleManager) {
         self.localeProvider = localeProvider
     }
 

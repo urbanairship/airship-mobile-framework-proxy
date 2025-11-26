@@ -10,12 +10,12 @@ import AirshipCore
 
 public final class AirshipContactProxy: Sendable {
 
-    private let contactProvider: @Sendable () throws -> any AirshipContactProtocol
-    private var contact: any AirshipContactProtocol {
+    private let contactProvider: @Sendable () throws -> any AirshipContact
+    private var contact: any AirshipContact {
         get throws { try contactProvider() }
     }
 
-    init(contactProvider: @Sendable @escaping () throws -> any AirshipContactProtocol) {
+    init(contactProvider: @Sendable @escaping () throws -> any AirshipContact) {
         self.contactProvider = contactProvider
     }
 

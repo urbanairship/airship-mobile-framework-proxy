@@ -19,10 +19,5 @@ public class AirshipFrameworkProxyLoader: NSObject {
     public static func onLoad() {
         pluginLoader?.onLoad()
     }
-
-    @objc
-    public static func onApplicationDidFinishLaunching(launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
-        pluginLoader?.onApplicationDidFinishLaunching(launchOptions: launchOptions)
-    }
 }
 

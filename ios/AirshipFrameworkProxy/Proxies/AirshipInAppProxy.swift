@@ -11,12 +11,12 @@ import AirshipAutomation
 
 public final class AirshipInAppProxy: Sendable {
 
-    private let inAppProvider: @Sendable () throws -> InAppAutomation
-    private var inApp: InAppAutomation {
+    private let inAppProvider: @Sendable () throws -> any InAppAutomation
+    private var inApp: any InAppAutomation {
         get throws { try inAppProvider() }
     }
 
-    init(inAppProvider: @Sendable @escaping () throws -> InAppAutomation) {
+    init(inAppProvider: @Sendable @escaping () throws -> any InAppAutomation) {
         self.inAppProvider = inAppProvider
     }
 

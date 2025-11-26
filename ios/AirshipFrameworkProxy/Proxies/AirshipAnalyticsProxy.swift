@@ -10,12 +10,12 @@ import AirshipCore
 
 public final class AirshipAnalyticsProxy: Sendable {
 
-    private let analyticsProvider: @Sendable () throws -> any AirshipAnalyticsProtocol
-    private var analytics: any AirshipAnalyticsProtocol {
+    private let analyticsProvider: @Sendable () throws -> any AirshipAnalytics
+    private var analytics: any AirshipAnalytics {
         get throws { try analyticsProvider() }
     }
 
-    init(analyticsProvider: @Sendable  @escaping () throws -> any AirshipAnalyticsProtocol) {
+    init(analyticsProvider: @Sendable  @escaping () throws -> any AirshipAnalytics) {
         self.analyticsProvider = analyticsProvider
     }
 

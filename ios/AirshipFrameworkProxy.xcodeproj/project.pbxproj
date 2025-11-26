@@ -728,7 +728,7 @@
 			repositoryURL = "https://github.com/urbanairship/ios-library";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 19.4.0;
+				minimumVersion = 20.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
