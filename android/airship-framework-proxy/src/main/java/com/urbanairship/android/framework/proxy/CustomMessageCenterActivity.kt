@@ -12,9 +12,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.lifecycleScope
+import com.urbanairship.Airship
 import com.urbanairship.Autopilot
 import com.urbanairship.UALog
-import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.messagecenter.ui.MessageCenterFragment
@@ -35,7 +35,7 @@ public class CustomMessageCenterActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         Autopilot.automaticTakeOff(application)
 
-        if (!UAirship.isTakingOff() && !UAirship.isFlying()) {
+        if (!Airship.isFlyingOrTakingOff) {
             UALog.e("MessageCenterActivity - unable to create activity, takeOff not called.")
             finish()
             return

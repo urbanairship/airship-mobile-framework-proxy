@@ -1,6 +1,6 @@
 /* Copyright Urban Airship and Contributors */
 
-package com.urbanairship.android.framework.proxy
+package com.urbanairship.android.framework.proxy.events
 
 import com.urbanairship.json.JsonMap
 

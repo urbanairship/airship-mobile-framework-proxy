@@ -11,7 +11,7 @@ public data class ProxyConfig(
     val defaultEnvironment: Environment? = null,
     val productionEnvironment: Environment? = null,
     val developmentEnvironment: Environment? = null,
-    @Site val site: String? = null,
+    val site: Site? = null,
     val inProduction: Boolean? = null,
     val initialConfigUrl: String? = null,
     val urlAllowList: List<String>? = null,
@@ -25,20 +25,20 @@ public data class ProxyConfig(
 ) : JsonSerializable {
 
     public constructor(config: JsonMap) : this(
-        defaultEnvironment = config.get("default")?.map?.let { Environment(it) },
-        productionEnvironment = config.get("production")?.map?.let { Environment(it) },
-        developmentEnvironment = config.get("development")?.map?.let { Environment(it) },
-        site = config.get("site")?.string?.let { Utils.parseSite(it) },
-        inProduction = config.get("inProduction")?.boolean,
-        initialConfigUrl = config.get("initialConfigUrl")?.string,
-        urlAllowList = config.get("urlAllowList")?.list?.mapNotNull { it.string },
-        urlAllowListScopeJavaScriptInterface = config.get("urlAllowListScopeJavaScriptInterface")?.list?.mapNotNull { it.string },
-        urlAllowListScopeOpenUrl = config.get("urlAllowListScopeOpenUrl")?.list?.mapNotNull { it.string },
-        isChannelCaptureEnabled = config.get("isChannelCaptureEnabled")?.boolean,
-        isChannelCreationDelayEnabled = config.get("isChannelCreationDelayEnabled")?.boolean,
-        enabledFeatures = config.get("enabledFeatures")?.let { Utils.parseFeatures(it) },
-        autoPauseInAppAutomationOnLaunch = config.get("autoPauseInAppAutomationOnLaunch")?.boolean,
-        androidConfig = config.get("android")?.map?.let { Android(it) }
+        defaultEnvironment = config["default"]?.map?.let { Environment(it) },
+        productionEnvironment = config["production"]?.map?.let { Environment(it) },
+        developmentEnvironment = config["development"]?.map?.let { Environment(it) },
+        site = config["site"]?.string?.let { Utils.parseSite(it) },
+        inProduction = config["inProduction"]?.boolean,
+        initialConfigUrl = config["initialConfigUrl"]?.string,
+        urlAllowList = config["urlAllowList"]?.list?.mapNotNull { it.string },
+        urlAllowListScopeJavaScriptInterface = config["urlAllowListScopeJavaScriptInterface"]?.list?.mapNotNull { it.string },
+        urlAllowListScopeOpenUrl = config["urlAllowListScopeOpenUrl"]?.list?.mapNotNull { it.string },
+        isChannelCaptureEnabled = config["isChannelCaptureEnabled"]?.boolean,
+        isChannelCreationDelayEnabled = config["isChannelCreationDelayEnabled"]?.boolean,
+        enabledFeatures = config["enabledFeatures"]?.let { Utils.parseFeatures(it) },
+        autoPauseInAppAutomationOnLaunch = config["autoPauseInAppAutomationOnLaunch"]?.boolean,
+        androidConfig = config["android"]?.map?.let { Android(it) }
     )
 
     override fun toJsonValue(): JsonValue {
@@ -46,7 +46,7 @@ public data class ProxyConfig(
             .put("default", defaultEnvironment)
             .put("production", productionEnvironment)
             .put("development", developmentEnvironment)
-            .put("site", site?.let { Utils.siteString(site) })
+            .put("site", site?.let { site.name })
             .putOpt("inProduction", inProduction)
             .putOpt("initialConfigUrl", initialConfigUrl)
             .putOpt("urlAllowList", urlAllowList)
@@ -72,9 +72,9 @@ public data class ProxyConfig(
             .build()
             .toJsonValue()
 
-        public constructor(config: JsonMap) : this(appKey = config.get("appKey")?.string,
-            appSecret = config.get("appSecret")?.string,
-            logLevel = config.get("logLevel")?.string?.let { Utils.parseLogLevel(it) })
+        public constructor(config: JsonMap) : this(appKey = config["appKey"]?.string,
+            appSecret = config["appSecret"]?.string,
+            logLevel = config["logLevel"]?.string?.let { Utils.parseLogLevel(it) })
     }
 
     public data class Android(
@@ -93,10 +93,10 @@ public data class ProxyConfig(
             .toJsonValue()
 
         internal constructor(config: JsonMap) : this(
-            appStoreUri = config.get("appStoreUri")?.string,
-            fcmFirebaseAppName = config.get("fcmFirebaseAppName")?.string,
-            notificationConfig = config.get("notificationConfig")?.map?.let { NotificationConfig(it) },
-            logPrivacyLevel = config.get("logPrivacyLevel")?.string?.let { Utils.parseLogPrivacyLevel(it) }
+            appStoreUri = config["appStoreUri"]?.string,
+            fcmFirebaseAppName = config["fcmFirebaseAppName"]?.string,
+            notificationConfig = config["notificationConfig"]?.map?.let { NotificationConfig(it) },
+            logPrivacyLevel = config["logPrivacyLevel"]?.string?.let { Utils.parseLogPrivacyLevel(it) }
         )
     }
 }

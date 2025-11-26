@@ -1,6 +1,6 @@
 package com.urbanairship.android.framework.proxy
 
-import com.urbanairship.UAirship
+import com.urbanairship.Airship
 import com.urbanairship.actions.DeepLinkListener
 import com.urbanairship.android.framework.proxy.events.ChannelCreatedEvent
 import com.urbanairship.android.framework.proxy.events.DeepLinkEvent
@@ -43,7 +43,7 @@ internal class AirshipListener(
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val isAppForegrounded: Boolean
         get() {
-            return GlobalActivityMonitor.shared(UAirship.getApplicationContext()).isAppForegrounded
+            return GlobalActivityMonitor.shared(Airship.application).isAppForegrounded
         }
 
     @Suppress("deprecation")

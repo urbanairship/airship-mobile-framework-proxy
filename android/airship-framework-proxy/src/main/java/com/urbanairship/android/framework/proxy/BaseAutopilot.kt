@@ -2,17 +2,16 @@
 
 package com.urbanairship.android.framework.proxy
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.net.Uri
-import android.util.Log
 import androidx.annotation.XmlRes
+import androidx.core.graphics.toColorInt
+import com.urbanairship.Airship
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
 import com.urbanairship.Predicate
-import com.urbanairship.UAirship
-import com.urbanairship.android.framework.proxy.Utils.getHexColor
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
@@ -29,6 +28,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import androidx.core.net.toUri
 
 /**
  * Module's autopilot to customize Urban Airship.
@@ -41,11 +41,9 @@ public abstract class BaseAutopilot : Autopilot() {
 
     private val dispatcher = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    final override fun onAirshipReady(airship: UAirship) {
-        super.onAirshipReady(airship)
+    final override fun onAirshipReady(context: Context) {
 
-        ProxyLogger.setLogLevel(airship.airshipConfigOptions.logLevel)
-        val context = UAirship.getApplicationContext()
+        ProxyLogger.setLogLevel(Airship.airshipConfigOptions.logLevel.level)
 
         val proxyStore = AirshipProxy.shared(context).proxyStore
         val airshipListener = AirshipListener(
@@ -57,11 +55,11 @@ public abstract class BaseAutopilot : Autopilot() {
         MessageCenter.shared().setOnShowMessageCenterListener(airshipListener)
         MessageCenter.shared().inbox.addListener(airshipListener)
 
-        airship.channel.addChannelListener(airshipListener)
-        airship.pushManager.addPushListener(airshipListener)
-        airship.pushManager.addPushTokenListener(airshipListener)
-        airship.pushManager.notificationListener = airshipListener
-        airship.deepLinkListener = airshipListener
+        Airship.channel.addChannelListener(airshipListener)
+        Airship.push.addPushListener(airshipListener)
+        Airship.push.addPushTokenListener(airshipListener)
+        Airship.push.notificationListener = airshipListener
+        Airship.deepLinkListener = airshipListener
 
         dispatcher.launch {
             PendingEmbedded.pending.collect {
@@ -74,8 +72,8 @@ public abstract class BaseAutopilot : Autopilot() {
 
         dispatcher.launch {
             combine(
-                airship.pushManager.pushNotificationStatusFlow,
-                airship.permissionsManager.permissionsUpdate(Permission.DISPLAY_NOTIFICATIONS)
+                Airship.push.pushNotificationStatusFlow,
+                Airship.permissionsManager.permissionsUpdate(Permission.DISPLAY_NOTIFICATIONS)
             ) { status, permissionStatus ->
                 NotificationStatus(status, permissionStatus.value)
             }.filter {
@@ -90,9 +88,9 @@ public abstract class BaseAutopilot : Autopilot() {
         }
 
         // Set our custom notification provider
-        val notificationProvider = BaseNotificationProvider(context, airship.airshipConfigOptions)
-        airship.pushManager.notificationProvider = notificationProvider
-        airship.pushManager.foregroundNotificationDisplayPredicate = Predicate { message ->
+        val notificationProvider = BaseNotificationProvider(context, Airship.airshipConfigOptions)
+        Airship.push.notificationProvider = notificationProvider
+        Airship.push.foregroundNotificationDisplayPredicate = Predicate { message ->
             return@Predicate runBlocking {
                 val override = AirshipPluginExtensions.onShouldDisplayForegroundNotification?.invoke(message) ?: AirshipPluginOverride.UseDefault
                 return@runBlocking when(override) {
@@ -110,34 +108,36 @@ public abstract class BaseAutopilot : Autopilot() {
             }
         }
 
-        loadCustomNotificationChannels(context, airship)
-        loadCustomNotificationButtonGroups(context, airship)
+        loadCustomNotificationChannels(context)
+        loadCustomNotificationButtonGroups(context)
 
-        onReady(context, airship)
+        onReady(context)
 
-        extenderProvider.get(context)?.onAirshipReady(context, airship)
+        extenderProvider.get(context)?.onAirshipReady(context)
         extenderProvider.reset()
     }
 
-    protected abstract fun onReady(context: Context, airship: UAirship)
+    protected abstract fun onReady(context: Context)
 
-    private fun loadCustomNotificationChannels(context: Context, airship: UAirship) {
-        val packageName = UAirship.getPackageName()
+    @SuppressLint("DiscouragedApi")
+    private fun loadCustomNotificationChannels(context: Context) {
+        val packageName = context.packageName
         @XmlRes val resId = context.resources.getIdentifier("ua_custom_notification_channels", "xml", packageName)
 
         if (resId != 0) {
             ProxyLogger.debug("Loading custom notification channels")
-            airship.pushManager.notificationChannelRegistry.createNotificationChannels(resId)
+            Airship.push.notificationChannelRegistry.createNotificationChannels(resId)
         }
     }
 
-    private fun loadCustomNotificationButtonGroups(context: Context, airship: UAirship) {
-        val packageName = UAirship.getPackageName()
+    @SuppressLint("DiscouragedApi")
+    private fun loadCustomNotificationButtonGroups(context: Context) {
+        val packageName = context.packageName
         @XmlRes val resId = context.resources.getIdentifier("ua_custom_notification_buttons", "xml", packageName)
 
         if (resId != 0) {
             ProxyLogger.debug("Loading custom notification button groups")
-            airship.pushManager.addNotificationActionButtonGroups(context, resId)
+            Airship.push.addNotificationActionButtonGroups(context, resId)
         }
     }
 
@@ -160,7 +160,7 @@ public abstract class BaseAutopilot : Autopilot() {
             configOptions.validate()
             this.configOptions = configOptions
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -189,7 +189,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     proxyConfig.developmentEnvironment?.let {
         this.setDevelopmentAppKey(it.appKey)
             .setDevelopmentAppSecret(it.appSecret)
-            .setDevelopmentLogLevel(it.logLevel ?: Log.DEBUG)
+//            .setDevelopmentLogLevel(it.logLevel ?: Log.DEBUG)
 
         proxyConfig.androidConfig?.logPrivacyLevel?.let { privacyLevel ->
             this.setDevelopmentLogPrivacyLevel(privacyLevel)
@@ -199,7 +199,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     proxyConfig.productionEnvironment?.let {
         this.setProductionAppKey(it.appKey)
             .setProductionAppSecret(it.appSecret)
-            .setProductionLogLevel(it.logLevel ?: Log.DEBUG)
+//            .setProductionLogLevel(it.logLevel ?: Log.DEBUG)
 
         proxyConfig.androidConfig?.logPrivacyLevel?.let { privacyLevel ->
             this.setProductionLogPrivacyLevel(privacyLevel)
@@ -209,7 +209,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     proxyConfig.defaultEnvironment?.let {
         this.setAppKey(it.appKey)
             .setAppSecret(it.appSecret)
-            .setLogLevel(it.logLevel ?: Log.ERROR)
+//            .setLogLevel(it.logLevel ?: Log.ERROR)
     }
 
     proxyConfig.site?.let { this.setSite(it) }
@@ -220,7 +220,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     proxyConfig.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
     proxyConfig.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
     proxyConfig.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
-    proxyConfig.androidConfig?.appStoreUri?.let { this.setAppStoreUri(Uri.parse(it)) }
+    proxyConfig.androidConfig?.appStoreUri?.let { this.setAppStoreUri(it.toUri()) }
     proxyConfig.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
     proxyConfig.enabledFeatures?.let { this.setEnabledFeatures(it) }
     proxyConfig.autoPauseInAppAutomationOnLaunch?.let { this.setAutoPauseInAppAutomationOnLaunch(it) }
@@ -237,7 +237,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
         }
 
         notificationConfig.defaultChannelId?.let { this.setNotificationChannel(it) }
-        notificationConfig.accentColor?.let { this.setNotificationAccentColor(getHexColor(it, 0)) }
+        notificationConfig.accentColor?.let { this.setNotificationAccentColor(it.toColorInt()) }
     }
 }
 
@@ -265,7 +265,7 @@ private class ExtenderProvider {
             if (ai.metaData == null) {
                 return null
             }
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             return null
         }
 

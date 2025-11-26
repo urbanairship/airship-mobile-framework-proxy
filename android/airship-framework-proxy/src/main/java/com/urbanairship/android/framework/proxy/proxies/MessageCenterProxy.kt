@@ -2,7 +2,7 @@ package com.urbanairship.android.framework.proxy.proxies
 
 import android.content.Intent
 import android.net.Uri
-import com.urbanairship.UAirship
+import com.urbanairship.Airship
 import com.urbanairship.android.framework.proxy.MessageCenterMessage
 import com.urbanairship.android.framework.proxy.ProxyLogger
 import com.urbanairship.android.framework.proxy.ProxyStore
@@ -44,9 +44,9 @@ public class MessageCenterProxy internal constructor(
             _displayState.emit(true)
             messageCenterProvider()
 
-            val context = UAirship.getApplicationContext()
+            val context = Airship.application
             val intent = Intent(intentAction)
-                .setPackage(UAirship.getApplicationContext().packageName)
+                .setPackage(context.packageName)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
 
             messageId?.let {

@@ -1,6 +1,5 @@
 package com.urbanairship.android.framework.proxy.proxies
 
-import com.urbanairship.PendingResult
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.json.JsonValue
 import com.urbanairship.preferencecenter.PreferenceCenter

@@ -3,7 +3,6 @@
 package com.urbanairship.android.framework.proxy
 
 import android.util.Log
-import androidx.annotation.RestrictTo
 import com.urbanairship.util.UAStringUtil
 import java.util.*
 

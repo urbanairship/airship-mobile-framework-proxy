@@ -38,7 +38,7 @@ public class AnalyticsProxy internal constructor(private val analyticsProvider: 
             }
         }.build()
 
-        if (event.isValid) {
+        if (event.isValid()) {
             analyticsProvider().addEvent(event)
         } else {
             throw java.lang.IllegalArgumentException("Invalid event $json")

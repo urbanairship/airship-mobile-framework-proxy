@@ -2,8 +2,8 @@
 
 package com.urbanairship.android.framework.proxy
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.util.Log
 import androidx.annotation.ColorInt
 import com.urbanairship.AirshipConfigOptions
@@ -13,6 +13,7 @@ import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
 import com.urbanairship.util.UAStringUtil
+import androidx.core.graphics.toColorInt
 
 /**
  * Module utils.
@@ -71,22 +72,16 @@ public object Utils {
         return PrivacyManager.Feature.NONE
     }
 
-    @AirshipConfigOptions.Site
-    public fun parseSite(value: String): String {
+    public fun parseSite(value: String): AirshipConfigOptions.Site {
         return when (value.lowercase()) {
-            "eu" -> AirshipConfigOptions.SITE_EU
-            "us" -> AirshipConfigOptions.SITE_US
+            "eu" -> AirshipConfigOptions.Site.SITE_EU
+            "us" -> AirshipConfigOptions.Site.SITE_US
             else -> {
                 throw IllegalArgumentException("Invalid site: $value")
             }
         }
     }
 
-
-    @AirshipConfigOptions.Site
-    public fun siteString(site: String): String {
-       return site.lowercase()
-    }
 
     /**
      * Gets a resource value by name.
@@ -96,6 +91,7 @@ public object Utils {
      * @param resourceFolder The resource folder.
      * @return The resource ID or 0 if not found.
      */
+    @SuppressLint("DiscouragedApi")
     @JvmStatic
     public fun getNamedResource(
         context: Context,
@@ -112,26 +108,6 @@ public object Utils {
             }
         }
         return 0
-    }
-
-    /**
-     * Gets a hex color as a color int.
-     *
-     * @param hexColor     The hex color.
-     * @param defaultColor Default value if the conversion was not successful.
-     * @return The color int.
-     */
-    @ColorInt
-    @JvmStatic
-    public fun getHexColor(hexColor: String, @ColorInt defaultColor: Int): Int {
-        if (!UAStringUtil.isEmpty(hexColor)) {
-            try {
-                return Color.parseColor(hexColor)
-            } catch (e: IllegalArgumentException) {
-                error(e, "Unable to parse color: %s", hexColor)
-            }
-        }
-        return defaultColor
     }
 
     @JvmStatic
@@ -155,20 +131,20 @@ public object Utils {
 
         val notification = mutableMapOf<String, Any>()
         val extras = mutableMapOf<String, String>()
-        for (key in message.pushBundle.keySet()) {
+        for (key in message.getPushBundle().keySet()) {
             if ("android.support.content.wakelockid" == key) {
                 continue
             }
 
             if ("google.sent_time" == key) {
-                extras[key] = message.pushBundle.getLong(key).toString()
+                extras[key] = message.getPushBundle().getLong(key).toString()
                 continue
             }
             if ("google.ttl" == key) {
-                extras[key] = message.pushBundle.getInt(key).toString()
+                extras[key] = message.getPushBundle().getInt(key).toString()
                 continue
             }
-            val value = message.pushBundle.getString(key)
+            val value = message.getPushBundle().getString(key)
             if (value != null) {
                 extras[key] = value
             }
