@@ -4,7 +4,6 @@ package com.urbanairship.android.framework.proxy
 
 import android.content.Context
 import com.urbanairship.AirshipConfigOptions
-import com.urbanairship.UAirship
 
 /**
  * Extender that will be called during `takeOff` to customize the Airship instance.

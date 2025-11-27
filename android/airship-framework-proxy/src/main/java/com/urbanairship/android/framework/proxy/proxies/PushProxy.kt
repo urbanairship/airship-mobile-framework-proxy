@@ -45,6 +45,7 @@ public class PushProxy internal constructor(
 
     public fun setNotificationConfig(config: NotificationConfig) {
         this.store.notificationConfig = config
+        (pushProvider().notificationProvider as? BaseNotificationProvider)?.applyNotificationConfig(config)
     }
 
     public fun setUserNotificationsEnabled(enabled: Boolean) {

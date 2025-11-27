@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import androidx.annotation.XmlRes
-import androidx.core.graphics.toColorInt
 import com.urbanairship.Airship
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
@@ -89,6 +88,7 @@ public abstract class BaseAutopilot : Autopilot() {
 
         // Set our custom notification provider
         val notificationProvider = BaseNotificationProvider(context, Airship.airshipConfigOptions)
+        notificationProvider.applyNotificationConfig(proxyStore.notificationConfig)
         Airship.push.notificationProvider = notificationProvider
         Airship.push.foregroundNotificationDisplayPredicate = Predicate { message ->
             return@Predicate runBlocking {
@@ -189,7 +189,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     proxyConfig.developmentEnvironment?.let {
         this.setDevelopmentAppKey(it.appKey)
             .setDevelopmentAppSecret(it.appSecret)
-//            .setDevelopmentLogLevel(it.logLevel ?: Log.DEBUG)
+            .setDevelopmentLogLevel(it.logLevel ?: AirshipConfigOptions.LogLevel.DEBUG)
 
         proxyConfig.androidConfig?.logPrivacyLevel?.let { privacyLevel ->
             this.setDevelopmentLogPrivacyLevel(privacyLevel)
@@ -199,7 +199,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     proxyConfig.productionEnvironment?.let {
         this.setProductionAppKey(it.appKey)
             .setProductionAppSecret(it.appSecret)
-//            .setProductionLogLevel(it.logLevel ?: Log.DEBUG)
+            .setProductionLogLevel(it.logLevel ?: AirshipConfigOptions.LogLevel.ERROR)
 
         proxyConfig.androidConfig?.logPrivacyLevel?.let { privacyLevel ->
             this.setProductionLogPrivacyLevel(privacyLevel)
@@ -209,7 +209,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     proxyConfig.defaultEnvironment?.let {
         this.setAppKey(it.appKey)
             .setAppSecret(it.appSecret)
-//            .setLogLevel(it.logLevel ?: Log.ERROR)
+            .setLogLevel(it.logLevel ?: AirshipConfigOptions.LogLevel.ERROR)
     }
 
     proxyConfig.site?.let { this.setSite(it) }
@@ -237,7 +237,7 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
         }
 
         notificationConfig.defaultChannelId?.let { this.setNotificationChannel(it) }
-        notificationConfig.accentColor?.let { this.setNotificationAccentColor(it.toColorInt()) }
+        notificationConfig.accentColor?.let { this.setNotificationAccentColor(Utils.getHexColor(it, 0)) }
     }
 }
 

@@ -20,31 +20,28 @@ import androidx.core.graphics.toColorInt
  */
 public object Utils {
 
-    public fun parseLogLevel(logLevel: String): Int {
+    public fun parseLogLevel(logLevel: String): AirshipConfigOptions.LogLevel {
         return when (logLevel.lowercase().trim()) {
-            "verbose" -> Log.VERBOSE
-            "debug" -> Log.DEBUG
-            "info" -> Log.INFO
-            "warning" -> Log.WARN
-            "error" -> Log.ERROR
-            "none" -> Log.ASSERT
+            "verbose" -> AirshipConfigOptions.LogLevel.VERBOSE
+            "debug" -> AirshipConfigOptions.LogLevel.DEBUG
+            "info" -> AirshipConfigOptions.LogLevel.INFO
+            "warning" -> AirshipConfigOptions.LogLevel.WARN
+            "error" -> AirshipConfigOptions.LogLevel.ERROR
+            "none" -> AirshipConfigOptions.LogLevel.ASSERT
             else -> {
                 throw JsonException("Invalid log level: $logLevel")
             }
         }
     }
 
-    public fun logLevelString(logLevel: Int): String {
+    public fun logLevelString(logLevel: AirshipConfigOptions.LogLevel): String {
         return when (logLevel) {
-            Log.VERBOSE -> "verbose"
-            Log.DEBUG -> "debug"
-            Log.INFO -> "info"
-            Log.WARN -> "warning"
-            Log.ERROR -> "error"
-            Log.ASSERT -> "none"
-            else -> {
-                throw JsonException("Invalid log level: $logLevel")
-            }
+            AirshipConfigOptions.LogLevel.VERBOSE -> "verbose"
+            AirshipConfigOptions.LogLevel.DEBUG -> "debug"
+            AirshipConfigOptions.LogLevel.INFO -> "info"
+            AirshipConfigOptions.LogLevel.WARN -> "warning"
+            AirshipConfigOptions.LogLevel.ERROR -> "error"
+            AirshipConfigOptions.LogLevel.ASSERT -> "none"
         }
     }
 
@@ -82,7 +79,6 @@ public object Utils {
         }
     }
 
-
     /**
      * Gets a resource value by name.
      *
@@ -108,6 +104,26 @@ public object Utils {
             }
         }
         return 0
+    }
+
+    /**
+     * Gets a hex color as a color int.
+     *
+     * @param hexColor     The hex color.
+     * @param defaultColor Default value if the conversion was not successful.
+     * @return The color int.
+     */
+    @ColorInt
+    @JvmStatic
+    public fun getHexColor(hexColor: String, @ColorInt defaultColor: Int): Int {
+        if (!UAStringUtil.isEmpty(hexColor)) {
+            try {
+                return hexColor.toColorInt()
+            } catch (e: IllegalArgumentException) {
+                error(e, "Unable to parse color: %s", hexColor)
+            }
+        }
+        return defaultColor
     }
 
     @JvmStatic

@@ -62,7 +62,7 @@ public data class ProxyConfig(
     }
 
     public data class Environment(
-        val appKey: String?, val appSecret: String?, val logLevel: Int?
+        val appKey: String?, val appSecret: String?, val logLevel: AirshipConfigOptions.LogLevel?
     ) : JsonSerializable {
 
         override fun toJsonValue(): JsonValue = JsonMap.newBuilder()
