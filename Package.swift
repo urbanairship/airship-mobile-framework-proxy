@@ -7,7 +7,7 @@ import PackageDescription
 let package = Package(
     name: "AirshipFrameworkProxy",
     defaultLocalization: "en",
-    platforms: [.macOS(.v10_15), .iOS(.v15), .tvOS(.v18), .visionOS(.v1)],
+    platforms: [.iOS(.v16), .tvOS(.v18), .visionOS(.v1)],
     products: [
         .library(
             name: "AirshipFrameworkProxy",
@@ -15,7 +15,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/urbanairship/ios-library.git", from: "19.11.2")
+        .package(url: "https://github.com/urbanairship/ios-library.git", from: "20.0.2")
     ],
     targets: [
         .target(
