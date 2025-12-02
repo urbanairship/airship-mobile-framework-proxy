@@ -46,7 +46,7 @@ public data class ProxyConfig(
             .put("default", defaultEnvironment)
             .put("production", productionEnvironment)
             .put("development", developmentEnvironment)
-            .put("site", site?.let { site.name })
+            .put("site", site?.let { Utils.siteName(it) })
             .putOpt("inProduction", inProduction)
             .putOpt("initialConfigUrl", initialConfigUrl)
             .putOpt("urlAllowList", urlAllowList)

@@ -79,6 +79,14 @@ public object Utils {
         }
     }
 
+
+    public fun siteName(value: AirshipConfigOptions.Site): String {
+        return when (value) {
+            AirshipConfigOptions.Site.SITE_EU -> "eu"
+            AirshipConfigOptions.Site.SITE_US -> "us"
+        }
+    }
+
     /**
      * Gets a resource value by name.
      *
