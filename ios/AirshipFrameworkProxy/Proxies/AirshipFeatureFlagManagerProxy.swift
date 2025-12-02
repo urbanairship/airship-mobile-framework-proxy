@@ -11,13 +11,13 @@ import AirshipFeatureFlags
 
 public final class AirshipFeatureFlagManagerProxy: Sendable {
     public final class ResultCacheProxy: Sendable {
-        private let cacheProvider: @Sendable () throws -> FeatureFlagResultCache
+        private let cacheProvider: @Sendable () throws -> any FeatureFlagResultCache
 
-        init(cacheProvider: @Sendable @escaping () throws -> FeatureFlagResultCache) {
+        init(cacheProvider: @Sendable @escaping () throws -> any FeatureFlagResultCache) {
             self.cacheProvider = cacheProvider
         }
 
-        private var cache: FeatureFlagResultCache {
+        private var cache: any FeatureFlagResultCache {
             get throws { try cacheProvider() }
         }
 
@@ -37,13 +37,13 @@ public final class AirshipFeatureFlagManagerProxy: Sendable {
         }
     }
 
-    private let featureFlagManagerProvider: @Sendable () throws -> FeatureFlagManager
+    private let featureFlagManagerProvider: @Sendable () throws -> any FeatureFlagManager
 
-    private var featureFlagManager: FeatureFlagManager {
+    private var featureFlagManager: any FeatureFlagManager {
         get throws { try featureFlagManagerProvider() }
     }
 
-    init(featureFlagManagerProvider: @Sendable @escaping () throws -> FeatureFlagManager) {
+    init(featureFlagManagerProvider: @Sendable @escaping () throws -> any FeatureFlagManager) {
         self.featureFlagManagerProvider = featureFlagManagerProvider
         self.resultCache = ResultCacheProxy {
             return try featureFlagManagerProvider().resultCache

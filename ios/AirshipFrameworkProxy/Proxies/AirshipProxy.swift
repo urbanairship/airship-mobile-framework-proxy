@@ -3,7 +3,6 @@
 import Foundation
 import Combine
 import UserNotifications
-public import UIKit
 
 #if canImport(AirshipKit)
 public import AirshipKit
@@ -125,20 +124,6 @@ public final class AirshipProxy: Sendable {
 
     }
 
-    @available(*, deprecated, message: "Use AirshipProxy.takeOff(json:) instead")
-    @MainActor
-    public func takeOff(
-        json: Any,
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) throws -> Bool {
-        let proxyConfig = try JSONDecoder().decode(
-            ProxyConfig.self,
-            from: try AirshipJSONUtils.data(json)
-        )
-
-        return try takeOff(config: proxyConfig)
-    }
-
     @MainActor
     public func takeOff(
         json: Any
@@ -149,17 +134,6 @@ public final class AirshipProxy: Sendable {
         )
 
         return try takeOff(config: proxyConfig)
-    }
-
-    @available(*, deprecated, message: "Use AirshipProxy.takeOff(config:) instead")
-    @MainActor
-    public func takeOff(
-        config: ProxyConfig,
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) throws -> Bool {
-        self.proxyStore.config = config
-        try? attemptTakeOff(launchOptions: launchOptions)
-        return Airship.isFlying
     }
 
     @MainActor
@@ -181,14 +155,6 @@ public final class AirshipProxy: Sendable {
         guard Airship.isFlying else {
             throw AirshipProxyError.takeOffNotCalled
         }
-    }
-
-    @available(*, deprecated, message: "Use AirshipProxy.attemptTakeOff(_:) instead")
-    @MainActor
-    public func attemptTakeOff(
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) throws {
-        try attemptTakeOff()
     }
 
     @MainActor

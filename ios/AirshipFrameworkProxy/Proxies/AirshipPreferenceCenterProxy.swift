@@ -13,14 +13,16 @@ public final class AirshipPreferenceCenterProxy: Sendable {
 
     private let proxyStore: ProxyStore
 
-    private let preferenceCenterProvider: @Sendable () throws -> PreferenceCenter
-    private var preferenceCenter: PreferenceCenter {
+    private let preferenceCenterProvider: @Sendable @MainActor () throws -> any PreferenceCenter
+
+    @MainActor
+    private var preferenceCenter: any PreferenceCenter {
         get throws { try preferenceCenterProvider() }
     }
 
     init(
         proxyStore: ProxyStore,
-        preferenceCenterProvider: @Sendable @escaping () throws -> PreferenceCenter
+        preferenceCenterProvider: @Sendable @MainActor @escaping () throws -> any PreferenceCenter
     ) {
         self.proxyStore = proxyStore
         self.preferenceCenterProvider = preferenceCenterProvider
@@ -28,7 +30,7 @@ public final class AirshipPreferenceCenterProxy: Sendable {
     
     @MainActor
     public func displayPreferenceCenter(preferenceCenterID: String) throws {
-        try self.preferenceCenter.open(preferenceCenterID)
+        try self.preferenceCenter.display(preferenceCenterID)
     }
 
     @MainActor

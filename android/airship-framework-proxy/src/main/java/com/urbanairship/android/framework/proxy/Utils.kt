@@ -2,8 +2,8 @@
 
 package com.urbanairship.android.framework.proxy
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.util.Log
 import androidx.annotation.ColorInt
 import com.urbanairship.AirshipConfigOptions
@@ -13,37 +13,35 @@ import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
 import com.urbanairship.util.UAStringUtil
+import androidx.core.graphics.toColorInt
 
 /**
  * Module utils.
  */
 public object Utils {
 
-    public fun parseLogLevel(logLevel: String): Int {
+    public fun parseLogLevel(logLevel: String): AirshipConfigOptions.LogLevel {
         return when (logLevel.lowercase().trim()) {
-            "verbose" -> Log.VERBOSE
-            "debug" -> Log.DEBUG
-            "info" -> Log.INFO
-            "warning" -> Log.WARN
-            "error" -> Log.ERROR
-            "none" -> Log.ASSERT
+            "verbose" -> AirshipConfigOptions.LogLevel.VERBOSE
+            "debug" -> AirshipConfigOptions.LogLevel.DEBUG
+            "info" -> AirshipConfigOptions.LogLevel.INFO
+            "warning" -> AirshipConfigOptions.LogLevel.WARN
+            "error" -> AirshipConfigOptions.LogLevel.ERROR
+            "none" -> AirshipConfigOptions.LogLevel.ASSERT
             else -> {
                 throw JsonException("Invalid log level: $logLevel")
             }
         }
     }
 
-    public fun logLevelString(logLevel: Int): String {
+    public fun logLevelString(logLevel: AirshipConfigOptions.LogLevel): String {
         return when (logLevel) {
-            Log.VERBOSE -> "verbose"
-            Log.DEBUG -> "debug"
-            Log.INFO -> "info"
-            Log.WARN -> "warning"
-            Log.ERROR -> "error"
-            Log.ASSERT -> "none"
-            else -> {
-                throw JsonException("Invalid log level: $logLevel")
-            }
+            AirshipConfigOptions.LogLevel.VERBOSE -> "verbose"
+            AirshipConfigOptions.LogLevel.DEBUG -> "debug"
+            AirshipConfigOptions.LogLevel.INFO -> "info"
+            AirshipConfigOptions.LogLevel.WARN -> "warning"
+            AirshipConfigOptions.LogLevel.ERROR -> "error"
+            AirshipConfigOptions.LogLevel.ASSERT -> "none"
         }
     }
 
@@ -71,11 +69,10 @@ public object Utils {
         return PrivacyManager.Feature.NONE
     }
 
-    @AirshipConfigOptions.Site
-    public fun parseSite(value: String): String {
+    public fun parseSite(value: String): AirshipConfigOptions.Site {
         return when (value.lowercase()) {
-            "eu" -> AirshipConfigOptions.SITE_EU
-            "us" -> AirshipConfigOptions.SITE_US
+            "eu" -> AirshipConfigOptions.Site.SITE_EU
+            "us" -> AirshipConfigOptions.Site.SITE_US
             else -> {
                 throw IllegalArgumentException("Invalid site: $value")
             }
@@ -83,9 +80,11 @@ public object Utils {
     }
 
 
-    @AirshipConfigOptions.Site
-    public fun siteString(site: String): String {
-       return site.lowercase()
+    public fun siteName(value: AirshipConfigOptions.Site): String {
+        return when (value) {
+            AirshipConfigOptions.Site.SITE_EU -> "eu"
+            AirshipConfigOptions.Site.SITE_US -> "us"
+        }
     }
 
     /**
@@ -96,6 +95,7 @@ public object Utils {
      * @param resourceFolder The resource folder.
      * @return The resource ID or 0 if not found.
      */
+    @SuppressLint("DiscouragedApi")
     @JvmStatic
     public fun getNamedResource(
         context: Context,
@@ -126,7 +126,7 @@ public object Utils {
     public fun getHexColor(hexColor: String, @ColorInt defaultColor: Int): Int {
         if (!UAStringUtil.isEmpty(hexColor)) {
             try {
-                return Color.parseColor(hexColor)
+                return hexColor.toColorInt()
             } catch (e: IllegalArgumentException) {
                 error(e, "Unable to parse color: %s", hexColor)
             }
@@ -155,20 +155,20 @@ public object Utils {
 
         val notification = mutableMapOf<String, Any>()
         val extras = mutableMapOf<String, String>()
-        for (key in message.pushBundle.keySet()) {
+        for (key in message.getPushBundle().keySet()) {
             if ("android.support.content.wakelockid" == key) {
                 continue
             }
 
             if ("google.sent_time" == key) {
-                extras[key] = message.pushBundle.getLong(key).toString()
+                extras[key] = message.getPushBundle().getLong(key).toString()
                 continue
             }
             if ("google.ttl" == key) {
-                extras[key] = message.pushBundle.getInt(key).toString()
+                extras[key] = message.getPushBundle().getInt(key).toString()
                 continue
             }
-            val value = message.pushBundle.getString(key)
+            val value = message.getPushBundle().getString(key)
             if (value != null) {
                 extras[key] = value
             }

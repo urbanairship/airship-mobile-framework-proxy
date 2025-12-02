@@ -4,7 +4,6 @@ package com.urbanairship.android.framework.proxy
 
 import android.content.Context
 import com.urbanairship.AirshipConfigOptions
-import com.urbanairship.UAirship
 
 /**
  * Extender that will be called during `takeOff` to customize the Airship instance.
@@ -43,9 +42,8 @@ public interface AirshipPluginExtender {
      * to process notifications.
      *
      * @param context The application context.
-     * @param airship The airship instance.
      */
-    public fun onAirshipReady(context: Context, airship: UAirship)
+    public fun onAirshipReady(context: Context)
 
     /**
      * Used to extend the AirshipConfig. The configBuilder will have the default config applied from the properties file if available,

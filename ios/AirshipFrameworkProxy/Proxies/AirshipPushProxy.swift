@@ -15,14 +15,14 @@ public final class AirshipPushProxy: Sendable {
     public var presentationOptionOverrides: ((PresentationOptionsOverridesRequest) -> Void)?
 
     private let proxyStore: ProxyStore
-    private let pushProvider: @Sendable () throws -> any AirshipPushProtocol
-    private var push: any AirshipPushProtocol {
+    private let pushProvider: @Sendable () throws -> any AirshipPush
+    private var push: any AirshipPush {
         get throws { try pushProvider() }
     }
 
     init(
         proxyStore: ProxyStore,
-        pushProvider: @Sendable @escaping () throws -> any AirshipPushProtocol
+        pushProvider: @Sendable @escaping () throws -> any AirshipPush
     ) {
         self.proxyStore = proxyStore
         self.pushProvider = pushProvider

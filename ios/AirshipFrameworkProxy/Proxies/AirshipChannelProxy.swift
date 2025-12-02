@@ -9,12 +9,12 @@ import AirshipCore
 #endif
 
 public final class AirshipChannelProxy: Sendable {
-    private let channelProvider: @Sendable () throws -> any AirshipChannelProtocol
-    private var channel: any AirshipChannelProtocol {
+    private let channelProvider: @Sendable () throws -> any AirshipChannel
+    private var channel: any AirshipChannel {
         get throws { try channelProvider() }
     }
 
-    init(channelProvider: @Sendable @escaping () throws -> any AirshipChannelProtocol) {
+    init(channelProvider: @Sendable @escaping () throws -> any AirshipChannel) {
         self.channelProvider = channelProvider
     }
 

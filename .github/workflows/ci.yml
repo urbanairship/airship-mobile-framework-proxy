@@ -4,7 +4,7 @@ on: [pull_request]
   
 env:
   BUNDLE_PATH: vendor/bundle
-  DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_26.1.app/Contents/Developer
 
 concurrency:
   group: ${{ github.ref }}
@@ -56,7 +56,7 @@ jobs:
           xcodebuild \
             -project AirshipFrameworkProxy.xcodeproj \
             -scheme AirshipFrameworkProxy \
-            -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro Max' \
+            -destination 'platform=iOS Simulator,OS=26.1,name=iPhone 17 Pro Max' \
             clean test | xcbeautify --renderer github-actions
 
       - name: Pod lint

@@ -4,17 +4,17 @@ package com.urbanairship.android.framework.proxy.proxies
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.urbanairship.Airship
 import com.urbanairship.Autopilot
-import com.urbanairship.UAirship
 import com.urbanairship.actions.DefaultActionRunner
 import com.urbanairship.android.framework.proxy.ProxyConfig
 import com.urbanairship.android.framework.proxy.ProxyStore
-import com.urbanairship.automation.InAppAutomation
+import com.urbanairship.automation.inAppAutomation
 import com.urbanairship.featureflag.FeatureFlagManager
 import com.urbanairship.json.JsonValue
-import com.urbanairship.liveupdate.LiveUpdateManager
-import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.preferencecenter.PreferenceCenter
+import com.urbanairship.liveupdate.liveUpdateManager
+import com.urbanairship.messagecenter.messageCenter
+import com.urbanairship.preferencecenter.preferenceCenter
 
 public class AirshipProxy(
     private val context: Context,
@@ -28,47 +28,47 @@ public class AirshipProxy(
 
     public val analytics: AnalyticsProxy = AnalyticsProxy {
         ensureTakeOff()
-        UAirship.shared().analytics
+        Airship.analytics
     }
 
     public val channel: ChannelProxy = ChannelProxy {
         ensureTakeOff()
-        UAirship.shared().channel
+        Airship.channel
     }
 
     public val contact: ContactProxy = ContactProxy {
         ensureTakeOff()
-        UAirship.shared().contact
+        Airship.contact
     }
 
     public val inApp: InAppProxy = InAppProxy {
         ensureTakeOff()
-        InAppAutomation.shared()
+        Airship.inAppAutomation
     }
 
     public val locale: LocaleProxy = LocaleProxy {
         ensureTakeOff()
-        UAirship.shared().localeManager
+        Airship.localeManager
     }
 
     public val liveUpdateManager: LiveUpdatesManagerProxy = LiveUpdatesManagerProxy {
         ensureTakeOff()
-        LiveUpdateManager.shared()
+        Airship.liveUpdateManager
     }
 
     public val messageCenter: MessageCenterProxy = MessageCenterProxy(proxyStore) {
         ensureTakeOff()
-        MessageCenter.shared()
+        Airship.messageCenter
     }
 
     public val preferenceCenter: PreferenceCenterProxy = PreferenceCenterProxy(proxyStore) {
         ensureTakeOff()
-        PreferenceCenter.shared()
+        Airship.preferenceCenter
     }
 
     public val privacyManager: PrivacyManagerProxy = PrivacyManagerProxy() {
         ensureTakeOff()
-        UAirship.shared().privacyManager
+        Airship.privacyManager
     }
 
     public val push: PushProxy = PushProxy(
@@ -76,11 +76,11 @@ public class AirshipProxy(
         proxyStore,
         permissionsManagerProvider = {
             ensureTakeOff()
-            UAirship.shared().permissionsManager
+            Airship.permissionsManager
         },
         pushProvider = {
             ensureTakeOff()
-            UAirship.shared().pushManager
+            Airship.push
         }
     )
 
@@ -100,7 +100,7 @@ public class AirshipProxy(
     }
 
     public fun isFlying(): Boolean {
-        return UAirship.isFlying() || UAirship.isTakingOff()
+        return Airship.isFlyingOrTakingOff
     }
 
     public companion object {
@@ -121,7 +121,7 @@ public class AirshipProxy(
     }
 
     private fun ensureTakeOff() {
-        if (!UAirship.isFlying() && !UAirship.isTakingOff()) {
+        if (Airship.isFlyingOrTakingOff) {
             throw java.lang.IllegalStateException("Takeoff not called.")
         }
     }

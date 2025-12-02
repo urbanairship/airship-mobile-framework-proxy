@@ -16,9 +16,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.lifecycleScope
+import com.urbanairship.Airship
 import com.urbanairship.Autopilot
 import com.urbanairship.UALog
-import com.urbanairship.UAirship
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.messagecenter.ui.MessageActivity
@@ -39,7 +39,7 @@ public class CustomMessageActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         Autopilot.automaticTakeOff(application)
 
-        if (!UAirship.isTakingOff() && !UAirship.isFlying()) {
+        if (!Airship.isFlyingOrTakingOff) {
             UALog.e("MessageActivity - unable to create Activity, takeOff not called.")
             finish()
             return
@@ -109,10 +109,8 @@ public class CustomMessageActivity : FragmentActivity() {
 
             fragment.onMessageDeletedListener = MessageCenterMessageFragment.OnMessageDeletedListener {
                 fragment.deleteMessage(it)
-
-                val msg = resources.getQuantityString(com.urbanairship.messagecenter.R.plurals.ua_mc_description_deleted, 1, 1)
+                val msg = resources.getQuantityString(com.urbanairship.messagecenter.core.R.plurals.ua_mc_description_deleted, 1, 1)
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-
                 finish()
             }
         }

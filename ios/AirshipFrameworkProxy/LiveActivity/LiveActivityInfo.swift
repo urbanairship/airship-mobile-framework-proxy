@@ -30,6 +30,7 @@ public enum LiveActivityState: String, Codable, Sendable, Equatable, Hashable {
     case dismissed
     case stale
     case unknown
+    case pending
 }
 
 extension LiveActivityInfo {
@@ -64,6 +65,7 @@ extension LiveActivityInfo {
         case .ended: .ended
         case .dismissed: .dismissed
         case .stale: .stale
+        case .pending: .pending
         @unknown default: .unknown
         }
     }

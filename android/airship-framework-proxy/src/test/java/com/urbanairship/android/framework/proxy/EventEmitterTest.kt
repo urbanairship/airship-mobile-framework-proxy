@@ -1,6 +1,8 @@
 package com.urbanairship.android.framework.proxy
 
+import com.urbanairship.android.framework.proxy.events.Event
 import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.events.EventType
 import com.urbanairship.json.JsonMap
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
@@ -52,4 +54,5 @@ public class EventEmitterTest {
     }
 }
 
-public class TestEvent(override val type: EventType, override val body: JsonMap = JsonMap.EMPTY_MAP): Event
+public class TestEvent(override val type: EventType, override val body: JsonMap = JsonMap.EMPTY_MAP):
+    Event

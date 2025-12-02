@@ -4,7 +4,6 @@ import com.urbanairship.android.framework.proxy.PendingEmbedded
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.automation.InAppAutomation
-import java.util.concurrent.TimeUnit
 
 public class InAppProxy internal constructor(private val inAppProvider: () -> InAppAutomation) {
 

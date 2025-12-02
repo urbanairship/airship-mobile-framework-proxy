@@ -16,14 +16,15 @@ public enum AirshipMessageCenterProxyError: Error, Sendable {
 
 public final class AirshipMessageCenterProxy: Sendable {
     private let proxyStore: ProxyStore
-    private let messageCenterProvider: @Sendable () throws -> MessageCenter
-    private var messageCenter: MessageCenter {
+    private let messageCenterProvider: @Sendable @MainActor () throws -> any MessageCenter
+    @MainActor
+    private var messageCenter: any MessageCenter {
         get throws { try messageCenterProvider() }
     }
 
     init(
         proxyStore: ProxyStore,
-        messageCenterProvider: @Sendable @escaping () throws -> MessageCenter
+        messageCenterProvider: @Sendable @MainActor @escaping () throws -> any MessageCenter
     ) {
         self.proxyStore = proxyStore
         self.messageCenterProvider = messageCenterProvider

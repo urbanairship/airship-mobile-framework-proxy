@@ -21,7 +21,7 @@ import com.urbanairship.permission.PermissionPromptFallback
 import com.urbanairship.permission.PermissionsManager
 import com.urbanairship.push.PushManager
 import com.urbanairship.push.PushMessage
-import com.urbanairship.push.enableUserNotifications
+import kotlin.coroutines.suspendCoroutine
 
 public interface SuspendingPredicate<T> {
     public suspend fun apply(value: T): Boolean
@@ -45,6 +45,7 @@ public class PushProxy internal constructor(
 
     public fun setNotificationConfig(config: NotificationConfig) {
         this.store.notificationConfig = config
+        (pushProvider().notificationProvider as? BaseNotificationProvider)?.applyNotificationConfig(config)
     }
 
     public fun setUserNotificationsEnabled(enabled: Boolean) {
@@ -52,11 +53,15 @@ public class PushProxy internal constructor(
     }
 
     public suspend fun enableUserPushNotifications(args: EnableUserNotificationsArgs? = null): Boolean {
-        return pushProvider().enableUserNotifications(promptFallback = args?.fallback ?: PermissionPromptFallback.None)
+        return suspendCoroutine { continuation ->
+            pushProvider().enableUserNotifications(promptFallback = args?.fallback ?: PermissionPromptFallback.None) { result ->
+                continuation.resumeWith(Result.success(result))
+            }
+        }
     }
 
     public suspend fun getNotificationStatus(): NotificationStatus {
-        val permissionStatus = permissionsManagerProvider().suspendingCheckPermissionStatus(Permission.DISPLAY_NOTIFICATIONS)
+        val permissionStatus = permissionsManagerProvider().checkPermissionStatus(Permission.DISPLAY_NOTIFICATIONS)
         return NotificationStatus(
             pushProvider().pushNotificationStatus,
             permissionStatus.value
@@ -103,7 +108,7 @@ public class PushProxy internal constructor(
         val id: Int = try {
             parts[0].toInt()
         } catch (e: NumberFormatException) {
-            ProxyLogger.error("Invalid identifier: $identifier")
+            ProxyLogger.error(e, "Invalid identifier: $identifier")
             return
         }
         if (parts.size == 2) {
@@ -112,7 +117,6 @@ public class PushProxy internal constructor(
         NotificationManagerCompat.from(context).cancel(tag, id)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public fun getActiveNotifications(): List<Map<String, Any>> {
         val manager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

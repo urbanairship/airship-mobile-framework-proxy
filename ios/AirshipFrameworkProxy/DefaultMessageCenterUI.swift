@@ -97,21 +97,16 @@ public class DefaultMessageCenterUI {
             window = nil
         }
 
-        let theme = theme ?? MessageCenterTheme()
         let viewController = HostingViewController(
-            rootView: StandaloneMessageView(
-                content: {
-                    MessageCenterMessageView(
-                        messageID: messageID,
-                        title: nil
-                    ) {
-                        cancellable.cancel()
-                    }
-                    .messageCenterTheme(theme)
+            rootView: NavigationStack {
+                MessageCenterMessageViewWithNavigation(
+                    messageID: messageID,
+                ) {
+                    cancellable.cancel()
                 }
-            )
+                .messageCenterTheme(theme ?? MessageCenterTheme())
+            }
         )
-
 
         window?.isHidden = false
         window?.windowLevel = .alert
@@ -136,34 +131,6 @@ where Content: View {
     }
 }
 
-struct StandaloneMessageView<Content: View>: View  {
-    @Environment(\.airshipMessageCenterTheme)
-    private var theme
-
-    let content: () -> Content
-
-    @ViewBuilder
-    func makeContent() -> some View {
-        let content = content()
-        if #available(iOS 16.0, *) {
-            NavigationStack {
-                content
-            }
-        } else {
-            NavigationView {
-                content
-            }
-            .navigationViewStyle(.stack)
-        }
-    }
-
-    var body: some View {
-        makeContent()
-            .navigationTitle(
-                theme.navigationBarTitle ?? "ua_message_center_title".airshipLocalizedString
-            )
-    }
-}
 
 extension String {
     var airshipLocalizedString: String {
