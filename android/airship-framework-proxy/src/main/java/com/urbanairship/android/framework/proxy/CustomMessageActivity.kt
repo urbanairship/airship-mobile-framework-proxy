@@ -109,10 +109,8 @@ public class CustomMessageActivity : FragmentActivity() {
 
             fragment.onMessageDeletedListener = MessageCenterMessageFragment.OnMessageDeletedListener {
                 fragment.deleteMessage(it)
-//
-//                val msg = resources.getQuantityString(com.urbanairship.messagecenter.ui.R.plurals.ua_mc_description_deleted, 1, 1)
-//                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-
+                val msg = resources.getQuantityString(com.urbanairship.messagecenter.core.R.plurals.ua_mc_description_deleted, 1, 1)
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
