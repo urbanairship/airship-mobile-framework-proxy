@@ -1,0 +1,131 @@
+name: Prepare Plugin Releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      proxy_version:
+        description: 'New Framework Proxy Version (x.y.z)'
+        required: true
+      ios_version:
+        description: 'iOS SDK Version (x.y.z - optional)'
+        required: false
+      android_version:
+        description: 'Android SDK Version (x.y.z - optional)'
+        required: false
+      test_mode:
+        description: 'Test mode (adds -test suffix to branches)'
+        type: boolean
+        default: false
+      react_native:
+        description: 'Update React Native'
+        type: boolean
+        default: true
+      cordova:
+        description: 'Update Cordova'
+        type: boolean
+        default: true
+      flutter:
+        description: 'Update Flutter'
+        type: boolean
+        default: true
+      capacitor:
+        description: 'Update Capacitor'
+        type: boolean
+        default: true
+
+env:
+  GITHUB_TOKEN: ${{ secrets.MOBILE_PLUGIN_RELEASE_PAT }}
+
+jobs:
+  centralized-plugin-releases:
+    runs-on: macos-26-xlarge
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Gemini CLI
+        uses: google-github-actions/run-gemini-cli@main
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+        continue-on-error: true
+
+      - name: Update plugins
+        id: update
+        run: |
+          # Build plugin filter args
+          PLUGIN_ARGS=""
+          if [ "${{ github.event.inputs.react_native }}" != "true" ]; then
+            PLUGIN_ARGS="$PLUGIN_ARGS --skip-react-native"
+          fi
+          if [ "${{ github.event.inputs.cordova }}" != "true" ]; then
+            PLUGIN_ARGS="$PLUGIN_ARGS --skip-cordova"
+          fi
+          if [ "${{ github.event.inputs.flutter }}" != "true" ]; then
+            PLUGIN_ARGS="$PLUGIN_ARGS --skip-flutter"
+          fi
+          if [ "${{ github.event.inputs.capacitor }}" != "true" ]; then
+            PLUGIN_ARGS="$PLUGIN_ARGS --skip-capacitor"
+          fi
+
+          # Add test mode flag if enabled
+          if [ "${{ github.event.inputs.test_mode }}" = "true" ]; then
+            PLUGIN_ARGS="$PLUGIN_ARGS --test"
+          fi
+
+          bash ./scripts/update_all_plugins.sh \
+            "${{ github.event.inputs.proxy_version }}" \
+            "${{ github.event.inputs.ios_version }}" \
+            "${{ github.event.inputs.android_version }}" \
+            $PLUGIN_ARGS
+        env:
+          GITHUB_TOKEN: ${{ secrets.MOBILE_PLUGIN_RELEASE_PAT }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Display release summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 📦 Plugin Release Summary
+
+          ### Proxy Version
+          **${{ github.event.inputs.proxy_version }}**
+
+          ### SDK Versions
+          - iOS: ${{ github.event.inputs.ios_version || 'from proxy' }}
+          - Android: ${{ github.event.inputs.android_version || 'from proxy' }}
+
+          ### Plugin PRs
+
+          | Plugin | Version | Status |
+          |--------|---------|--------|
+          | React Native | ${{ steps.update.outputs.react_native_version }} | ${{ steps.update.outputs.react_native_pr_url }} |
+          | Cordova | ${{ steps.update.outputs.cordova_version }} | ${{ steps.update.outputs.cordova_pr_url }} |
+          | Flutter | ${{ steps.update.outputs.flutter_version }} | ${{ steps.update.outputs.flutter_pr_url }} |
+          | Capacitor | ${{ steps.update.outputs.capacitor_version }} | ${{ steps.update.outputs.capacitor_pr_url }} |
+
+          ---
+
+          ### Next Steps
+          1. Review each plugin PR (links above)
+          2. Merge when ready
+
+          ⚠️ **Validation Note:** Changelogs across plugins will be similar since they update the same underlying SDKs. This is expected and correct.
+          EOF
+
+      - name: Notify Slack (Success)
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.MOBILE_SLACK_WEBHOOK }} \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "text": "✅ Centralized plugin releases complete for proxy v${{ github.event.inputs.proxy_version }}\n• React Native v${{ steps.update.outputs.react_native_version }}: ${{ steps.update.outputs.react_native_pr_url }}\n• Cordova v${{ steps.update.outputs.cordova_version }}: ${{ steps.update.outputs.cordova_pr_url }}\n• Flutter v${{ steps.update.outputs.flutter_version }}: ${{ steps.update.outputs.flutter_pr_url }}\n• Capacitor v${{ steps.update.outputs.capacitor_version }}: ${{ steps.update.outputs.capacitor_pr_url }}\n@mobile-team"
+            }' || true
+
+      - name: Notify Slack (Failure)
+        if: failure()
+        run: |
+          curl -X POST ${{ secrets.MOBILE_SLACK_WEBHOOK }} \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "text": "❌ Centralized plugin release failed\nProxy version: ${{ github.event.inputs.proxy_version }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n<@crow>"
+            }' || true

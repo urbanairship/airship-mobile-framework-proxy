@@ -1,0 +1,48 @@
+You are helping generate changelogs for Airship mobile SDK framework plugins.
+
+TASK: Analyze iOS and Android SDK changelogs and determine if the {{PLUGIN_NAME}} plugin changelog should include additional context beyond a simple version bump.
+
+PLUGIN: {{PLUGIN_NAME}} version {{PLUGIN_VERSION}}
+iOS SDK: {{IOS_VERSION}}
+Android SDK: {{ANDROID_VERSION}}
+
+iOS SDK CHANGELOG:
+{{IOS_CHANGELOG}}
+
+ANDROID SDK CHANGELOG:
+{{ANDROID_CHANGELOG}}
+
+DECISION CRITERIA:
+- Use DETAILED format if SDK has critical/breaking changes, accessibility improvements, or must-update warnings
+- Use SIMPLE format if this is a routine maintenance update with minor internal changes
+- Include specific user-facing issues from SDK changelogs (e.g., 'fixes YouTube video playback')
+- Keep plugin changelog concise (1-2 sentence summary + 2-5 bullet points max)
+
+OUTPUT FORMAT (choose one):
+
+DETAILED:
+## Version {{PLUGIN_VERSION}} - {{RELEASE_DATE}}
+
+[Release type] release that [brief summary of key changes from SDK].
+
+### Changes
+- Updated Android SDK to [{{ANDROID_VERSION}}](https://github.com/urbanairship/android-library/releases/tag/{{ANDROID_VERSION}})
+- Updated iOS SDK to [{{IOS_VERSION}}](https://github.com/urbanairship/ios-library/releases/tag/{{IOS_VERSION}})
+[Optional: 1-3 additional bullets with key SDK fixes/features if user-facing]
+
+SIMPLE:
+## Version {{PLUGIN_VERSION}} - {{RELEASE_DATE}}
+
+[Release type] release that updates the Android SDK to {{ANDROID_VERSION}} and the iOS SDK to {{IOS_VERSION}}.
+
+### Changes
+- Updated Android SDK to [{{ANDROID_VERSION}}](https://github.com/urbanairship/android-library/releases/tag/{{ANDROID_VERSION}})
+- Updated iOS SDK to [{{IOS_VERSION}}](https://github.com/urbanairship/ios-library/releases/tag/{{IOS_VERSION}})
+
+IMPORTANT INSTRUCTIONS:
+1. Analyze both SDK changelogs carefully
+2. Decide SIMPLE or DETAILED based on criteria above
+3. Return ONLY the formatted changelog (no explanations, no preamble)
+4. If unsure or SDK changelogs lack substance, use SIMPLE
+5. Ensure all version numbers in links match exactly (no 'v' prefix in URLs)
+6. Use release type: "Major" for X.0.0, "Minor" for X.Y.0, "Patch" for X.Y.Z
