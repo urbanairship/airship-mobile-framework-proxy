@@ -50,6 +50,9 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
         continue-on-error: true
 
+      - name: Setup git credentials
+        run: gh auth setup-git
+
       - name: Update plugins
         id: update
         run: |
