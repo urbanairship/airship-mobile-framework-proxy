@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Prepare proxy release: update versions, dependencies, changelog
@@ -6,6 +6,9 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Source shared utilities
+source "$SCRIPT_DIR/lib/version_utils.sh"
 
 # Parse arguments
 TEST_MODE=false
@@ -44,8 +47,8 @@ echo -e "${BLUE}Updating files...${NC}"
 
 # Update AirshipFrameworkProxy.podspec
 if [ "$TEST_MODE" = "false" ]; then
-    sed -i '' "s/s.version[[:space:]]*=[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.version                 = \"${PROXY_VERSION}\"/" "$REPO_ROOT/AirshipFrameworkProxy.podspec"
-    sed -i '' "s/s.dependency[[:space:]]*'Airship',[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.dependency                'Airship', \"${IOS_VERSION}\"/" "$REPO_ROOT/AirshipFrameworkProxy.podspec"
+    sedi "s/s.version[[:space:]]*=[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.version                 = \"${PROXY_VERSION}\"/" "$REPO_ROOT/AirshipFrameworkProxy.podspec"
+    sedi "s/s.dependency[[:space:]]*'Airship',[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.dependency                'Airship', \"${IOS_VERSION}\"/" "$REPO_ROOT/AirshipFrameworkProxy.podspec"
     echo "✓ Updated AirshipFrameworkProxy.podspec"
 else
     echo "  Would update AirshipFrameworkProxy.podspec:"
@@ -55,7 +58,7 @@ fi
 
 # Update Package.swift
 if [ "$TEST_MODE" = "false" ]; then
-    sed -i '' "s/from: \"[0-9]*\.[0-9]*\.[0-9]*\"/from: \"${IOS_VERSION}\"/" "$REPO_ROOT/Package.swift"
+    sedi "s/from: \"[0-9]*\.[0-9]*\.[0-9]*\"/from: \"${IOS_VERSION}\"/" "$REPO_ROOT/Package.swift"
     echo "✓ Updated Package.swift"
 else
     echo "  Would update Package.swift:"
@@ -64,8 +67,8 @@ fi
 
 # Update android/gradle/libs.versions.toml
 if [ "$TEST_MODE" = "false" ]; then
-    sed -i '' "s/airshipProxy = '[0-9]*\.[0-9]*\.[0-9]*'/airshipProxy = '${PROXY_VERSION}'/" "$REPO_ROOT/android/gradle/libs.versions.toml"
-    sed -i '' "s/airship = '[0-9]*\.[0-9]*\.[0-9]*'/airship = '${ANDROID_VERSION}'/" "$REPO_ROOT/android/gradle/libs.versions.toml"
+    sedi "s/airshipProxy = '[0-9]*\.[0-9]*\.[0-9]*'/airshipProxy = '${PROXY_VERSION}'/" "$REPO_ROOT/android/gradle/libs.versions.toml"
+    sedi "s/airship = '[0-9]*\.[0-9]*\.[0-9]*'/airship = '${ANDROID_VERSION}'/" "$REPO_ROOT/android/gradle/libs.versions.toml"
     echo "✓ Updated android/gradle/libs.versions.toml"
 else
     echo "  Would update android/gradle/libs.versions.toml:"

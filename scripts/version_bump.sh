@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to update version numbers in Airship Mobile Framework Proxy
 
 set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source shared utilities
+source "$SCRIPT_DIR/lib/version_utils.sh"
 
 # ANSI color codes
 RED='\033[0;31m'
@@ -73,33 +78,33 @@ update_versions() {
   # Podspec file
   if [ -f "AirshipFrameworkProxy.podspec" ]; then
     echo -e "${INFO} Updating AirshipFrameworkProxy.podspec"
-    sed -i '' "s/s.version[[:space:]]*=[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.version                 = \"${proxy_version}\"/" AirshipFrameworkProxy.podspec
-    sed -i '' "s/s.dependency[[:space:]]*'Airship',[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.dependency                'Airship', \"${ios_sdk_version}\"/" AirshipFrameworkProxy.podspec
+    sedi "s/s.version[[:space:]]*=[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.version                 = \"${proxy_version}\"/" AirshipFrameworkProxy.podspec
+    sedi "s/s.dependency[[:space:]]*'Airship',[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.dependency                'Airship', \"${ios_sdk_version}\"/" AirshipFrameworkProxy.podspec
   else
     echo -e "${WARN} AirshipFrameworkProxy.podspec not found"
   fi
-  
+
   # Package.swift
   if [ -f "Package.swift" ]; then
     echo -e "${INFO} Updating Package.swift"
-    sed -i '' "s/from: \"[0-9]*\.[0-9]*\.[0-9]*\"/from: \"${ios_sdk_version}\"/" Package.swift
+    sedi "s/from: \"[0-9]*\.[0-9]*\.[0-9]*\"/from: \"${ios_sdk_version}\"/" Package.swift
   else
     echo -e "${WARN} Package.swift not found"
   fi
-  
+
   # iOS Podfile
   if [ -f "ios/Podfile" ]; then
     echo -e "${INFO} Updating ios/Podfile"
-    sed -i '' "s/pod 'Airship', '[0-9]*\.[0-9]*\.[0-9]*'/pod 'Airship', '${ios_sdk_version}'/" ios/Podfile
+    sedi "s/pod 'Airship', '[0-9]*\.[0-9]*\.[0-9]*'/pod 'Airship', '${ios_sdk_version}'/" ios/Podfile
   else
     echo -e "${WARN} ios/Podfile not found"
   fi
-  
+
   # Android libs.versions.toml
   if [ -f "android/gradle/libs.versions.toml" ]; then
     echo -e "${INFO} Updating android/gradle/libs.versions.toml"
-    sed -i '' "s/airshipProxy = '[0-9]*\.[0-9]*\.[0-9]*'/airshipProxy = '${proxy_version}'/" android/gradle/libs.versions.toml
-    sed -i '' "s/airship = '[0-9]*\.[0-9]*\.[0-9]*'/airship = '${android_sdk_version}'/" android/gradle/libs.versions.toml
+    sedi "s/airshipProxy = '[0-9]*\.[0-9]*\.[0-9]*'/airshipProxy = '${proxy_version}'/" android/gradle/libs.versions.toml
+    sedi "s/airship = '[0-9]*\.[0-9]*\.[0-9]*'/airship = '${android_sdk_version}'/" android/gradle/libs.versions.toml
   else
     echo -e "${WARN} android/gradle/libs.versions.toml not found"
   fi
