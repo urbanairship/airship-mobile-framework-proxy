@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Detect SDK versions and calculate proxy version bump
@@ -6,6 +6,9 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Source shared utilities
+source "$SCRIPT_DIR/lib/version_utils.sh"
 
 # Colors for output
 RED='\033[0;31m'
@@ -55,25 +58,6 @@ if [ -z "$LATEST_ANDROID_VERSION" ]; then
     exit 1
 fi
 echo -e "Latest Android SDK:    ${BOLD}$LATEST_ANDROID_VERSION${NC}"
-
-# Function to determine bump type (major, minor, patch)
-determine_bump_type() {
-    local old=$1
-    local new=$2
-
-    IFS='.' read -r old_major old_minor old_patch <<< "$old"
-    IFS='.' read -r new_major new_minor new_patch <<< "$new"
-
-    if [ "$new_major" -gt "$old_major" ]; then
-        echo "major"
-    elif [ "$new_minor" -gt "$old_minor" ]; then
-        echo "minor"
-    elif [ "$new_patch" -gt "$old_patch" ]; then
-        echo "patch"
-    else
-        echo "none"
-    fi
-}
 
 # Determine bump types for each SDK
 IOS_BUMP=$(determine_bump_type "$CURRENT_IOS_VERSION" "$LATEST_IOS_VERSION")

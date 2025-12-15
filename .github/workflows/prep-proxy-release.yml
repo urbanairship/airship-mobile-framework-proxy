@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  BUNDLE_PATH: vendor/bundle
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   prepare-release:
@@ -16,10 +16,7 @@ jobs:
 
       - name: Detect SDK versions
         id: detect
-        run: |
-          ./scripts/detect_sdk_versions.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./scripts/detect_sdk_versions.sh
 
       - name: Display version summary
         run: |
@@ -40,8 +37,7 @@ jobs:
           EOF
 
       - name: Prepare release
-        run: |
-          ./scripts/prep_proxy_release.sh
+        run: ./scripts/prep_proxy_release.sh
 
       - name: Create Pull Request
         id: cpr

@@ -44,5 +44,5 @@ IMPORTANT INSTRUCTIONS:
 2. Decide SIMPLE or DETAILED based on criteria above
 3. Return ONLY the formatted changelog (no explanations, no preamble)
 4. If unsure or SDK changelogs lack substance, use SIMPLE
-5. Ensure all version numbers in links match exactly (no 'v' prefix in URLs)
+5. Do not include 'v' prefix in version numbers within URLs
 6. Use release type: "Major" for X.0.0, "Minor" for X.Y.0, "Patch" for X.Y.Z

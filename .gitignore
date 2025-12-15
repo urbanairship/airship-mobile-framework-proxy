@@ -45,7 +45,7 @@ AirshipConfig.plist
 docs/
 
 # Typescript
-lib/
+/lib/
 
 # Yarn
 yarn-error.log
