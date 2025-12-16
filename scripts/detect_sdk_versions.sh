@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Detect SDK versions and calculate proxy version bump
@@ -6,6 +6,9 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Source shared utilities
+source "$SCRIPT_DIR/lib/version_utils.sh"
 
 # Colors for output
 RED='\033[0;31m'
@@ -36,44 +39,23 @@ echo -e "Current iOS SDK:       ${BOLD}$CURRENT_IOS_VERSION${NC}"
 CURRENT_ANDROID_VERSION=$(grep "airship =" "$REPO_ROOT/android/gradle/libs.versions.toml" | grep -o "[0-9]*\.[0-9]*\.[0-9]*")
 echo -e "Current Android SDK:   ${BOLD}$CURRENT_ANDROID_VERSION${NC}"
 
-echo -e "\n${BLUE}Fetching latest SDK tags...${NC}"
+echo -e "\n${BLUE}Fetching latest SDK versions...${NC}"
 
-# Fetch latest iOS SDK tag
-LATEST_IOS_VERSION=$(gh api repos/urbanairship/ios-library/tags --jq '.[0].name' 2>/dev/null || echo "")
-LATEST_IOS_VERSION="${LATEST_IOS_VERSION#v}"  # Strip 'v' prefix if present
-if [ -z "$LATEST_IOS_VERSION" ]; then
-    echo -e "${RED}Failed to fetch iOS SDK tags${NC}"
+# Fetch latest iOS SDK version
+LATEST_IOS_VERSION=$(get_latest_release_version "urbanairship/ios-library")
+if [ $? -ne 0 ] || [ -z "$LATEST_IOS_VERSION" ]; then
+    echo -e "${RED}Failed to fetch iOS SDK version${NC}"
     exit 1
 fi
 echo -e "Latest iOS SDK:        ${BOLD}$LATEST_IOS_VERSION${NC}"
 
-# Fetch latest Android SDK tag
-LATEST_ANDROID_VERSION=$(gh api repos/urbanairship/android-library/tags --jq '.[0].name' 2>/dev/null || echo "")
-LATEST_ANDROID_VERSION="${LATEST_ANDROID_VERSION#v}"  # Strip 'v' prefix if present
-if [ -z "$LATEST_ANDROID_VERSION" ]; then
-    echo -e "${RED}Failed to fetch Android SDK tags${NC}"
+# Fetch latest Android SDK version
+LATEST_ANDROID_VERSION=$(get_latest_release_version "urbanairship/android-library")
+if [ $? -ne 0 ] || [ -z "$LATEST_ANDROID_VERSION" ]; then
+    echo -e "${RED}Failed to fetch Android SDK version${NC}"
     exit 1
 fi
 echo -e "Latest Android SDK:    ${BOLD}$LATEST_ANDROID_VERSION${NC}"
-
-# Function to determine bump type (major, minor, patch)
-determine_bump_type() {
-    local old=$1
-    local new=$2
-
-    IFS='.' read -r old_major old_minor old_patch <<< "$old"
-    IFS='.' read -r new_major new_minor new_patch <<< "$new"
-
-    if [ "$new_major" -gt "$old_major" ]; then
-        echo "major"
-    elif [ "$new_minor" -gt "$old_minor" ]; then
-        echo "minor"
-    elif [ "$new_patch" -gt "$old_patch" ]; then
-        echo "patch"
-    else
-        echo "none"
-    fi
-}
 
 # Determine bump types for each SDK
 IOS_BUMP=$(determine_bump_type "$CURRENT_IOS_VERSION" "$LATEST_IOS_VERSION")

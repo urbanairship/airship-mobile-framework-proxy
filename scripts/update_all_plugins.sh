@@ -19,6 +19,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Source shared utilities
+source "$SCRIPT_DIR/lib/version_utils.sh"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -238,25 +241,6 @@ validate_inputs() {
     fi
 }
 
-# Determine bump type (major, minor, patch)
-determine_bump_type() {
-    local old=$1
-    local new=$2
-
-    IFS='.' read -r old_major old_minor old_patch <<< "$old"
-    IFS='.' read -r new_major new_minor new_patch <<< "$new"
-
-    if [ "$new_major" -gt "$old_major" ]; then
-        echo "major"
-    elif [ "$new_minor" -gt "$old_minor" ]; then
-        echo "minor"
-    elif [ "$new_patch" -gt "$old_patch" ]; then
-        echo "patch"
-    else
-        echo "none"
-    fi
-}
-
 # Calculate new plugin versions
 calculate_plugin_versions() {
     echo -e "${BLUE}Calculating plugin versions...${NC}"
@@ -279,16 +263,14 @@ calculate_plugin_versions() {
     for plugin in "${PLUGIN_KEYS[@]}"; do
         local repo=$(get_repo_name "$plugin")
 
-        # Fetch latest tag
-        local latest_tag=$(gh api "repos/urbanairship/${repo}/tags" --jq '.[0].name' 2>/dev/null || echo "")
-        latest_tag="${latest_tag#v}"  # Strip 'v' prefix if present
-
-        if [ -z "$latest_tag" ]; then
+        # Fetch latest version (uses shared function from version_utils.sh)
+        local latest_version=$(get_latest_release_version "urbanairship/${repo}")
+        if [ $? -ne 0 ] || [ -z "$latest_version" ]; then
             echo -e "${RED}Failed to fetch version for ${repo}${NC}"
             exit 1
         fi
 
-        IFS='.' read -r major minor patch <<< "$latest_tag"
+        IFS='.' read -r major minor patch <<< "$latest_version"
 
         # Apply bump type
         case "$BUMP_TYPE" in
@@ -308,7 +290,7 @@ calculate_plugin_versions() {
 
         local new_version="${major}.${minor}.${patch}"
         set_new_version "$plugin" "$new_version"
-        echo -e "${plugin}: ${latest_tag} → ${BOLD}${new_version}${NC}"
+        echo -e "${plugin}: ${latest_version} → ${BOLD}${new_version}${NC}"
     done
     echo ""
 }
@@ -334,6 +316,17 @@ clone_plugins() {
     if [ $clone_count -gt 0 ]; then
         wait
         echo -e "${GREEN}✓ Repositories cloned${NC}"
+
+        # Configure git credential helper for each repo to use gh
+        for plugin in "${PLUGIN_KEYS[@]}"; do
+            if should_skip_plugin "$plugin"; then
+                continue
+            fi
+            local repo="$(get_repo_name "$plugin")"
+            if [ -d "$repo" ]; then
+                git -C "$repo" config credential.helper '!gh auth git-credential'
+            fi
+        done
     else
         echo -e "${YELLOW}No plugins selected to update${NC}"
     fi
@@ -351,7 +344,7 @@ update_react_native_files() {
     npm version "$version" --no-git-tag-version
 
     # Update iOS Swift version constant
-    sed -i '' "s/\(version:\ String *= *\)\".*\"/\1\"$version\"/g" ios/AirshipReactNative.swift
+    sedi "s/\(version:\ String *= *\)\".*\"/\1\"$version\"/g" ios/AirshipReactNative.swift
 }
 
 # Update Cordova plugin files
@@ -368,13 +361,13 @@ update_cordova_files() {
     npm --prefix cordova-airship-hms version "$version" --no-git-tag-version
 
     # Update plugin.xml files
-    sed -i '' "s/<plugin id=\"@ua\/cordova-airship\" version=\"[0-9.]*\"/<plugin id=\"@ua\/cordova-airship\" version=\"$version\"/" cordova-airship/plugin.xml
-    sed -i '' "s/<plugin id=\"@ua\/cordova-airship-hms\" version=\"[0-9.]*\"/<plugin id=\"@ua\/cordova-airship-hms\" version=\"$version\"/" cordova-airship-hms/plugin.xml
-    sed -i '' "s/<dependency id=\"@ua\/cordova-airship\" version=\"[0-9.]*\"\/>/<dependency id=\"@ua\/cordova-airship\" version=\"$version\"\/>/" cordova-airship-hms/plugin.xml
+    sedi "s/<plugin id=\"@ua\/cordova-airship\" version=\"[0-9.]*\"/<plugin id=\"@ua\/cordova-airship\" version=\"$version\"/" cordova-airship/plugin.xml
+    sedi "s/<plugin id=\"@ua\/cordova-airship-hms\" version=\"[0-9.]*\"/<plugin id=\"@ua\/cordova-airship-hms\" version=\"$version\"/" cordova-airship-hms/plugin.xml
+    sedi "s/<dependency id=\"@ua\/cordova-airship\" version=\"[0-9.]*\"\/>/<dependency id=\"@ua\/cordova-airship\" version=\"$version\"\/>/" cordova-airship-hms/plugin.xml
 
     # Update version constants
-    sed -i '' "s/var version = \"[-0-9.a-zA-Z]*\"/var version = \"$version\"/" cordova-airship/src/android/AirshipCordovaVersion.kt
-    sed -i '' "s/static let version = \"[-0-9.a-zA-Z]*\"/static let version = \"$version\"/" cordova-airship/src/ios/AirshipCordovaVersion.swift
+    sedi "s/var version = \"[-0-9.a-zA-Z]*\"/var version = \"$version\"/" cordova-airship/src/android/AirshipCordovaVersion.kt
+    sedi "s/static let version = \"[-0-9.a-zA-Z]*\"/static let version = \"$version\"/" cordova-airship/src/ios/AirshipCordovaVersion.swift
 }
 
 # Update Flutter plugin files
@@ -385,14 +378,14 @@ update_flutter_files() {
     cd "$repo_path"
 
     # Update pubspec.yaml
-    sed -i '' "s/\(^version: *\).*/\1$version/g" pubspec.yaml
+    sedi "s/\(^version: *\).*/\1$version/g" pubspec.yaml
 
     # Update podspec
-    sed -i '' "s/\(^AIRSHIP_FLUTTER_VERSION *= *\)\".*\"/\1\"$version\"/g" ios/airship_flutter.podspec
+    sedi "s/\(^AIRSHIP_FLUTTER_VERSION *= *\)\".*\"/\1\"$version\"/g" ios/airship_flutter.podspec
 
     # Update version constants
-    sed -i '' "s/\(pluginVersion *= *\)\".*\"/\1\"$version\"/g" ios/airship_flutter/Sources/airship_flutter/AirshipPluginVersion.swift
-    sed -i '' "s/\(AIRSHIP_PLUGIN_VERSION *= *\)\".*\"/\1\"$version\"/g" android/src/main/kotlin/com/airship/flutter/AirshipPluginVersion.kt
+    sedi "s/\(pluginVersion *= *\)\".*\"/\1\"$version\"/g" ios/airship_flutter/Sources/airship_flutter/AirshipPluginVersion.swift
+    sedi "s/\(AIRSHIP_PLUGIN_VERSION *= *\)\".*\"/\1\"$version\"/g" android/src/main/kotlin/com/airship/flutter/AirshipPluginVersion.kt
 }
 
 # Update Capacitor plugin files
@@ -406,8 +399,8 @@ update_capacitor_files() {
     npm version "$version" --no-git-tag-version
 
     # Update version constants
-    sed -i '' "s/var version = \"[-0-9.a-zA-Z]*\"/var version = \"$version\"/" android/src/main/java/com/airship/capacitor/AirshipCapacitorVersion.kt
-    sed -i '' "s/static let version = \"[-0-9.a-zA-Z]*\"/static let version = \"$version\"/" ios/Plugin/AirshipCapacitorVersion.swift
+    sedi "s/var version = \"[-0-9.a-zA-Z]*\"/var version = \"$version\"/" android/src/main/java/com/airship/capacitor/AirshipCapacitorVersion.kt
+    sedi "s/static let version = \"[-0-9.a-zA-Z]*\"/static let version = \"$version\"/" ios/Plugin/AirshipCapacitorVersion.swift
 }
 
 # Update proxy dependencies
@@ -417,24 +410,24 @@ update_proxy_dependencies() {
 
     case "$plugin" in
         react-native)
-            sed -i '' -E "s/(Airship_airshipProxyVersion=)([^$]*)/\1$proxy_version/" android/gradle.properties
-            sed -i '' -E "s/(s\.dependency *\"AirshipFrameworkProxy\", *\")([^\"]*)(\")/\1$proxy_version\3/" react-native-airship.podspec
+            sedi -E "s/(Airship_airshipProxyVersion=)([^$]*)/\1$proxy_version/" android/gradle.properties
+            sedi -E "s/(s\.dependency *\"AirshipFrameworkProxy\", *\")([^\"]*)(\")/\1$proxy_version\3/" react-native-airship.podspec
             ;;
         cordova)
-            sed -i '' -E "s/(pod name=\"AirshipFrameworkProxy\" spec=\")[^\"]*\"/\1$proxy_version\"/" cordova-airship/plugin.xml
-            sed -i '' -E "s/(api \"com.urbanairship.android:airship-framework-proxy:)[^\"]*\"/\1$proxy_version\"/" cordova-airship/src/android/build-extras.gradle
-            sed -i '' -E "s/(implementation \"com.urbanairship.android:airship-framework-proxy-hms:)[^\"]*\"/\1$proxy_version\"/" cordova-airship-hms/src/android/build-extras.gradle
+            sedi -E "s/(pod name=\"AirshipFrameworkProxy\" spec=\")[^\"]*\"/\1$proxy_version\"/" cordova-airship/plugin.xml
+            sedi -E "s/(api \"com.urbanairship.android:airship-framework-proxy:)[^\"]*\"/\1$proxy_version\"/" cordova-airship/src/android/build-extras.gradle
+            sedi -E "s/(implementation \"com.urbanairship.android:airship-framework-proxy-hms:)[^\"]*\"/\1$proxy_version\"/" cordova-airship-hms/src/android/build-extras.gradle
             ;;
         flutter)
-            sed -i '' -E "s/(ext\.airship_framework_proxy_version *= *')([^']*)(')/\1$proxy_version\3/" android/build.gradle
-            sed -i '' -E "s/(s\.dependency *\"AirshipFrameworkProxy\", *\")([^\"]*)(\")/\1$proxy_version\3/" ios/airship_flutter.podspec
-            sed -i '' -E "s/(\.package\(name: *\"AirshipFrameworkProxy\", *url: *\"[^\"]+\", *from: *\")([^\"]*)(\")/\1$proxy_version\3/" ios/airship_flutter/Package.swift
+            sedi -E "s/(ext\.airship_framework_proxy_version *= *')([^']*)(')/\1$proxy_version\3/" android/build.gradle
+            sedi -E "s/(s\.dependency *\"AirshipFrameworkProxy\", *\")([^\"]*)(\")/\1$proxy_version\3/" ios/airship_flutter.podspec
+            sedi -E "s/(\.package\(name: *\"AirshipFrameworkProxy\", *url: *\"[^\"]+\", *from: *\")([^\"]*)(\")/\1$proxy_version\3/" ios/airship_flutter/Package.swift
             ;;
         capacitor)
-            sed -i '' "s/s\.dependency.*AirshipFrameworkProxy.*$/s.dependency \"AirshipFrameworkProxy\", \"$proxy_version\"/" UaCapacitorAirship.podspec
-            sed -i '' "s/airshipProxyVersion = project\.hasProperty('airshipProxyVersion') ? rootProject\.ext\.airshipProxyVersion : '.*'/airshipProxyVersion = project.hasProperty('airshipProxyVersion') ? rootProject.ext.airshipProxyVersion : '$proxy_version'/" android/build.gradle
-            sed -i '' "s/pod 'AirshipFrameworkProxy'.*$/pod 'AirshipFrameworkProxy', '$proxy_version'/" ios/Podfile
-            sed -i '' "s/\.package(url: \"https:\/\/github\.com\/urbanairship\/airship-mobile-framework-proxy\.git\", from: \".*\")/.package(url: \"https:\/\/github.com\/urbanairship\/airship-mobile-framework-proxy.git\", from: \"$proxy_version\")/" Package.swift
+            sedi "s/s\.dependency.*AirshipFrameworkProxy.*$/s.dependency \"AirshipFrameworkProxy\", \"$proxy_version\"/" UaCapacitorAirship.podspec
+            sedi "s/airshipProxyVersion = project\.hasProperty('airshipProxyVersion') ? rootProject\.ext\.airshipProxyVersion : '.*'/airshipProxyVersion = project.hasProperty('airshipProxyVersion') ? rootProject.ext.airshipProxyVersion : '$proxy_version'/" android/build.gradle
+            sedi "s/pod 'AirshipFrameworkProxy'.*$/pod 'AirshipFrameworkProxy', '$proxy_version'/" ios/Podfile
+            sedi "s/\.package(url: \"https:\/\/github\.com\/urbanairship\/airship-mobile-framework-proxy\.git\", from: \".*\")/.package(url: \"https:\/\/github.com\/urbanairship\/airship-mobile-framework-proxy.git\", from: \"$proxy_version\")/" Package.swift
             ;;
     esac
 }
@@ -505,7 +498,7 @@ Automated release preparation for $(get_display_name "$plugin") v${version}
 
 ## Changed Files
 \`\`\`
-$(git diff --name-only HEAD~1 2>/dev/null || echo "Unable to determine changed files")
+$(git diff --name-only HEAD~1 2>/dev/null || git diff --name-only --cached 2>/dev/null || echo "See commit for changed files")
 \`\`\`
 
 ## Next Steps
@@ -700,14 +693,16 @@ main() {
         echo ""
 
         # Update plugin (with error handling)
-        if pr_url=$(update_plugin "$plugin" "$(get_new_version "$plugin")" "$WORK_DIR/$(get_repo_name "$plugin")" 2>&1); then
+        local error_file=$(mktemp)
+        if pr_url=$(update_plugin "$plugin" "$(get_new_version "$plugin")" "$WORK_DIR/$(get_repo_name "$plugin")" 2>"$error_file"); then
             set_pr_url "$plugin" "$pr_url"
             echo -e "  ${GREEN}✓ PR created: $pr_url${NC}"
         else
             echo -e "  ${RED}✗ Failed to update ${plugin}${NC}"
-            echo -e "  Error: $pr_url"
+            echo -e "  Error: $(cat "$error_file")"
             set_pr_url "$plugin" "FAILED"
         fi
+        rm -f "$error_file"
     done
     # Re-enable exit-on-error
     set -e
@@ -740,6 +735,22 @@ main() {
             echo "${plugin//-/_}_version=$(get_new_version "$plugin")" >> "$GITHUB_OUTPUT"
             echo "${plugin//-/_}_pr_url=$(get_pr_url "$plugin")" >> "$GITHUB_OUTPUT"
         done
+    fi
+
+    # Check if any plugins succeeded
+    local any_success=false
+    for plugin in "${PLUGIN_KEYS[@]}"; do
+        local url="$(get_pr_url "$plugin")"
+        if [ "$url" != "FAILED" ] && [ "$url" != "SKIPPED" ] && [ -n "$url" ]; then
+            any_success=true
+            break
+        fi
+    done
+
+    if [ "$any_success" = false ]; then
+        echo -e "${RED}All plugins failed to update${NC}"
+        [ -n "$WORK_DIR" ] && rm -rf "$WORK_DIR"
+        exit 1
     fi
 
     # Cleanup

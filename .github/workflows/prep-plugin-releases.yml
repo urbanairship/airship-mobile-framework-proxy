@@ -34,7 +34,7 @@ on:
         default: true
 
 env:
-  GITHUB_TOKEN: ${{ secrets.MOBILE_PLUGIN_RELEASE_PAT }}
+  GH_TOKEN: ${{ secrets.MOBILE_PLUGIN_RELEASE_PAT }}
 
 jobs:
   centralized-plugin-releases:
@@ -82,7 +82,7 @@ jobs:
             "${{ github.event.inputs.android_version }}" \
             $PLUGIN_ARGS
         env:
-          GITHUB_TOKEN: ${{ secrets.MOBILE_PLUGIN_RELEASE_PAT }}
+          GH_TOKEN: ${{ secrets.MOBILE_PLUGIN_RELEASE_PAT }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Display release summary

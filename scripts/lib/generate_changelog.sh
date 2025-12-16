@@ -1,10 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Intelligent changelog generation using Gemini CLI
 # Fetches SDK changelogs, analyzes them, and generates appropriate format
 
 # Get script directory
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROMPT_TEMPLATE="$LIB_DIR/changelog_prompt.txt"
+
+# Source shared utilities
+source "$LIB_DIR/version_utils.sh"
 
 # Fetch SDK changelog from GitHub release notes
 fetch_github_changelog() {
@@ -131,7 +134,7 @@ validate_and_fix() {
 
     # 1. Fix version format (remove 'v' prefix if present)
     if echo "$changelog_content" | grep -q "Version v[0-9]"; then
-        sed -i '' 's/Version v\([0-9]\)/Version \1/g' "$changelog_file"
+        sedi 's/Version v\([0-9]\)/Version \1/g' "$changelog_file"
         echo "    ✓ Fixed version format (removed 'v' prefix)" >&2
         fixes_made=true
     fi
@@ -145,14 +148,14 @@ validate_and_fix() {
     # 3. Fix malformed GitHub links
     if echo "$changelog_content" | grep -q "github.com/urbanairship/.*releases/tag/[^)]*[^0-9.)]"; then
         # Remove any trailing characters after version number in links
-        sed -i '' -E 's|(https://github.com/urbanairship/[^/]+/releases/tag/[0-9.]+)[^)]*|\1|g' "$changelog_file"
+        sedi -E 's|(https://github.com/urbanairship/[^/]+/releases/tag/[0-9.]+)[^)]*|\1|g' "$changelog_file"
         echo "    ✓ Fixed malformed GitHub release links" >&2
         fixes_made=true
     fi
 
     # 4. Remove trailing whitespace
     if grep -q "[[:space:]]$" "$changelog_file"; then
-        sed -i '' 's/[[:space:]]*$//' "$changelog_file"
+        sedi 's/[[:space:]]*$//' "$changelog_file"
         echo "    ✓ Removed trailing whitespace" >&2
         fixes_made=true
     fi
@@ -254,10 +257,11 @@ validate_pr() {
     local pr_title=$(echo "$pr_data" | jq -r '.title')
     local pr_body=$(echo "$pr_data" | jq -r '.body')
 
-    # Expected title format: "Release X.Y.Z"
+    # Expected title format: "Release X.Y.Z" or "[TEST] Release X.Y.Z"
     local expected_title="Release ${plugin_version}"
+    local expected_test_title="[TEST] Release ${plugin_version}"
 
-    if [ "$pr_title" != "$expected_title" ]; then
+    if [ "$pr_title" != "$expected_title" ] && [ "$pr_title" != "$expected_test_title" ]; then
         echo "    ⚠️  WARNING: PR title is '$pr_title', expected '$expected_title'" >&2
     fi
 
