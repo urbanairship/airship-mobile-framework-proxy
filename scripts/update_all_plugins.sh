@@ -172,9 +172,18 @@ should_skip_plugin() {
 }
 
 # Check if a branch exists on remote
+# Returns: 0 if exists, 1 if doesn't exist, 2 on error
 branch_exists_remote() {
     local branch="$1"
-    git ls-remote --heads origin "$branch" 2>/dev/null | grep -q "refs/heads/${branch}$"
+    local output
+
+    output=$(git ls-remote --heads origin "$branch" 2>&1)
+    if [ $? -ne 0 ]; then
+        echo "  ⚠️  Cannot check remote: $output" >&2
+        return 2  # Error - caller should abort
+    fi
+
+    echo "$output" | grep -q "refs/heads/${branch}$"
 }
 
 # Check if a branch exists locally
@@ -186,6 +195,7 @@ branch_exists_local() {
 # Get unique branch name for the release
 # In test mode: release-X.Y.Z-test, release-X.Y.Z-test-2, release-X.Y.Z-test-3, ...
 # In non-test mode: release-X.Y.Z (fails if exists - real releases shouldn't have duplicates)
+# Returns: 0 success, 1 no available branch, 2 on error
 get_unique_branch_name() {
     local plugin="$1"
     local version="$2"
@@ -197,22 +207,29 @@ get_unique_branch_name() {
         local attempt=2
         local max_attempts=20
 
-        while branch_exists_remote "$candidate" || branch_exists_local "$candidate"; do
+        while true; do
+            branch_exists_remote "$candidate"
+            local status=$?
+
+            [ $status -eq 2 ] && return 2  # Propagate error
+
+            if [ $status -eq 1 ] && ! branch_exists_local "$candidate"; then
+                echo "$candidate"
+                return 0
+            fi
+
             candidate="${base_name}-test-${attempt}"
             attempt=$((attempt + 1))
-            if [ $attempt -gt $max_attempts ]; then
-                echo ""
-                return 1
-            fi
+            [ $attempt -gt $max_attempts ] && return 1
         done
-
-        echo "$candidate"
     else
-        # Non-test mode: use base name, return empty if exists
-        if branch_exists_remote "$base_name"; then
-            echo ""
-            return 1
-        fi
+        # Non-test mode: use base name, fail if exists
+        branch_exists_remote "$base_name"
+        local status=$?
+
+        [ $status -eq 2 ] && return 2  # Propagate error
+        [ $status -eq 0 ] && return 1  # Branch exists
+
         echo "$base_name"
     fi
 }
@@ -241,39 +258,47 @@ validate_inputs() {
     fi
 }
 
-# Calculate new plugin versions
+# Calculate new plugin versions using smart proxy-based bumping
+# For each plugin:
+# 1. Get the plugin's latest release version
+# 2. Get the proxy version that release was built with
+# 3. Compare proxy major version changes to determine bump type
 calculate_plugin_versions() {
-    echo -e "${BLUE}Calculating plugin versions...${NC}"
-
-    # Get current proxy version to determine bump type
-    CURRENT_PROXY_VERSION=$(grep "s.version" "$REPO_ROOT/AirshipFrameworkProxy.podspec" | grep -o "[0-9]*\.[0-9]*\.[0-9]*")
-    BUMP_TYPE=$(determine_bump_type "$CURRENT_PROXY_VERSION" "$PROXY_VERSION")
-
-    echo -e "Current proxy: ${BOLD}${CURRENT_PROXY_VERSION}${NC}"
-    echo -e "New proxy:     ${BOLD}${PROXY_VERSION}${NC}"
-    echo -e "Bump type:     ${BOLD}${BUMP_TYPE}${NC}"
+    echo -e "${BLUE}Calculating plugin versions (smart proxy-based bumping)...${NC}"
     echo ""
 
-    if [ "$BUMP_TYPE" = "none" ]; then
-        echo -e "${RED}Error: No version bump detected${NC}"
-        exit 1
-    fi
-
-    # Fetch latest versions for each plugin and calculate new versions
     for plugin in "${PLUGIN_KEYS[@]}"; do
         local repo=$(get_repo_name "$plugin")
+        local full_repo="urbanairship/${repo}"
 
-        # Fetch latest version (uses shared function from version_utils.sh)
-        local latest_version=$(get_latest_release_version "urbanairship/${repo}")
+        # Get plugin's latest release version
+        local latest_version=$(get_latest_release_version "$full_repo")
         if [ $? -ne 0 ] || [ -z "$latest_version" ]; then
             echo -e "${RED}Failed to fetch version for ${repo}${NC}"
             exit 1
         fi
 
-        IFS='.' read -r major minor patch <<< "$latest_version"
+        # Get proxy version from that release
+        local release_proxy_version=$(get_proxy_version_from_release "$full_repo" "$plugin")
 
-        # Apply bump type
-        case "$BUMP_TYPE" in
+        echo -e "${BOLD}${plugin}${NC}"
+        echo -e "  Current version:  ${latest_version}"
+        echo -e "  Release proxy:    ${release_proxy_version}"
+        echo -e "  New proxy:        ${PROXY_VERSION}"
+
+        # Determine bump type based on proxy version change
+        local bump_type=$(determine_plugin_bump_type "$release_proxy_version" "$PROXY_VERSION")
+
+        if [ "$bump_type" = "none" ]; then
+            echo -e "  Bump:             ${YELLOW}none (skipping - already up to date)${NC}"
+            set_new_version "$plugin" ""
+            echo ""
+            continue
+        fi
+
+        # Apply bump to plugin version
+        IFS='.' read -r major minor patch <<< "$latest_version"
+        case "$bump_type" in
             major)
                 major=$((major + 1))
                 minor=0
@@ -290,9 +315,25 @@ calculate_plugin_versions() {
 
         local new_version="${major}.${minor}.${patch}"
         set_new_version "$plugin" "$new_version"
-        echo -e "${plugin}: ${latest_version} → ${BOLD}${new_version}${NC}"
+
+        echo -e "  Bump:             ${GREEN}${bump_type}${NC}"
+        echo -e "  New version:      ${BOLD}${new_version}${NC}"
+        echo ""
     done
-    echo ""
+
+    # Check if any plugins need updating
+    local any_update=false
+    for plugin in "${PLUGIN_KEYS[@]}"; do
+        if [ -n "$(get_new_version "$plugin")" ]; then
+            any_update=true
+            break
+        fi
+    done
+
+    if [ "$any_update" = false ]; then
+        echo -e "${YELLOW}No plugins need updating - all are already on proxy ${PROXY_VERSION}${NC}"
+        exit 0
+    fi
 }
 
 # Clone plugin repositories
@@ -524,6 +565,13 @@ update_plugin() {
     # Get unique branch name (handles test mode auto-increment)
     local branch_name
     branch_name=$(get_unique_branch_name "$plugin" "$plugin_version")
+    local branch_status=$?
+
+    if [ $branch_status -eq 2 ]; then
+        echo "  ✗ Cannot verify branch availability (network/auth error)"
+        echo "    Fix the error above and retry"
+        return 1
+    fi
 
     if [ -z "$branch_name" ]; then
         if [ "$TEST_MODE" = true ]; then
@@ -684,9 +732,16 @@ main() {
     # Disable exit-on-error for plugin updates so one failure doesn't kill all
     set +e
     for plugin in "${PLUGIN_KEYS[@]}"; do
-        # Skip if plugin is disabled
+        # Skip if plugin is disabled via CLI flag
         if should_skip_plugin "$plugin"; then
             set_pr_url "$plugin" "SKIPPED"
+            continue
+        fi
+
+        # Skip if no version update needed (empty version = already up to date)
+        local plugin_version="$(get_new_version "$plugin")"
+        if [ -z "$plugin_version" ]; then
+            set_pr_url "$plugin" "UP-TO-DATE"
             continue
         fi
 
@@ -694,7 +749,7 @@ main() {
 
         # Update plugin (with error handling)
         local error_file=$(mktemp)
-        if pr_url=$(update_plugin "$plugin" "$(get_new_version "$plugin")" "$WORK_DIR/$(get_repo_name "$plugin")" 2>"$error_file"); then
+        if pr_url=$(update_plugin "$plugin" "$plugin_version" "$WORK_DIR/$(get_repo_name "$plugin")" 2>"$error_file"); then
             set_pr_url "$plugin" "$pr_url"
             echo -e "  ${GREEN}✓ PR created: $pr_url${NC}"
         else
@@ -715,6 +770,7 @@ main() {
 
     for plugin in "${PLUGIN_KEYS[@]}"; do
         local pr_url="$(get_pr_url "$plugin")"
+        local plugin_version="$(get_new_version "$plugin")"
         local status_icon="✓"
         local color="$GREEN"
         if [ "$pr_url" = "FAILED" ]; then
@@ -723,8 +779,11 @@ main() {
         elif [ "$pr_url" = "SKIPPED" ]; then
             status_icon="○"
             color="$YELLOW"
+        elif [ "$pr_url" = "UP-TO-DATE" ]; then
+            status_icon="="
+            color="$BLUE"
         fi
-        echo -e "${color}${status_icon} $(get_display_name "$plugin") $(get_new_version "$plugin"): ${pr_url}${NC}"
+        echo -e "${color}${status_icon} $(get_display_name "$plugin") ${plugin_version:-current}: ${pr_url}${NC}"
     done
 
     echo ""
@@ -737,7 +796,7 @@ main() {
         done
     fi
 
-    # Check if any plugins succeeded
+    # Check if any plugins succeeded (UP-TO-DATE counts as success)
     local any_success=false
     for plugin in "${PLUGIN_KEYS[@]}"; do
         local url="$(get_pr_url "$plugin")"
