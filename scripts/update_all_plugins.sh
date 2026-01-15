@@ -197,7 +197,7 @@ branch_exists_local() {
 
 # Get unique branch name for the release
 # In test mode: release-X.Y.Z-test, release-X.Y.Z-test-2, release-X.Y.Z-test-3, ...
-# In non-test mode: release-X.Y.Z (fails if exists - real releases shouldn't have duplicates)
+# In non-test mode: release-X.Y.Z, release-X.Y.Z-2, release-X.Y.Z-3, ...
 # Returns: 0 success, 1 no available branch, 2 on error
 get_unique_branch_name() {
     local plugin="$1"
@@ -226,14 +226,26 @@ get_unique_branch_name() {
             [ $attempt -gt $max_attempts ] && return 1
         done
     else
-        # Non-test mode: use base name, fail if exists
-        branch_exists_remote "$base_name"
-        local status=$?
+        # Non-test mode: try base name first, then increment suffix if needed
+        local candidate="$base_name"
+        local attempt=2
+        local max_attempts=20
 
-        [ $status -eq 2 ] && return 2  # Propagate error
-        [ $status -eq 0 ] && return 1  # Branch exists
+        while true; do
+            branch_exists_remote "$candidate"
+            local status=$?
 
-        echo "$base_name"
+            [ $status -eq 2 ] && return 2  # Propagate error
+
+            if [ $status -eq 1 ] && ! branch_exists_local "$candidate"; then
+                echo "$candidate"
+                return 0
+            fi
+
+            candidate="${base_name}-${attempt}"
+            attempt=$((attempt + 1))
+            [ $attempt -gt $max_attempts ] && return 1
+        done
     fi
 }
 
@@ -570,6 +582,21 @@ update_plugin() {
 
     cd "$repo_path"
 
+    # Check if PR already exists for the base branch (skip redundant work)
+    local base_branch="$(get_branch_prefix "$plugin")-${plugin_version}"
+    local existing_pr=$(gh pr list \
+        --repo "urbanairship/$(get_repo_name "$plugin")" \
+        --head "$base_branch" \
+        --state open \
+        --json url \
+        --jq '.[0].url' 2>/dev/null || echo "")
+
+    if [ -n "$existing_pr" ]; then
+        echo "  ℹ️  PR already exists for $base_branch"
+        UPDATE_PLUGIN_RESULT="$existing_pr"
+        return 0
+    fi
+
     # Get unique branch name (handles test mode auto-increment)
     local branch_name
     branch_name=$(get_unique_branch_name "$plugin" "$plugin_version")
@@ -582,13 +609,7 @@ update_plugin() {
     fi
 
     if [ -z "$branch_name" ]; then
-        if [ "$TEST_MODE" = true ]; then
-            echo "  ✗ Failed to find available test branch after 20 attempts"
-        else
-            echo "  ✗ Branch $(get_branch_prefix "$plugin")-${plugin_version} already exists"
-            echo "    For real releases, clean up the existing branch first"
-            echo "    Or use --test mode for testing"
-        fi
+        echo "  ✗ Failed to find available branch after 20 attempts"
         return 1
     fi
 
