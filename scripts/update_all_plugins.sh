@@ -107,6 +107,9 @@ BRANCH_PREFIXES=("release" "cordova" "flutter" "capacitor")
 NEW_VERSIONS=("" "" "" "")
 PR_URLS=("" "" "" "")
 
+# Global variable for update_plugin result (avoids stdout pollution)
+UPDATE_PLUGIN_RESULT=""
+
 # Helper functions to work with indexed arrays
 get_index() {
     local key="$1"
@@ -381,8 +384,8 @@ update_react_native_files() {
 
     cd "$repo_path"
 
-    # Update package.json version
-    npm version "$version" --no-git-tag-version
+    # Update package.json version (suppress npm output to avoid polluting stdout)
+    npm version "$version" --no-git-tag-version >/dev/null
 
     # Update iOS Swift version constant
     sedi "s/\(version:\ String *= *\)\".*\"/\1\"$version\"/g" ios/AirshipReactNative.swift
@@ -395,11 +398,11 @@ update_cordova_files() {
 
     cd "$repo_path"
 
-    # Update core package
-    npm --prefix cordova-airship version "$version" --no-git-tag-version
+    # Update core package (suppress npm output to avoid polluting stdout)
+    npm --prefix cordova-airship version "$version" --no-git-tag-version >/dev/null
 
-    # Update HMS package
-    npm --prefix cordova-airship-hms version "$version" --no-git-tag-version
+    # Update HMS package (suppress npm output to avoid polluting stdout)
+    npm --prefix cordova-airship-hms version "$version" --no-git-tag-version >/dev/null
 
     # Update plugin.xml files
     sedi "s/<plugin id=\"@ua\/cordova-airship\" version=\"[0-9.]*\"/<plugin id=\"@ua\/cordova-airship\" version=\"$version\"/" cordova-airship/plugin.xml
@@ -436,8 +439,8 @@ update_capacitor_files() {
 
     cd "$repo_path"
 
-    # Update package.json
-    npm version "$version" --no-git-tag-version
+    # Update package.json (suppress npm output to avoid polluting stdout)
+    npm version "$version" --no-git-tag-version >/dev/null
 
     # Update version constants
     sedi "s/var version = \"[-0-9.a-zA-Z]*\"/var version = \"$version\"/" android/src/main/java/com/airship/capacitor/AirshipCapacitorVersion.kt
@@ -553,10 +556,15 @@ EOF
 }
 
 # Update a single plugin
+# Sets UPDATE_PLUGIN_RESULT global variable with PR URL on success
+# All output goes to stdout/stderr normally (no capture needed by caller)
 update_plugin() {
     local plugin="$1"
     local plugin_version="$2"
     local repo_path="$3"
+
+    # Reset result
+    UPDATE_PLUGIN_RESULT=""
 
     echo -e "${BLUE}Updating $(get_display_name "$plugin")...${NC}"
 
@@ -590,7 +598,7 @@ update_plugin() {
     fi
 
     # Create the branch
-    git checkout -b "$branch_name"
+    git checkout -b "$branch_name" >/dev/null 2>&1
     echo "  ✓ Created branch: $branch_name"
 
     # Update version files (plugin-specific)
@@ -617,7 +625,7 @@ update_plugin() {
     # Generate changelog
     generate_changelog "$plugin" "$plugin_version"
 
-    # Commit changes
+    # Commit changes (suppress git output to avoid polluting stdout)
     git add .
     git commit -m "Release ${plugin_version}
 
@@ -626,7 +634,7 @@ update_plugin() {
 ${IOS_VERSION:+- Updated iOS SDK to ${IOS_VERSION}}
 ${ANDROID_VERSION:+- Updated Android SDK to ${ANDROID_VERSION}}
 
-🤖 Generated with centralized release automation"
+🤖 Generated with centralized release automation" >/dev/null 2>&1
 
     # Push to remote with retry logic
     local push_attempts=0
@@ -660,7 +668,7 @@ ${ANDROID_VERSION:+- Updated Android SDK to ${ANDROID_VERSION}}
 
     if [ -n "$existing_pr" ]; then
         echo "  ℹ️  PR already exists for branch $branch_name"
-        echo "$existing_pr"
+        UPDATE_PLUGIN_RESULT="$existing_pr"
         return 0
     fi
 
@@ -685,12 +693,11 @@ ${ANDROID_VERSION:+- Updated Android SDK to ${ANDROID_VERSION}}
         # Check for "already exists" which is not an error
         if echo "$pr_output" | grep -q "already exists"; then
             echo "  ℹ️  PR already exists for this branch"
-            PR_URL=$(gh pr list --repo "urbanairship/$(get_repo_name "$plugin")" \
+            UPDATE_PLUGIN_RESULT=$(gh pr list --repo "urbanairship/$(get_repo_name "$plugin")" \
                 --head "$branch_name" --json url --jq '.[0].url' 2>/dev/null)
-            echo "$PR_URL"
             return 0
         fi
-        echo "  ✗ Failed to create PR: $pr_output" >&2
+        echo "  ✗ Failed to create PR: $pr_output"
         return 1
     fi
 
@@ -698,7 +705,7 @@ ${ANDROID_VERSION:+- Updated Android SDK to ${ANDROID_VERSION}}
     PR_URL=$(echo "$pr_output" | grep -oE "https://github.com/[^[:space:]]+" | head -1)
 
     if [ -z "$PR_URL" ]; then
-        echo "  ⚠️  PR created but couldn't extract URL from output" >&2
+        echo "  ⚠️  PR created but couldn't extract URL from output"
         PR_URL="CHECK_GITHUB"
     fi
 
@@ -707,7 +714,7 @@ ${ANDROID_VERSION:+- Updated Android SDK to ${ANDROID_VERSION}}
         validate_pr "$plugin" "$plugin_version" "$PR_URL" "urbanairship/$(get_repo_name "$plugin")"
     fi
 
-    echo "$PR_URL"
+    UPDATE_PLUGIN_RESULT="$PR_URL"
 }
 
 # Main execution
@@ -748,16 +755,14 @@ main() {
         echo ""
 
         # Update plugin (with error handling)
-        local error_file=$(mktemp)
-        if pr_url=$(update_plugin "$plugin" "$plugin_version" "$WORK_DIR/$(get_repo_name "$plugin")" 2>"$error_file"); then
-            set_pr_url "$plugin" "$pr_url"
-            echo -e "  ${GREEN}✓ PR created: $pr_url${NC}"
+        # Result is stored in UPDATE_PLUGIN_RESULT global variable
+        if update_plugin "$plugin" "$plugin_version" "$WORK_DIR/$(get_repo_name "$plugin")"; then
+            set_pr_url "$plugin" "$UPDATE_PLUGIN_RESULT"
+            echo -e "  ${GREEN}✓ PR created: $UPDATE_PLUGIN_RESULT${NC}"
         else
             echo -e "  ${RED}✗ Failed to update ${plugin}${NC}"
-            echo -e "  Error: $(cat "$error_file")"
             set_pr_url "$plugin" "FAILED"
         fi
-        rm -f "$error_file"
     done
     # Re-enable exit-on-error
     set -e
