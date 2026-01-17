@@ -11,6 +11,7 @@ sedi() {
 }
 
 # Determine bump type (major, minor, patch)
+# Properly compares semver: only checks minor if major is equal, only checks patch if both are equal
 determine_bump_type() {
     local old=$1
     local new=$2
@@ -20,10 +21,18 @@ determine_bump_type() {
 
     if [ "$new_major" -gt "$old_major" ]; then
         echo "major"
-    elif [ "$new_minor" -gt "$old_minor" ]; then
-        echo "minor"
-    elif [ "$new_patch" -gt "$old_patch" ]; then
-        echo "patch"
+    elif [ "$new_major" -eq "$old_major" ]; then
+        if [ "$new_minor" -gt "$old_minor" ]; then
+            echo "minor"
+        elif [ "$new_minor" -eq "$old_minor" ]; then
+            if [ "$new_patch" -gt "$old_patch" ]; then
+                echo "patch"
+            else
+                echo "none"
+            fi
+        else
+            echo "none"
+        fi
     else
         echo "none"
     fi
@@ -128,8 +137,8 @@ get_proxy_version_from_release() {
     fi
 }
 
-# Determine plugin bump type based on proxy major version change
-# Compares proxy version at plugin's last release vs current proxy version
+# Determine plugin bump type based on proxy version change
+# Properly compares semver: only checks minor if major is equal, only checks patch if both are equal
 # Args: $1 = old proxy version, $2 = new proxy version
 determine_plugin_bump_type() {
     local old_proxy="$1"
@@ -141,12 +150,20 @@ determine_plugin_bump_type() {
     # Major version change in proxy = major bump for plugin
     if [ "$new_major" -gt "$old_major" ]; then
         echo "major"
-    # Minor version change in proxy = minor bump for plugin
-    elif [ "$new_minor" -gt "$old_minor" ]; then
-        echo "minor"
-    # Patch version change in proxy = patch bump for plugin
-    elif [ "$new_patch" -gt "$old_patch" ]; then
-        echo "patch"
+    elif [ "$new_major" -eq "$old_major" ]; then
+        # Minor version change in proxy = minor bump for plugin
+        if [ "$new_minor" -gt "$old_minor" ]; then
+            echo "minor"
+        elif [ "$new_minor" -eq "$old_minor" ]; then
+            # Patch version change in proxy = patch bump for plugin
+            if [ "$new_patch" -gt "$old_patch" ]; then
+                echo "patch"
+            else
+                echo "none"
+            fi
+        else
+            echo "none"
+        fi
     else
         echo "none"
     fi
