@@ -3,7 +3,6 @@
 package com.urbanairship.android.framework.proxy
 
 import android.util.Log
-import com.urbanairship.util.UAStringUtil
 import java.util.*
 
 /**
@@ -169,7 +168,7 @@ public object ProxyLogger {
             return
         }
 
-        val formattedMessage: String? = if (UAStringUtil.isEmpty(message)) {
+        val formattedMessage: String? = if (message.isNullOrEmpty()) {
             // Default to empty string
             ""
         } else {

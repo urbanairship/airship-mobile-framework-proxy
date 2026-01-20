@@ -12,7 +12,6 @@ import com.urbanairship.android.framework.proxy.ProxyLogger.error
 import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
-import com.urbanairship.util.UAStringUtil
 import androidx.core.graphics.toColorInt
 
 /**
@@ -102,7 +101,7 @@ public object Utils {
         resourceName: String,
         resourceFolder: String
     ): Int {
-        if (!UAStringUtil.isEmpty(resourceName)) {
+        if (resourceName.isNotBlank()) {
             val id =
                 context.resources.getIdentifier(resourceName, resourceFolder, context.packageName)
             if (id != 0) {
@@ -124,7 +123,7 @@ public object Utils {
     @ColorInt
     @JvmStatic
     public fun getHexColor(hexColor: String, @ColorInt defaultColor: Int): Int {
-        if (!UAStringUtil.isEmpty(hexColor)) {
+        if (hexColor.isNotBlank()) {
             try {
                 return hexColor.toColorInt()
             } catch (e: IllegalArgumentException) {
@@ -141,7 +140,7 @@ public object Utils {
 
     private fun getNotificationId(notificationId: Int, notificationTag: String?): String {
         var id = notificationId.toString()
-        if (!UAStringUtil.isEmpty(notificationTag)) {
+        if (!notificationTag.isNullOrEmpty()) {
             id += ":$notificationTag"
         }
         return id
