@@ -1,6 +1,7 @@
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.Airship
+import com.urbanairship.UALog
 import com.urbanairship.actions.DeepLinkListener
 import com.urbanairship.android.framework.proxy.events.ChannelCreatedEvent
 import com.urbanairship.android.framework.proxy.events.DeepLinkEvent
@@ -120,7 +121,7 @@ internal class AirshipListener(
         val override = AirshipPluginExtensions.onDeepLink?.invoke(deepLink)
         when(override) {
             is AirshipPluginOverride.Override -> {
-                ProxyLogger.debug("Deeplink handling for $deepLink overridden by plugin extension")
+                UALog.d { "Deeplink handling for $deepLink overridden by plugin extension" }
             }
             is AirshipPluginOverride.UseDefault, null -> {
                 eventEmitter.addEvent(DeepLinkEvent(deepLink))

@@ -19,22 +19,26 @@ public final class AirshipChannelProxy: Sendable {
     }
 
     public func enableChannelCreation() throws -> Void {
+        AirshipLogger.trace("enableChannelCreation called")
         try self.channel.enableChannelCreation()
     }
 
     public func addTags(_ tags: [String]) throws {
+        AirshipLogger.trace("addTags called, tags=\(tags)")
         try self.channel.editTags { editor in
             editor.add(tags)
         }
     }
 
     public func removeTags(_ tags: [String]) throws {
+        AirshipLogger.trace("removeTags called, tags=\(tags)")
         try self.channel.editTags { editor in
             editor.remove(tags)
         }
     }
 
     public func editTags(operations: [TagOperation]) throws {
+        AirshipLogger.trace("editTags called, operations=\(operations)")
         try self.channel.editTags { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)
@@ -49,6 +53,7 @@ public final class AirshipChannelProxy: Sendable {
     }
 
     public func fetchSubscriptionLists() async throws -> [String] {
+        AirshipLogger.trace("fetchSubscriptionLists called")
         return try await self.channel.fetchSubscriptionLists()
     }
 
@@ -59,6 +64,7 @@ public final class AirshipChannelProxy: Sendable {
     }
 
     public func waitForChannelID() async throws -> String {
+        AirshipLogger.trace("waitForChannelID called")
         if let channelID = try self.channel.identifier {
             return channelID
         }
@@ -71,6 +77,7 @@ public final class AirshipChannelProxy: Sendable {
     }
 
     public func editTagGroups(operations: [TagGroupOperation]) throws {
+        AirshipLogger.trace("editTagGroups called, operations=\(operations.count)")
         try self.channel.editTagGroups { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)
@@ -79,6 +86,7 @@ public final class AirshipChannelProxy: Sendable {
     }
 
     public func editAttributes(operations: [AttributeOperation]) throws {
+        AirshipLogger.trace("editAttributes called, operations=\(operations.count)")
         let editor = try self.channel.editAttributes()
         try operations.forEach { operation in
             try operation.apply(editor: editor)
@@ -87,6 +95,7 @@ public final class AirshipChannelProxy: Sendable {
     }
 
     public func editSubscriptionLists(json: Any) throws {
+        AirshipLogger.trace("editSubscriptionLists called with json")
         let data = try AirshipJSONUtils.data(json)
         let operations = try JSONDecoder().decode(
             [SubscriptionListOperation].self,
@@ -99,6 +108,7 @@ public final class AirshipChannelProxy: Sendable {
     public func editSubscriptionLists(
         operations: [SubscriptionListOperation]
     ) throws {
+        AirshipLogger.trace("editSubscriptionLists called, operations=\(operations.count)")
         try self.channel.editSubscriptionLists { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)

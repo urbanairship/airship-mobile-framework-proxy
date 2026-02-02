@@ -9,6 +9,7 @@ import com.urbanairship.Autopilot
 import com.urbanairship.actions.DefaultActionRunner
 import com.urbanairship.android.framework.proxy.ProxyConfig
 import com.urbanairship.android.framework.proxy.ProxyStore
+import com.urbanairship.UALog
 import com.urbanairship.automation.inAppAutomation
 import com.urbanairship.featureflag.FeatureFlagManager
 import com.urbanairship.json.JsonValue
@@ -94,9 +95,12 @@ public class AirshipProxy(
     }
 
     public fun takeOff(config: ProxyConfig): Boolean {
+        UALog.v { "TakeOff requested with config=$config" }
         proxyStore.airshipConfig = config
         Autopilot.automaticTakeOff(context)
-        return isFlying()
+        val flying = isFlying()
+        UALog.v { "TakeOff completed, isFlying=$flying" }
+        return flying
     }
 
     public fun isFlying(): Boolean {
@@ -122,6 +126,7 @@ public class AirshipProxy(
 
     private fun ensureTakeOff() {
         if (!Airship.isFlyingOrTakingOff) {
+            UALog.w { "TakeOff not called. Ensure Airship.takeOff() has completed before using proxy APIs." }
             throw java.lang.IllegalStateException("Takeoff not called.")
         }
     }

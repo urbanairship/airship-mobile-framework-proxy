@@ -8,7 +8,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.android.framework.proxy.BaseNotificationProvider
 import com.urbanairship.android.framework.proxy.NotificationConfig
 import com.urbanairship.android.framework.proxy.NotificationStatus
-import com.urbanairship.android.framework.proxy.ProxyLogger
+import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.android.framework.proxy.Utils
 import com.urbanairship.json.JsonException
@@ -40,19 +40,23 @@ public class PushProxy internal constructor(
         set(enabled) { store.isForegroundNotificationsEnabled = enabled }
 
     public fun setNotificationConfig(config: JsonValue) {
+        UALog.v { "setNotificationConfig called with $config" }
         setNotificationConfig(NotificationConfig(config.optMap()))
     }
 
     public fun setNotificationConfig(config: NotificationConfig) {
+        UALog.v { "setNotificationConfig called with $config" }
         this.store.notificationConfig = config
         (pushProvider().notificationProvider as? BaseNotificationProvider)?.applyNotificationConfig(config)
     }
 
     public fun setUserNotificationsEnabled(enabled: Boolean) {
+        UALog.v { "setUserNotificationsEnabled called, enabled=$enabled" }
         pushProvider().userNotificationsEnabled = enabled
     }
 
     public suspend fun enableUserPushNotifications(args: EnableUserNotificationsArgs? = null): Boolean {
+        UALog.v { "enableUserPushNotifications called, args=$args" }
         return suspendCoroutine { continuation ->
             pushProvider().enableUserNotifications(promptFallback = args?.fallback ?: PermissionPromptFallback.None) { result ->
                 continuation.resumeWith(Result.success(result))
@@ -61,6 +65,7 @@ public class PushProxy internal constructor(
     }
 
     public suspend fun getNotificationStatus(): NotificationStatus {
+        UALog.v { "getNotificationStatus called" }
         val permissionStatus = permissionsManagerProvider().checkPermissionStatus(Permission.DISPLAY_NOTIFICATIONS)
         return NotificationStatus(
             pushProvider().pushNotificationStatus,
@@ -70,6 +75,7 @@ public class PushProxy internal constructor(
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public fun isNotificationChannelEnabled(channelId: String): Boolean {
+        UALog.v { "isNotificationChannelEnabled called, channelId=$channelId" }
         val manager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel = manager.getNotificationChannel(channelId)
@@ -81,26 +87,30 @@ public class PushProxy internal constructor(
     }
 
     public fun getRegistrationToken(): String? {
+        UALog.v { "getRegistrationToken called" }
         return pushProvider().pushToken
     }
 
     public fun isUserNotificationsEnabled(): Boolean {
+        UALog.v { "isUserNotificationsEnabled called" }
         return pushProvider().userNotificationsEnabled
     }
 
     public fun clearNotifications() {
+        UALog.v { "clearNotifications called" }
         NotificationManagerCompat.from(context).cancelAll()
     }
 
     public fun clearNotification(identifier: String) {
+        UALog.v { "clearNotification called, identifier=$identifier" }
         if (identifier.isEmpty()) {
-            ProxyLogger.error("Invalid identifier: $identifier")
+            UALog.e { "Invalid identifier: $identifier" }
             return
         }
 
         val parts = identifier.split(":".toRegex(), 2).toTypedArray()
         if (parts.isEmpty()) {
-            ProxyLogger.error("Invalid identifier: $identifier")
+            UALog.e { "Invalid identifier: $identifier" }
             return
         }
 
@@ -108,7 +118,7 @@ public class PushProxy internal constructor(
         val id: Int = try {
             parts[0].toInt()
         } catch (e: NumberFormatException) {
-            ProxyLogger.error(e, "Invalid identifier: $identifier")
+            UALog.e(e) { "Invalid identifier: $identifier" }
             return
         }
         if (parts.size == 2) {
@@ -118,6 +128,7 @@ public class PushProxy internal constructor(
     }
 
     public fun getActiveNotifications(): List<Map<String, Any>> {
+        UALog.v { "getActiveNotifications called" }
         val manager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

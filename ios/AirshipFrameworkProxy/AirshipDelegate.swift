@@ -29,6 +29,7 @@ final class AirshipDelegate {
     }
 
     func messageCenterInboxUpdated() {
+        AirshipLogger.trace("Message center inbox updated, emitting event")
         Task {
             self.eventEmitter.addEvent(
                 MessageCenterUpdatedEvent(
@@ -45,7 +46,7 @@ final class AirshipDelegate {
         guard let channelID = Airship.channel.identifier else {
             return
         }
-
+        AirshipLogger.trace("Channel created, emitting event channelId=\(channelID)")
         self.eventEmitter.addEvent(
             ChannelCreatedEvent(channelID)
         )

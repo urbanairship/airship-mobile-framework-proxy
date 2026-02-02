@@ -2,6 +2,7 @@
 
 package com.urbanairship.android.framework.proxy.events
 
+import com.urbanairship.UALog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,11 +29,11 @@ public class EventEmitter {
     public fun addEvent(event: Event, replacePending: Boolean = false) {
         synchronized(lock) {
             if (replacePending) {
-                pendingEvents.removeAll {
-                    event.type == it.type
-                }
+                val removed = pendingEvents.removeAll { event.type == it.type }
+                UALog.v { "addEvent replacePending=true, type=${event.type}, removed=$removed, pendingCount=${pendingEvents.size}" }
             }
             pendingEvents.add(event)
+            UALog.v { "addEvent emitted event: type=${event.type}, body=${event.body}, replacePending=$replacePending" }
             scope.launch {
                 _pendingEventsUpdates.emit(event)
             }
@@ -50,15 +51,16 @@ public class EventEmitter {
             pendingEvents.removeAll {
                 types.contains(it.type) && result.add(it)
             }
+            UALog.v { "takePending types=$types, taken=${result.size}, remainingPending=${pendingEvents.size}" }
             return result
         }
     }
 
     public fun hasEvents(types: List<EventType>): Boolean {
         synchronized(lock) {
-            return pendingEvents.firstOrNull {
-                types.contains(it.type)
-            } != null
+            val has = pendingEvents.firstOrNull { types.contains(it.type) } != null
+            UALog.v { "hasEvents types=$types, hasMatching=$has, pendingCount=${pendingEvents.size}" }
+            return has
         }
     }
 
@@ -69,13 +71,15 @@ public class EventEmitter {
      */
     public fun processPending(types: List<EventType>, onProcess: (Event) -> Boolean) {
         synchronized(lock) {
-            pendingEvents.removeAll {
+            val before = pendingEvents.size
+            val removed = pendingEvents.removeAll {
                 if (!types.contains(it.type)) {
                     false
                 } else {
                     onProcess(it)
                 }
             }
+            UALog.v { "processPending types=$types, processed=$removed, pendingBefore=$before, pendingAfter=${pendingEvents.size}" }
         }
     }
 

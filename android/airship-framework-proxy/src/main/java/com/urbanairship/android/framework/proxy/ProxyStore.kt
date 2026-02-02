@@ -5,6 +5,7 @@ package com.urbanairship.android.framework.proxy
 import android.annotation.SuppressLint
 import android.content.Context
 import com.urbanairship.android.framework.proxy.proxies.PushProxy
+import com.urbanairship.UALog
 import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 import com.urbanairship.json.jsonMapOf
@@ -72,7 +73,7 @@ public class ProxyStore internal constructor(private val context: Context) {
             val json = JsonValue.parseString(jsonString)
             parser(json)
         } catch (e: Exception) {
-            ProxyLogger.error("Failed to parse $key in config.", e)
+            UALog.e(e) { "Failed to parse $key in config." }
             null
         }
     }

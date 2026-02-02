@@ -29,6 +29,7 @@ public final class AirshipActionProxy: Sendable {
         _ name: String,
         value: AirshipJSON?
     ) async throws -> AirshipJSON {
+        AirshipLogger.trace("runAction called, name=\(name)")
         let result = try await self.actionRunner.runAction(
             name,
             value: value

@@ -153,6 +153,7 @@ public final class AirshipProxy: Sendable {
 
     private static func ensureAirshipReady() throws {
         guard Airship.isFlying else {
+            AirshipLogger.warn("Airship not ready. Ensure takeOff has completed before using proxy APIs.")
             throw AirshipProxyError.takeOffNotCalled
         }
     }
@@ -164,16 +165,18 @@ public final class AirshipProxy: Sendable {
         }
 
         if (!migrateCalled) {
+            AirshipLogger.debug("Running migration")
             self.delegate?.migrateData(store: self.proxyStore)
             migrateCalled = true
         }
 
         let airshipConfig = makeConfig()
-
+        AirshipLogger.debug("Applying proxy config from store: \(self.proxyStore.config != nil)")
         self.airshipDelegate = AirshipDelegate(proxyStore: proxyStore)
 
         AirshipLogger.debug("Taking off! \(airshipConfig)")
         try Airship.takeOff(airshipConfig)
+        AirshipLogger.debug("TakeOff completed")
         Airship.deepLinkDelegate = self.airshipDelegate
         Airship.push.registrationDelegate = self.airshipDelegate
         Airship.push.pushNotificationDelegate = self.airshipDelegate
@@ -249,7 +252,10 @@ public final class AirshipProxy: Sendable {
         airshipConfig.requireInitialRemoteConfigEnabled = true
 
         if let config = self.proxyStore.config {
+            AirshipLogger.debug("Applying ProxyConfig to AirshipConfig")
             airshipConfig.applyProxyConfig(proxyConfig: config)
+        } else {
+            AirshipLogger.debug("No proxy config in store, using default/delegate config")
         }
 
         AirshipProxy.extender?.extendConfig(config: &airshipConfig)
