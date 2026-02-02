@@ -36,7 +36,7 @@ public class CustomMessageCenterActivity : FragmentActivity() {
         Autopilot.automaticTakeOff(application)
 
         if (!Airship.isFlyingOrTakingOff) {
-            UALog.e("MessageCenterActivity - unable to create activity, takeOff not called.")
+            UALog.e { "MessageCenterActivity - unable to create activity, takeOff not called. intent=$intent" }
             finish()
             return
         }

@@ -20,6 +20,7 @@ public final class AirshipLocaleProxy: Sendable {
     }
 
     public func setCurrentLocale(_ localeIdentifier: String?) throws {
+        AirshipLogger.trace("setCurrentLocale called, localeIdentifier=\(String(describing: localeIdentifier))")
         if let localeIdentifier = localeIdentifier {
             try self.locale.currentLocale = Locale(
                 identifier: localeIdentifier
@@ -37,6 +38,7 @@ public final class AirshipLocaleProxy: Sendable {
     }
 
     public func clearLocale() throws {
+        AirshipLogger.trace("clearLocale called")
         try self.locale.clearLocale()
     }
 

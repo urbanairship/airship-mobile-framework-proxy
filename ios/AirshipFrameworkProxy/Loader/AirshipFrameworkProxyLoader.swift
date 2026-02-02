@@ -17,6 +17,12 @@ public class AirshipFrameworkProxyLoader: NSObject {
 
     @objc
     public static func onLoad() {
+        AirshipLogger.debug("Loader onLoad called")
+        if pluginLoader != nil {
+            AirshipLogger.debug("Plugin loader found, delegating onLoad")
+        } else {
+            AirshipLogger.debug("No plugin loader found")
+        }
         pluginLoader?.onLoad()
     }
 }

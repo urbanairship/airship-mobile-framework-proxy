@@ -32,6 +32,7 @@ public final class AirshipMessageCenterProxy: Sendable {
 
     @MainActor
     public func display(messageID: String?) throws {
+        AirshipLogger.trace("display called, messageID=\(String(describing: messageID))")
         if let messageID = messageID {
             try self.messageCenter.display(messageID: messageID)
         } else {
@@ -41,16 +42,19 @@ public final class AirshipMessageCenterProxy: Sendable {
 
     @MainActor
     public func showMessageCenter(messageID: String?) throws {
+        AirshipLogger.trace("showMessageCenter called, messageID=\(String(describing: messageID))")
         DefaultMessageCenterUI.shared.display(messageID: messageID)
     }
 
     @MainActor
     public func showMessageView(messageID: String) throws {
+        AirshipLogger.trace("showMessageView called, messageID=\(messageID)")
         DefaultMessageCenterUI.shared.displayMessageView(messageID: messageID)
     }
 
     @MainActor
     public func dismiss() throws {
+        AirshipLogger.trace("dismiss called")
         try self.messageCenter.dismiss()
     }
 
@@ -63,6 +67,7 @@ public final class AirshipMessageCenterProxy: Sendable {
     }
 
     public func getMessage(messageID: String) async throws -> AirshipMessageCenterMessage {
+        AirshipLogger.trace("getMessage called, messageID=\(messageID)")
         guard let message = try await self.messageCenter.inbox.message(forID: messageID) else {
             throw AirshipMessageCenterProxyError.messageNotFound
         }
@@ -79,6 +84,7 @@ public final class AirshipMessageCenterProxy: Sendable {
     public func deleteMessage(
         messageID: String
     ) async throws {
+        AirshipLogger.trace("deleteMessage called, messageID=\(messageID)")
         guard try await self.messageCenter.inbox.message(forID: messageID) != nil else {
             throw AirshipMessageCenterProxyError.messageNotFound
         }
@@ -88,6 +94,7 @@ public final class AirshipMessageCenterProxy: Sendable {
     public func markMessageRead(
         messageID:String
     ) async throws {
+        AirshipLogger.trace("markMessageRead called, messageID=\(messageID)")
         guard try await self.messageCenter.inbox.message(forID: messageID) != nil else {
             throw AirshipMessageCenterProxyError.messageNotFound
         }
@@ -95,6 +102,7 @@ public final class AirshipMessageCenterProxy: Sendable {
     }
 
     public func refresh() async throws {
+        AirshipLogger.trace("refresh called")
         guard try await self.messageCenter.inbox.refreshMessages() else {
             throw AirshipMessageCenterProxyError.refreshFailed
         }
@@ -102,6 +110,7 @@ public final class AirshipMessageCenterProxy: Sendable {
 
     @MainActor
     public func setAutoLaunchDefaultMessageCenter(_ enabled: Bool) {
+        AirshipLogger.trace("setAutoLaunchDefaultMessageCenter called, enabled=\(enabled)")
         self.proxyStore.autoDisplayMessageCenter = enabled
     }
 }

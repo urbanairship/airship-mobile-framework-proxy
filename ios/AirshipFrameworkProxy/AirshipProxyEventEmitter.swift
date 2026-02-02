@@ -1,6 +1,12 @@
 import Foundation
 @preconcurrency public import Combine
 
+#if canImport(AirshipKit)
+import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
+
 @MainActor
 public final class AirshipProxyEventEmitter {
     private let updateContinuation: AsyncStream<any AirshipProxyEvent>.Continuation
@@ -23,13 +29,15 @@ public final class AirshipProxyEventEmitter {
     }
 
     public func hasEvent(type: AirshipProxyEventType) -> Bool {
-        return pendingEvents.contains { event in
-            event.type == type
-        }
+        let has = pendingEvents.contains { $0.type == type }
+        AirshipLogger.trace("hasEvent type=\(type), hasMatching=\(has), pendingCount=\(pendingEvents.count)")
+        return has
     }
 
     public func hasAnyEvents() -> Bool {
-        return !pendingEvents.isEmpty
+        let has = !pendingEvents.isEmpty
+        AirshipLogger.trace("hasAnyEvents hasEvents=\(has), pendingCount=\(pendingEvents.count)")
+        return has
     }
 
     public func takePendingEvents(
@@ -47,6 +55,7 @@ public final class AirshipProxyEventEmitter {
             }
         })
 
+        AirshipLogger.trace("takePendingEvents type=\(type), taken=\(result.count), remainingPending=\(pendingEvents.count)")
         return result
     }
 
@@ -60,6 +69,7 @@ public final class AirshipProxyEventEmitter {
             Set(AirshipProxyEventType.allCases)
         }
 
+        let before = pendingEvents.count
         pendingEvents.removeAll(where: { event in
             if types.contains(event.type) {
                 return handler(event)
@@ -67,13 +77,20 @@ public final class AirshipProxyEventEmitter {
                 return false
             }
         })
+        let after = pendingEvents.count
+        let processed = before - after
+        AirshipLogger.trace("processPendingEvents type=\(type.map { String(describing: $0) } ?? "all"), processed=\(processed), pendingBefore=\(before), pendingAfter=\(after)")
     }
 
     func addEvent(_ event: any AirshipProxyEvent, replacePending: Bool = false) {
         if replacePending {
-            self.pendingEvents.removeAll { event.type == $0.type }
+            let before = pendingEvents.count
+            pendingEvents.removeAll { event.type == $0.type }
+            let removed = before - pendingEvents.count
+            AirshipLogger.trace("addEvent replacePending=true, type=\(event.type), removed=\(removed), pendingCount=\(pendingEvents.count)")
         }
-        self.pendingEvents.append(event)
+        pendingEvents.append(event)
+        AirshipLogger.trace("addEvent emitted event: type=\(event.type), replacePending=\(replacePending)")
         updateContinuation.yield(event)
         eventSubject.send(event)
     }

@@ -1,6 +1,7 @@
 package com.urbanairship.android.framework.proxy.proxies
 
 import com.urbanairship.PrivacyManager
+import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.Utils
 import com.urbanairship.json.JsonValue
 
@@ -8,6 +9,7 @@ public class PrivacyManagerProxy internal constructor(
     private val privacyManagerProvider: () -> PrivacyManager
 ) {
     public fun setEnabledFeatures(featureNames: List<String>) {
+        UALog.v { "setEnabledFeatures called, featureNames=$featureNames" }
         setEnabledFeatures(
             JsonValue.wrapOpt(featureNames)
         )
@@ -24,10 +26,12 @@ public class PrivacyManagerProxy internal constructor(
     }
 
     public fun getFeatureNames(): List<String> {
+        UALog.v { "getFeatureNames called" }
         return Utils.featureNames(privacyManagerProvider().enabledFeatures)
     }
 
     public fun enableFeatures(featureNames: List<String>) {
+        UALog.v { "enableFeatures called, featureNames=$featureNames" }
         enableFeatures(
             JsonValue.wrapOpt(featureNames)
         )
@@ -44,6 +48,7 @@ public class PrivacyManagerProxy internal constructor(
     }
 
     public fun disableFeatures(featureNames: List<String>) {
+        UALog.v { "disableFeatures called, featureNames=$featureNames" }
         disableFeatures(
             JsonValue.wrapOpt(featureNames)
         )
@@ -60,6 +65,7 @@ public class PrivacyManagerProxy internal constructor(
     }
 
     public fun isFeatureEnabled(featureNames: List<String>): Boolean {
+        UALog.v { "isFeatureEnabled called, featureNames=$featureNames" }
         return isFeatureEnabled(
             JsonValue.wrapOpt(featureNames)
         )

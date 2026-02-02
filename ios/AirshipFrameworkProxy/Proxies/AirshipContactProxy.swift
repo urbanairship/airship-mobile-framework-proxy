@@ -20,6 +20,7 @@ public final class AirshipContactProxy: Sendable {
     }
 
     public func identify(_ namedUser: String) throws {
+        AirshipLogger.trace("identify called, namedUser=\(namedUser)")
         let namedUser = namedUser.trimmingCharacters(
             in: CharacterSet.whitespacesAndNewlines
         )
@@ -32,10 +33,12 @@ public final class AirshipContactProxy: Sendable {
     }
 
     public func reset() throws {
+        AirshipLogger.trace("reset called")
         try self.contact.reset()
     }
 
     public func notifyRemoteLogin() throws {
+        AirshipLogger.trace("notifyRemoteLogin called")
         try self.contact.notifyRemoteLogin()
     }
 
@@ -46,6 +49,7 @@ public final class AirshipContactProxy: Sendable {
     }
 
     public func getSubscriptionLists() async throws -> [String: [String]] {
+        AirshipLogger.trace("getSubscriptionLists called")
         let lists = try await self.contact.fetchSubscriptionLists()
 
         var converted: [String : [String]] = [:]
@@ -60,6 +64,7 @@ public final class AirshipContactProxy: Sendable {
     }
 
     public func editTagGroups(operations: [TagGroupOperation]) throws {
+        AirshipLogger.trace("editTagGroups called, operations=\(operations.count)")
         try self.contact.editTagGroups { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)
@@ -68,6 +73,7 @@ public final class AirshipContactProxy: Sendable {
     }
 
     public func editAttributes(operations: [AttributeOperation]) throws {
+        AirshipLogger.trace("editAttributes called, operations=\(operations.count)")
         let editor = try self.contact.editAttributes()
         try operations.forEach { operation in
             try operation.apply(editor: editor)
@@ -78,6 +84,7 @@ public final class AirshipContactProxy: Sendable {
     public func editSubscriptionLists(
         operations: [ScopedSubscriptionListOperation]
     ) throws {
+        AirshipLogger.trace("editSubscriptionLists called, operations=\(operations.count)")
         try self.contact.editSubscriptionLists { editor in
             operations.forEach { operation in
                 operation.apply(editor: editor)

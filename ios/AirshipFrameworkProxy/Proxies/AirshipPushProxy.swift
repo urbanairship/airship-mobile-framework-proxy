@@ -31,16 +31,19 @@ public final class AirshipPushProxy: Sendable {
     public func setUserNotificationsEnabled(
         _ enabled: Bool
     ) throws -> Void {
+        AirshipLogger.trace("setUserNotificationsEnabled called, enabled=\(enabled)")
         try self.push.userPushNotificationsEnabled = enabled
     }
 
     public func isUserNotificationsEnabled() throws -> Bool {
+        AirshipLogger.trace("isUserNotificationsEnabled called")
         return try self.push.userPushNotificationsEnabled
     }
 
     public func enableUserPushNotifications(
         args: EnableUserPushNotificationsArgs? = nil
     ) async throws -> Bool {
+        AirshipLogger.trace("enableUserPushNotifications called")
         return try await self.push.enableUserPushNotifications(
             fallback: args?.fallback ?? .none
         )
@@ -48,6 +51,7 @@ public final class AirshipPushProxy: Sendable {
 
     @MainActor
     public func getRegistrationToken() throws -> String? {
+        AirshipLogger.trace("getRegistrationToken called")
         return try self.push.deviceToken
     }
 
@@ -55,6 +59,7 @@ public final class AirshipPushProxy: Sendable {
     public func setNotificationOptions(
         names:[String]
     ) throws {
+        AirshipLogger.trace("setNotificationOptions called")
         let options = try UNAuthorizationOptions.parse(names)
         try self.push.notificationOptions = options
     }
@@ -63,6 +68,7 @@ public final class AirshipPushProxy: Sendable {
     public func setForegroundPresentationOptions(
         names: [String]
     ) throws {
+        AirshipLogger.trace("setForegroundPresentationOptions called")
         let options = try UNNotificationPresentationOptions.parse(names)
         try self.push.defaultPresentationOptions = options
         self.proxyStore.foregroundPresentationOptions = options
@@ -76,15 +82,18 @@ public final class AirshipPushProxy: Sendable {
     }
 
     public func getAuthorizedNotificationSettings() throws -> [String] {
+        AirshipLogger.trace("getAuthorizedNotificationSettings called")
         return try self.push.authorizedNotificationSettings.names
     }
 
     public func getAuthroizedNotificationStatus() throws -> String {
+        AirshipLogger.trace("getAuthroizedNotificationStatus called")
         return try self.push.authorizationStatus.name
     }
 
     @objc
     public func setAutobadgeEnabled(_ enabled: Bool) throws {
+        AirshipLogger.trace("setAutobadgeEnabled called, enabled=\(enabled)")
         try self.push.autobadgeEnabled = enabled
     }
 
@@ -94,20 +103,24 @@ public final class AirshipPushProxy: Sendable {
     }
 
     public func isAutobadgeEnabled() throws -> Bool {
+        AirshipLogger.trace("isAutobadgeEnabled called")
         return try self.push.autobadgeEnabled
     }
 
     @MainActor
     public func setBadgeNumber(_ badgeNumber: Int) async throws {
+        AirshipLogger.trace("setBadgeNumber called, badgeNumber=\(badgeNumber)")
         try await self.push.setBadgeNumber(badgeNumber)
     }
 
     @MainActor
     public func getBadgeNumber() throws -> Int {
+        AirshipLogger.trace("getBadgeNumber called")
         return try self.push.badgeNumber
     }
 
     public func setQuietTime(_ settings: ProxyQuietTimeSettings) throws {
+        AirshipLogger.trace("setQuietTime called")
         try self.push.quietTime = QuietTimeSettings(
             startHour: settings.startHour,
             startMinute: settings.startMinute,
@@ -117,31 +130,37 @@ public final class AirshipPushProxy: Sendable {
     }
 
     public func getQuietTime() throws -> ProxyQuietTimeSettings? {
+        AirshipLogger.trace("getQuietTime called")
         guard let settings = try self.push.quietTime else { return nil }
         return settings.proxySettings
     }
 
     public func setQuietTimeEnabled(_ enabled: Bool) throws -> Void {
+        AirshipLogger.trace("setQuietTimeEnabled called, enabled=\(enabled)")
         try self.push.quietTimeEnabled = enabled
     }
 
     public func isQuietTimeEnabled() throws -> Bool {
+        AirshipLogger.trace("isQuietTimeEnabled called")
         return try self.push.quietTimeEnabled
     }
 
     @objc
     public func clearNotifications() {
+        AirshipLogger.trace("clearNotifications called")
         UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     }
 
     @objc
     public func clearNotification(_ identifier: String) {
+        AirshipLogger.trace("clearNotification called, identifier=\(identifier)")
         UNUserNotificationCenter.current().removeDeliveredNotifications(
             withIdentifiers: [identifier]
         )
     }
 
     public func getActiveNotifications() async throws -> [ProxyPushPayload] {
+        AirshipLogger.trace("getActiveNotifications called")
         let notifications = await UNUserNotificationCenter.current().deliveredNotifications()
         return try notifications.map { notification in
             try ProxyPushPayload(notification: notification)

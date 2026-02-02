@@ -8,7 +8,7 @@ import android.util.Log
 import androidx.annotation.ColorInt
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.PrivacyManager
-import com.urbanairship.android.framework.proxy.ProxyLogger.error
+import com.urbanairship.UALog
 import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
@@ -107,7 +107,7 @@ public object Utils {
             if (id != 0) {
                 return id
             } else {
-                error("Unable to find resource with name: %s", resourceName)
+                UALog.e { "Unable to find resource with name: $resourceName" }
             }
         }
         return 0
@@ -127,7 +127,7 @@ public object Utils {
             try {
                 return hexColor.toColorInt()
             } catch (e: IllegalArgumentException) {
-                error(e, "Unable to parse color: %s", hexColor)
+                UALog.e(e) { "Unable to parse color: $hexColor" }
             }
         }
         return defaultColor

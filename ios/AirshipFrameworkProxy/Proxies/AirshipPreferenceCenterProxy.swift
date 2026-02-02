@@ -30,6 +30,7 @@ public final class AirshipPreferenceCenterProxy: Sendable {
     
     @MainActor
     public func displayPreferenceCenter(preferenceCenterID: String) throws {
+        AirshipLogger.trace("displayPreferenceCenter called, preferenceCenterID=\(preferenceCenterID)")
         try self.preferenceCenter.display(preferenceCenterID)
     }
 
@@ -38,6 +39,7 @@ public final class AirshipPreferenceCenterProxy: Sendable {
         _ autoLaunch: Bool,
         preferenceCenterID: String
     ) {
+        AirshipLogger.trace("setAutoLaunchPreferenceCenter called, preferenceCenterID=\(preferenceCenterID), autoLaunch=\(autoLaunch)")
         self.proxyStore.setAutoLaunchPreferenceCenter(
             preferenceCenterID,
             autoLaunch: autoLaunch
@@ -47,6 +49,7 @@ public final class AirshipPreferenceCenterProxy: Sendable {
     public func getPreferenceCenterConfig(
         preferenceCenterID: String
     ) async throws -> AirshipJSON {
+        AirshipLogger.trace("getPreferenceCenterConfig called, preferenceCenterID=\(preferenceCenterID)")
         let config = try await self.preferenceCenter.jsonConfig(
             preferenceCenterID: preferenceCenterID
         )

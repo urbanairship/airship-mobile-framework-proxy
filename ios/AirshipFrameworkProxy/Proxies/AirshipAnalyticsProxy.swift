@@ -20,6 +20,7 @@ public final class AirshipAnalyticsProxy: Sendable {
     }
 
     public func addEvent(_ json: Any) throws {
+        AirshipLogger.trace("addEvent called")
         guard
             let event = json as? [String: Any],
             let name = event["eventName"] as? String
@@ -61,11 +62,13 @@ public final class AirshipAnalyticsProxy: Sendable {
 
     @MainActor
     public func trackScreen(_ screen: String?) throws {
+        AirshipLogger.trace("trackScreen called, screen=\(String(describing: screen))")
         try self.analytics.trackScreen(screen)
     }
 
     @MainActor
     public func getSessionID() throws -> String {
+        AirshipLogger.trace("getSessionID called")
         return try self.analytics.sessionID
     }
 
@@ -73,6 +76,7 @@ public final class AirshipAnalyticsProxy: Sendable {
         identifier: String?,
         key: String
     ) throws {
+        AirshipLogger.trace("associateIdentifier called, key=\(key)")
         let identifiers = try self.analytics.currentAssociatedDeviceIdentifiers()
         identifiers.set(identifier: identifier, key: key)
         try self.analytics.associateDeviceIdentifiers(identifiers)

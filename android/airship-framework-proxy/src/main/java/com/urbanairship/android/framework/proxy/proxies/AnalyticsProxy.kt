@@ -1,11 +1,13 @@
 package com.urbanairship.android.framework.proxy.proxies
 
+import com.urbanairship.UALog
 import com.urbanairship.analytics.Analytics
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonValue
 
 public class AnalyticsProxy internal constructor(private val analyticsProvider: () -> Analytics) {
     public fun associateIdentifier(key: String, value: String?) {
+        UALog.v { "associateIdentifier called, key=$key, value=$value" }
         val editor = analyticsProvider().editAssociatedIdentifiers()
         if (value == null) {
             editor.removeIdentifier(key)
@@ -16,10 +18,12 @@ public class AnalyticsProxy internal constructor(private val analyticsProvider: 
     }
 
     public fun trackScreen(screen: String?) {
+        UALog.v { "trackScreen called, screen=$screen" }
         analyticsProvider().trackScreen(screen)
     }
 
     public fun addEvent(json: JsonValue) {
+        UALog.v { "addEvent called, json=$json" }
         val jsonMap = json.optMap()
 
         val event = CustomEvent.newBuilder(jsonMap.require("eventName").requireString()).apply {
@@ -46,6 +50,7 @@ public class AnalyticsProxy internal constructor(private val analyticsProvider: 
     }
 
     public fun getSessionId(): String {
+        UALog.v { "getSessionId called" }
         return analyticsProvider().sessionId
     }
 }

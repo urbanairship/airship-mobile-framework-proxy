@@ -24,6 +24,7 @@ public final class AirshipPrivacyManagerProxy: Sendable {
     public func setEnabled(
         featureNames: [String]
     ) throws {
+        AirshipLogger.trace("setEnabled called, featureNames=\(featureNames)")
         let features = try AirshipFeature.parse(featureNames)
         try self.privacyManager.enabledFeatures = features
     }
@@ -36,6 +37,7 @@ public final class AirshipPrivacyManagerProxy: Sendable {
 
     public func getEnabledNames(
     ) throws -> [String] {
+        AirshipLogger.trace("getEnabledNames called")
         return try self.privacyManager.enabledFeatures.names
     }
 
@@ -47,6 +49,7 @@ public final class AirshipPrivacyManagerProxy: Sendable {
     public func enable(
         featureNames: [String]
     ) throws {
+        AirshipLogger.trace("enable called, featureNames=\(featureNames)")
         let features = try AirshipFeature.parse(featureNames)
         try self.privacyManager.enableFeatures(
             features
@@ -64,6 +67,7 @@ public final class AirshipPrivacyManagerProxy: Sendable {
     public func disable(
         featureNames: [String]
     ) throws {
+        AirshipLogger.trace("disable called, featureNames=\(featureNames)")
         let features = try AirshipFeature.parse(featureNames)
         try self.privacyManager.disableFeatures(
             features
@@ -81,6 +85,7 @@ public final class AirshipPrivacyManagerProxy: Sendable {
     public func isEnabled(
         featuresNames: [String]
     ) throws -> Bool {
+        AirshipLogger.trace("isEnabled called, featuresNames=\(featuresNames)")
         let features = try AirshipFeature.parse(featuresNames)
         return try self.privacyManager.isEnabled(
             features

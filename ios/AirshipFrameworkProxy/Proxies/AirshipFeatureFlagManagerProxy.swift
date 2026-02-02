@@ -22,10 +22,12 @@ public final class AirshipFeatureFlagManagerProxy: Sendable {
         }
 
         public func cache(flag: FeatureFlagProxy, ttl: TimeInterval) async throws {
+            AirshipLogger.trace("FeatureFlagManager.resultCache.cache called")
             try await self.cache.cache(flag: flag.original, ttl: ttl)
         }
 
         public func flag(name: String) async throws -> FeatureFlagProxy? {
+            AirshipLogger.trace("FeatureFlagManager.resultCache.flag called, name=\(name)")
             guard let flag = try await self.cache.flag(name: name) else {
                 return nil
             }
@@ -33,6 +35,7 @@ public final class AirshipFeatureFlagManagerProxy: Sendable {
         }
 
         public func removeCachedFlag(name: String) async throws {
+            AirshipLogger.trace("FeatureFlagManager.resultCache.removeCachedFlag called, name=\(name)")
             try await self.cache.removeCachedFlag(name: name)
         }
     }
@@ -53,11 +56,13 @@ public final class AirshipFeatureFlagManagerProxy: Sendable {
     public let resultCache: ResultCacheProxy
 
     public func flag(name: String, useResultCache: Bool = true) async throws -> FeatureFlagProxy {
+        AirshipLogger.trace("flag called, name=\(name), useResultCache=\(useResultCache)")
         let flag = try await self.featureFlagManager.flag(name: name, useResultCache: useResultCache)
         return FeatureFlagProxy(flag: flag)
     }
 
     public func trackInteraction(flag: FeatureFlagProxy) throws {
+        AirshipLogger.trace("trackInteraction called")
         try self.featureFlagManager.trackInteraction(flag: flag.original)
     }
 }

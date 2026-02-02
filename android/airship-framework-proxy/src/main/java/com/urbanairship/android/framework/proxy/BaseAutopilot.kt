@@ -10,6 +10,7 @@ import androidx.annotation.XmlRes
 import com.urbanairship.Airship
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
+import com.urbanairship.UALog
 import com.urbanairship.Predicate
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
@@ -41,8 +42,7 @@ public abstract class BaseAutopilot : Autopilot() {
     private val dispatcher = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     final override fun onAirshipReady(context: Context) {
-
-        ProxyLogger.setLogLevel(Airship.airshipConfigOptions.logLevel.level)
+        UALog.v { "Airship ready, registering listeners and applying notification config" }
 
         val proxyStore = AirshipProxy.shared(context).proxyStore
         val airshipListener = AirshipListener(
@@ -111,6 +111,7 @@ public abstract class BaseAutopilot : Autopilot() {
         loadCustomNotificationChannels(context)
         loadCustomNotificationButtonGroups(context)
 
+        UALog.v { "Notification config and listeners applied" }
         onReady(context)
 
         extenderProvider.get(context)?.onAirshipReady(context)
@@ -125,7 +126,7 @@ public abstract class BaseAutopilot : Autopilot() {
         @XmlRes val resId = context.resources.getIdentifier("ua_custom_notification_channels", "xml", packageName)
 
         if (resId != 0) {
-            ProxyLogger.debug("Loading custom notification channels")
+            UALog.d { "Loading custom notification channels" }
             Airship.push.notificationChannelRegistry.createNotificationChannels(resId)
         }
     }
@@ -136,7 +137,7 @@ public abstract class BaseAutopilot : Autopilot() {
         @XmlRes val resId = context.resources.getIdentifier("ua_custom_notification_buttons", "xml", packageName)
 
         if (resId != 0) {
-            ProxyLogger.debug("Loading custom notification button groups")
+            UALog.d { "Loading custom notification button groups" }
             Airship.push.addNotificationActionButtonGroups(context, resId)
         }
     }
@@ -149,6 +150,7 @@ public abstract class BaseAutopilot : Autopilot() {
 
         var builder = createConfigBuilder(context)
         AirshipProxy.shared(context).proxyStore.airshipConfig?.let {
+            UALog.v { "Applying proxy config to Airship config" }
             builder.applyProxyConfig(context, it)
         }
 
@@ -159,8 +161,10 @@ public abstract class BaseAutopilot : Autopilot() {
         return try {
             configOptions.validate()
             this.configOptions = configOptions
+            UALog.i { "Airship config validated successfully" }
             true
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            UALog.w { "Airship config validation failed: ${e.message}" }
             false
         }
     }
@@ -171,7 +175,7 @@ public abstract class BaseAutopilot : Autopilot() {
                 try {
                     it.tryApplyDefaultProperties(context)
                 } catch (e: Exception) {
-                    ProxyLogger.verbose("Failed to load config from properties file: " + e.message)
+                    UALog.v { "Failed to load config from properties file: ${e.message}" }
                 }
                 it
             }
@@ -275,7 +279,7 @@ private class ExtenderProvider {
             val extenderClass = Class.forName(classname)
             return extenderClass.getDeclaredConstructor().newInstance() as AirshipPluginExtender
         } catch (e: Exception) {
-            ProxyLogger.error(e, "Unable to create extender: $classname")
+            UALog.e(e) { "Unable to create extender: $classname" }
         }
         return null
     }

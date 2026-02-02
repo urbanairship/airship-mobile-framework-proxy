@@ -1,5 +1,6 @@
 package com.urbanairship.android.framework.proxy.proxies
 
+import com.urbanairship.UALog
 import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonSerializable
@@ -19,14 +20,17 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
         }
 
     public suspend fun list(request: LiveUpdateRequest.List): List<LiveUpdateProxy> {
+        UALog.v { "list called, type=${request.type}" }
         return this.manager.getAllActiveUpdates().filter { it.type == request.type }.map { LiveUpdateProxy(it) }
     }
 
     public suspend fun listAll(): List<LiveUpdateProxy> {
+        UALog.v { "listAll called" }
         return this.manager.getAllActiveUpdates().map { LiveUpdateProxy(it) }
     }
 
     public fun start(request: LiveUpdateRequest.Start) {
+        UALog.v { "start called, name=${request.name}, type=${request.type}" }
         this.manager.start(
             name = request.name,
             type = request.type,
@@ -37,6 +41,7 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
     }
 
     public fun update(request: LiveUpdateRequest.Update) {
+        UALog.v { "update called, name=${request.name}" }
         this.manager.update(
             name = request.name,
             content = request.content,
@@ -46,6 +51,7 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
     }
 
     public fun end(request: LiveUpdateRequest.End) {
+        UALog.v { "end called, name=${request.name}" }
         this.manager.end(
             name = request.name,
             content = request.content,
@@ -55,6 +61,7 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
     }
 
     public fun clearAll() {
+        UALog.v { "clearAll called" }
         this.manager.clearAll()
     }
 }

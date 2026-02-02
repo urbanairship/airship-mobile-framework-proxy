@@ -40,7 +40,7 @@ public class CustomMessageActivity : FragmentActivity() {
         Autopilot.automaticTakeOff(application)
 
         if (!Airship.isFlyingOrTakingOff) {
-            UALog.e("MessageActivity - unable to create Activity, takeOff not called.")
+            UALog.e { "MessageActivity - unable to create Activity, takeOff not called. intent=$intent" }
             finish()
             return
         }
@@ -49,7 +49,7 @@ public class CustomMessageActivity : FragmentActivity() {
             ?: MessageCenter.parseMessageId(intent)
 
         if (messageId == null) {
-            UALog.w("MessageActivity - unable to display message, messageId is null!")
+            UALog.w { "MessageActivity - unable to display message, messageId is null. intent=$intent" }
             finish()
             return
         }
