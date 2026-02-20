@@ -55,7 +55,7 @@ public final class AirshipProxyEventEmitter {
             }
         })
 
-        AirshipLogger.trace("takePendingEvents type=\(type), taken=\(result.count), remainingPending=\(pendingEvents.count)")
+        AirshipLogger.trace("takePendingEvents type=\(type), taken=\(result.count), remaining=\(pendingEvents)")       
         return result
     }
 
