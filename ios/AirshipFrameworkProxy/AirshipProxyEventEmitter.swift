@@ -55,9 +55,7 @@ public final class AirshipProxyEventEmitter {
             }
         })
 
-        let takenDescriptions = result.map { "\($0.type): \(String(describing: $0))" }
-        let remainingDescriptions = pendingEvents.map { "\($0.type): \(String(describing: $0))" }
-        AirshipLogger.trace("takePendingEvents type=\(type), taken=\(result.count) [\(takenDescriptions.joined(separator: ", "))], remainingPending=\(pendingEvents.count) [\(remainingDescriptions.joined(separator: ", "))]")
+        AirshipLogger.trace("takePendingEvents type=\(type), taken=\(result.count), remaining=\(pendingEvents)")       
         return result
     }
 
