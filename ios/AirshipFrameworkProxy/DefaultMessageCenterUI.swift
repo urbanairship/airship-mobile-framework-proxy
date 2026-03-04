@@ -101,6 +101,7 @@ public class DefaultMessageCenterUI {
             rootView: NavigationStack {
                 MessageCenterMessageViewWithNavigation(
                     messageID: messageID,
+                    showBackButton: true
                 ) {
                     cancellable.cancel()
                 }
