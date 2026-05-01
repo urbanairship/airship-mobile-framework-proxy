@@ -4,8 +4,10 @@ import Foundation
 
 #if canImport(AirshipKit)
 public import AirshipKit
+@_spi(AirshipInternal) import AirshipKit
 #elseif canImport(AirshipCore)
 public import AirshipCore
+@_spi(AirshipInternal) import AirshipBasement
 #endif
 
 public struct LiveActivityRequest: Sendable, Equatable {
@@ -104,7 +106,7 @@ public struct LiveActivityRequest: Sendable, Equatable {
             switch (type) {
             case .after:
                 let dateString = try container.decode(String.self, forKey: .date)
-                guard let date = AirshipDateFormatter.date(fromISOString: dateString) else {
+                guard let date = AirshipDateFormatter.date(from: dateString) else {
                     throw AirshipErrors.error("Invalid date format \(dateString)")
                 }
                 self = .after(date: date)
@@ -120,7 +122,7 @@ public struct LiveActivityRequest: Sendable, Equatable {
             switch (self) {
             case .after(let date):
                 try container.encode(DismissalType.after, forKey: .type)
-                try container.encode(AirshipDateFormatter.string(fromDate: date, format: .iso), forKey: .date)
+                try container.encode(AirshipDateFormatter.string(fromDate: date, format: .iso8601), forKey: .date)
             case .immediate:
                 try container.encode(DismissalType.immediate, forKey: .type)
             case .default:

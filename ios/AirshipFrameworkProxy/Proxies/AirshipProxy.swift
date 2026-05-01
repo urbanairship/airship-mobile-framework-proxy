@@ -130,7 +130,7 @@ public final class AirshipProxy: Sendable {
     ) throws -> Bool {
         let proxyConfig = try JSONDecoder().decode(
             ProxyConfig.self,
-            from: try AirshipJSONUtils.data(json)
+            from: try AirshipJSON.wrap(json).toData()
         )
 
         return try takeOff(config: proxyConfig)
