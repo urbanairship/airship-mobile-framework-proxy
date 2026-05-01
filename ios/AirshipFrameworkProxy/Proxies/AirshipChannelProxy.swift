@@ -96,7 +96,7 @@ public final class AirshipChannelProxy: Sendable {
 
     public func editSubscriptionLists(json: Any) throws {
         AirshipLogger.trace("editSubscriptionLists called with json")
-        let data = try AirshipJSONUtils.data(json)
+        let data = try AirshipJSON.wrap(json).toData()
         let operations = try JSONDecoder().decode(
             [SubscriptionListOperation].self,
             from: data
