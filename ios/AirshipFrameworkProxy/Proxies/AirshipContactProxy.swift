@@ -42,6 +42,22 @@ public final class AirshipContactProxy: Sendable {
         try self.contact.notifyRemoteLogin()
     }
 
+    public func registerEmail(
+        _ address: String,
+        options: EmailRegistrationOptions
+    ) throws {
+        AirshipLogger.trace("registerEmail called, address=\(address)")
+        try self.contact.registerEmail(address, options: options)
+    }
+
+    public func registerSMS(
+        _ msisdn: String,
+        options: SMSRegistrationOptions
+    ) throws {
+        AirshipLogger.trace("registerSMS called, msisdn=\(msisdn)")
+        try self.contact.registerSMS(msisdn, options: options)
+    }
+
     public var namedUserID: String? {
         get async throws {
             return try await self.contact.namedUserID
