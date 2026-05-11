@@ -44,18 +44,24 @@ public final class AirshipContactProxy: Sendable {
 
     public func registerEmail(
         _ address: String,
-        options: EmailRegistrationOptions
+        options: EmailRegistrationProxyOptions
     ) throws {
         AirshipLogger.trace("registerEmail called, address=\(address)")
-        try self.contact.registerEmail(address, options: options)
+        try self.contact.registerEmail(
+            address,
+            options: options.toEmailRegistrationOptions()
+        )
     }
 
     public func registerSMS(
         _ msisdn: String,
-        options: SMSRegistrationOptions
+        options: SMSRegistrationProxyOptions
     ) throws {
         AirshipLogger.trace("registerSMS called, msisdn=\(msisdn)")
-        try self.contact.registerSMS(msisdn, options: options)
+        try self.contact.registerSMS(
+            msisdn,
+            options: options.toSMSRegistrationOptions()
+        )
     }
 
     public var namedUserID: String? {
