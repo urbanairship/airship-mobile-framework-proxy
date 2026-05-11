@@ -11,8 +11,8 @@ public data class EmailRegistrationProxyOptions(
     public val doubleOptIn: Boolean
 ) {
     public constructor(json: JsonMap) : this(
-        transactionalOptedIn = json.opt("transactionalOptedIn").long,
-        commercialOptedIn = json.opt("commercialOptedIn").long,
+        transactionalOptedIn = if (json.opt("transactionalOptedIn").isNull) null else json.opt("transactionalOptedIn").getLong(0),
+        commercialOptedIn = if (json.opt("commercialOptedIn").isNull) null else json.opt("commercialOptedIn").getLong(0),
         properties = json.opt("properties").map,
         doubleOptIn = json.opt("doubleOptIn").getBoolean(false)
     )
