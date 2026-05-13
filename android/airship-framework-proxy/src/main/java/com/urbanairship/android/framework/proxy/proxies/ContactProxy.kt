@@ -4,6 +4,8 @@ import com.urbanairship.android.framework.proxy.AttributeOperation
 import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.ScopedSubscriptionListOperation
 import com.urbanairship.android.framework.proxy.TagGroupOperation
+import com.urbanairship.android.framework.proxy.EmailRegistrationProxyOptions
+import com.urbanairship.android.framework.proxy.SmsRegistrationProxyOptions
 import com.urbanairship.android.framework.proxy.applyOperation
 import com.urbanairship.contacts.Contact
 import com.urbanairship.json.JsonValue
@@ -38,6 +40,26 @@ public class ContactProxy internal constructor(private val contactProvider: () -
     public fun notifyRemoteLogin() {
         UALog.v { "notifyRemoteLogin called" }
         contactProvider().notifyRemoteLogin()
+    }
+
+    public fun registerEmail(address: String, options: EmailRegistrationProxyOptions) {
+        UALog.v { "registerEmail called, address=$address" }
+        contactProvider().registerEmail(address, options.toEmailRegistrationOptions())
+    }
+
+    public fun registerEmail(address: String, options: JsonValue) {
+        UALog.v { "registerEmail called with JsonValue, address=$address" }
+        registerEmail(address, EmailRegistrationProxyOptions(options.optMap()))
+    }
+
+    public fun registerSms(msisdn: String, options: SmsRegistrationProxyOptions) {
+        UALog.v { "registerSms called, msisdn=$msisdn" }
+        contactProvider().registerSms(msisdn, options.toSmsRegistrationOptions())
+    }
+
+    public fun registerSms(msisdn: String, options: JsonValue) {
+        UALog.v { "registerSms called with JsonValue, msisdn=$msisdn" }
+        registerSms(msisdn, SmsRegistrationProxyOptions(options.optMap()))
     }
 
     public fun editSubscriptionLists(operations: JsonValue) {
@@ -90,4 +112,5 @@ public class ContactProxy internal constructor(private val contactProvider: () -
         }
         editor.apply()
     }
+
 }
