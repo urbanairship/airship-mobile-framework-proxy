@@ -154,6 +154,12 @@ public actor LiveActivityManager: Sendable {
         let result = try await findEntry(attributesType: request.attributesType).start(request)
         if #unavailable(iOS 17.2) {
             await self.checkForActivities()
+        } else if activityState[result.id] == nil {
+            // On iOS 17.2+, checkForActivities() is not called on start (pushToStartTokenUpdates
+            // handles discovery at launch), so set up watching for the new activity directly.
+            await startWatchingActivityUpdates(result.id, attributesType: request.attributesType)
+            await updated(activityID: result.id, info: result, notifyOnChange: false)
+            await notify()
         }
         return result
     }
