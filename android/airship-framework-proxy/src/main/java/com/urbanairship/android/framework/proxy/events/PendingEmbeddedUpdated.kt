@@ -10,6 +10,13 @@ internal class PendingEmbeddedUpdated(pending: List<AirshipEmbeddedInfo>) : Even
     override val type = EventType.PENDING_EMBEDDED_UPDATED
 
     override val body: JsonMap = jsonMapOf(
-        "pending" to pending.map { jsonMapOf( "embeddedId" to it.embeddedId ) }
+        "pending" to pending.map {
+            jsonMapOf(
+                "embeddedId" to it.embeddedId,
+                "instanceId" to it.instanceId,
+                "priority" to it.priority,
+                "extras" to it.extras
+            )
+        }
     )
 }
