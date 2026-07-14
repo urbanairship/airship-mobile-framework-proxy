@@ -215,7 +215,16 @@ struct EmbeddedInfoUpdatedEvent: AirshipProxyEvent {
     let body: Body
 
     init(pending: [AirshipEmbeddedInfo]) {
-        self.body = Body(pending: pending.map { Embedded(embeddedId: $0.embeddedID) })
+        self.body = Body(
+            pending: pending.map {
+                Embedded(
+                    embeddedId: $0.embeddedID,
+                    instanceId: $0.instanceID,
+                    priority: $0.priority,
+                    extras: $0.extras
+                )
+            }
+        )
     }
 
     struct Body: Codable, Sendable {
@@ -224,6 +233,9 @@ struct EmbeddedInfoUpdatedEvent: AirshipProxyEvent {
 
     struct Embedded: Codable, Sendable {
         let embeddedId: String
+        let instanceId: String
+        let priority: Int
+        let extras: AirshipJSON?
     }
 }
 
