@@ -7,6 +7,7 @@ import android.content.Context
 import com.urbanairship.Airship
 import com.urbanairship.Autopilot
 import com.urbanairship.actions.DefaultActionRunner
+import com.urbanairship.android.framework.proxy.LaunchDeepLinkTracker
 import com.urbanairship.android.framework.proxy.ProxyConfig
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.UALog
@@ -105,6 +106,15 @@ public class AirshipProxy(
 
     public fun isFlying(): Boolean {
         return Airship.isFlyingOrTakingOff
+    }
+
+    /**
+     * Returns the deep link that launched the app from a notification tap,
+     * or null if the app was not launched by a deep-link-carrying tap.
+     * One-shot: the value is consumed on read.
+     */
+    public suspend fun getLaunchDeepLink(): String? {
+        return LaunchDeepLinkTracker.shared().takeLaunchDeepLink()
     }
 
     public companion object {

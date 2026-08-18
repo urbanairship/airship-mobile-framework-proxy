@@ -14,6 +14,8 @@ import com.urbanairship.UALog
 import com.urbanairship.Predicate
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.app.ApplicationListener
+import com.urbanairship.app.GlobalActivityMonitor
 import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
@@ -59,6 +61,20 @@ public abstract class BaseAutopilot : Autopilot() {
         Airship.push.addPushTokenListener(airshipListener)
         Airship.push.notificationListener = airshipListener
         Airship.deepLinkListener = airshipListener
+
+        val activityMonitor = GlobalActivityMonitor.shared(context.applicationContext)
+        if (activityMonitor.isAppForegrounded) {
+            LaunchDeepLinkTracker.shared().markLaunchResolved()
+        } else {
+            activityMonitor.addApplicationListener(object : ApplicationListener {
+                override fun onForeground(milliseconds: Long) {
+                    LaunchDeepLinkTracker.shared().markLaunchResolved()
+                    activityMonitor.removeApplicationListener(this)
+                }
+
+                override fun onBackground(milliseconds: Long) {}
+            })
+        }
 
         dispatcher.launch {
             PendingEmbedded.pending.collect {

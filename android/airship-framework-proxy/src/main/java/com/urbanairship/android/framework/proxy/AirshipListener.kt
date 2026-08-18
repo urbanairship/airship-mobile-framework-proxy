@@ -86,6 +86,8 @@ internal class AirshipListener(
     }
 
     override fun onNotificationOpened(notificationInfo: NotificationInfo): Boolean {
+        LaunchDeepLinkTracker.shared().onNotificationOpened(notificationInfo.message, isAppForegrounded)
+
         eventEmitter.addEvent(
             NotificationResponseEvent(notificationInfo, null)
         )
