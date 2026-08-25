@@ -15,11 +15,14 @@ import com.urbanairship.Predicate
 import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.events.FeatureFlagStatusChangedEvent
 import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
+import com.urbanairship.android.framework.proxy.proxies.toProxyString
 import com.urbanairship.app.ApplicationListener
 import com.urbanairship.app.GlobalActivityMonitor
+import com.urbanairship.featureflag.FeatureFlagManager
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.permission.Permission
 import com.urbanairship.preferencecenter.PreferenceCenter
@@ -28,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -100,6 +104,17 @@ public abstract class BaseAutopilot : Autopilot() {
                     replacePending = true
                 )
             }
+        }
+
+        dispatcher.launch {
+            FeatureFlagManager.shared().statusUpdates
+                .distinctUntilChanged()
+                .collect {
+                    EventEmitter.shared().addEvent(
+                        FeatureFlagStatusChangedEvent(it.toProxyString()),
+                        replacePending = true
+                    )
+                }
         }
 
         // Set our custom notification provider

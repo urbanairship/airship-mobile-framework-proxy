@@ -65,6 +65,39 @@ public final class AirshipFeatureFlagManagerProxy: Sendable {
         AirshipLogger.trace("trackInteraction called")
         try self.featureFlagManager.trackInteraction(flag: flag.original)
     }
+
+    public var status: FeatureFlagStatusProxy {
+        get async throws {
+            AirshipLogger.trace("FeatureFlagManager.status called")
+            let manager = try self.featureFlagManager
+            return FeatureFlagStatusProxy(status: await manager.featureFlagStatus)
+        }
+    }
+
+    public func waitRefresh(maxTime: TimeInterval?) async throws {
+        AirshipLogger.trace("waitRefresh called, maxTime=\(String(describing: maxTime))")
+        let manager = try self.featureFlagManager
+        if let maxTime {
+            await manager.waitRefresh(maxTime: maxTime)
+        } else {
+            await manager.waitRefresh()
+        }
+    }
+}
+
+public enum FeatureFlagStatusProxy: String, Codable, Sendable {
+    case upToDate = "up_to_date"
+    case stale = "stale"
+    case outOfDate = "out_of_date"
+
+    init(status: FeatureFlagUpdateStatus) {
+        switch status {
+        case .upToDate: self = .upToDate
+        case .stale: self = .stale
+        case .outOfDate: self = .outOfDate
+        @unknown default: self = .outOfDate
+        }
+    }
 }
 
 // We encode `isEligible` as snake case breaking the APIs for react. This
