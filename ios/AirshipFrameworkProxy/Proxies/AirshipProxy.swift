@@ -151,6 +151,13 @@ public final class AirshipProxy: Sendable {
         return Airship.isFlying
     }
 
+    /// Returns the deep link that launched the app from a notification tap,
+    /// or nil if the app was not launched by a notification with a deep
+    /// link. One-shot: the value is consumed on read.
+    public func getLaunchDeepLink() async -> String? {
+        return await LaunchDeepLinkTracker.shared.takeLaunchDeepLink()
+    }
+
     private static func ensureAirshipReady() throws {
         guard Airship.isFlying else {
             AirshipLogger.warn("Airship not ready. Ensure takeOff has completed before using proxy APIs.")
@@ -218,6 +225,15 @@ public final class AirshipProxy: Sendable {
         ) { _ in
             MainActor.assumeIsolated {
                 delegate?.channelCreated()
+            }
+        }
+
+        if AppStateTracker.shared.isForegrounded {
+            LaunchDeepLinkTracker.shared.onLaunchResolved()
+        } else {
+            Task { @MainActor in
+                await AppStateTracker.shared.waitForActive()
+                LaunchDeepLinkTracker.shared.onLaunchResolved()
             }
         }
 
