@@ -1,6 +1,6 @@
 
 Pod::Spec.new do |s|
-   s.version                 = "15.14.1"
+   s.version                 = "15.15.0"
    s.name                    = "AirshipFrameworkProxy"
    s.summary                 = "Airship iOS mobile framework proxy"
    s.documentation_url       = "https://docs.airship.com/platform/mobile"
