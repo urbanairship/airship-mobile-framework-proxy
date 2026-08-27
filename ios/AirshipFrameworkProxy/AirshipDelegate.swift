@@ -95,6 +95,11 @@ extension AirshipDelegate: PushNotificationDelegate {
 
     @MainActor
     func receivedNotificationResponse(_ notificationResponse: UNNotificationResponse) async {
+        LaunchDeepLinkTracker.shared.onNotificationResponse(
+            userInfo: notificationResponse.notification.request.content.userInfo,
+            isDefaultAction: notificationResponse.actionIdentifier == UNNotificationDefaultActionIdentifier
+        )
+
         do {
             if (notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier) {
                 self.eventEmitter.addEvent(

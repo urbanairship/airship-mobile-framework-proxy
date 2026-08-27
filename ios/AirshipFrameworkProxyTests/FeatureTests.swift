@@ -6,7 +6,7 @@ import AirshipFeatureFlags
 class FeatureTests: XCTestCase {
 
     func testFeaturesEncoding() throws {
-        let data = try AirshipJSONUtils.data(["push", "analytics"], options:.fragmentsAllowed)
+        let data = try JSONEncoder().encode(["push", "analytics"])
         let fromJson = try JSONDecoder().decode(AirshipFeature.self, from: data)
         XCTAssertEqual([.push, .analytics], fromJson)
 
@@ -17,19 +17,19 @@ class FeatureTests: XCTestCase {
     }
 
     func testFeaturesEncodingAll() throws {
-        let data = try AirshipJSONUtils.data(["all"], options:.fragmentsAllowed)
+        let data = try JSONEncoder().encode(["all"])
         let fromJson = try JSONDecoder().decode(AirshipFeature.self, from: data)
         XCTAssertEqual(AirshipFeature.all, fromJson)
     }
 
     func testFeaturesEncodingNone() throws {
-        let data = try AirshipJSONUtils.data(["none"], options:.fragmentsAllowed)
+        let data = try JSONEncoder().encode(["none"])
         let fromJson = try JSONDecoder().decode(AirshipFeature.self, from: data)
         XCTAssertEqual([], fromJson)
     }
 
     func testFeaturesEncodingEmpty() throws {
-        let data = try AirshipJSONUtils.data([], options:.fragmentsAllowed)
+        let data = try JSONEncoder().encode([String]())
         let fromJson = try JSONDecoder().decode(AirshipFeature.self, from: data)
         XCTAssertEqual([], fromJson)
     }
