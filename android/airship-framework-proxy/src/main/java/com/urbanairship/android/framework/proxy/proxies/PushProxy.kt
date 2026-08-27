@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy.proxies
 
 import android.app.NotificationManager
@@ -5,10 +7,10 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
+import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.BaseNotificationProvider
 import com.urbanairship.android.framework.proxy.NotificationConfig
 import com.urbanairship.android.framework.proxy.NotificationStatus
-import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.android.framework.proxy.Utils
 import com.urbanairship.json.JsonException
@@ -37,7 +39,9 @@ public class PushProxy internal constructor(
 
     public var isForegroundNotificationsEnabled: Boolean
         get() = store.isForegroundNotificationsEnabled
-        set(enabled) { store.isForegroundNotificationsEnabled = enabled }
+        set(enabled) {
+            store.isForegroundNotificationsEnabled = enabled
+        }
 
     public fun setNotificationConfig(config: JsonValue) {
         UALog.v { "setNotificationConfig called with $config" }
@@ -58,7 +62,9 @@ public class PushProxy internal constructor(
     public suspend fun enableUserPushNotifications(args: EnableUserNotificationsArgs? = null): Boolean {
         UALog.v { "enableUserPushNotifications called, args=$args" }
         return suspendCoroutine { continuation ->
-            pushProvider().enableUserNotifications(promptFallback = args?.fallback ?: PermissionPromptFallback.None) { result ->
+            pushProvider().enableUserNotifications(
+                promptFallback = args?.fallback ?: PermissionPromptFallback.None
+            ) { result ->
                 continuation.resumeWith(Result.success(result))
             }
         }
@@ -147,9 +153,7 @@ public class PushProxy internal constructor(
     }
 }
 
-public data class EnableUserNotificationsArgs(
-    val fallback: PermissionPromptFallback?,
-) : JsonSerializable {
+public data class EnableUserNotificationsArgs(val fallback: PermissionPromptFallback?) : JsonSerializable {
 
     public override fun toJsonValue(): JsonValue = jsonMapOf("fallback" to fallback).toJsonValue()
 

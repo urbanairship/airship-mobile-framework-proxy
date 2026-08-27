@@ -1,10 +1,12 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy.proxies
 
 import android.content.Intent
 import android.net.Uri
 import com.urbanairship.Airship
-import com.urbanairship.android.framework.proxy.MessageCenterMessage
 import com.urbanairship.UALog
+import com.urbanairship.android.framework.proxy.MessageCenterMessage
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.messagecenter.MessageCenter
 import kotlinx.coroutines.MainScope
@@ -58,8 +60,10 @@ public class MessageCenterProxy internal constructor(
 
             try {
                 context.startActivity(intent)
-            } catch(exception: Exception) {
-                UALog.e(exception) { "Failed to launch Message Center, intentAction=$intentAction, messageId=$messageId" }
+            } catch (exception: Exception) {
+                UALog.e(exception) {
+                    "Failed to launch Message Center, intentAction=$intentAction, messageId=$messageId"
+                }
             }
         }
     }
@@ -88,7 +92,6 @@ public class MessageCenterProxy internal constructor(
         messageCenterProvider().inbox.deleteMessages(messageId)
     }
 
-
     public fun markMessageRead(messageId: String) {
         UALog.v { "markMessageRead called, messageId=$messageId" }
         messageCenterProvider().inbox.markMessagesRead(messageId)
@@ -108,5 +111,4 @@ public class MessageCenterProxy internal constructor(
         UALog.v { "setAutoLaunchDefaultMessageCenter called, enabled=$enabled" }
         proxyStore.isAutoLaunchMessageCenterEnabled = enabled
     }
-
 }

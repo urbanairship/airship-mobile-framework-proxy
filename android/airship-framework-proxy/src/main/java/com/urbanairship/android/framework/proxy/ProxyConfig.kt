@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.AirshipConfigOptions
@@ -32,7 +34,9 @@ public data class ProxyConfig(
         inProduction = config["inProduction"]?.boolean,
         initialConfigUrl = config["initialConfigUrl"]?.string,
         urlAllowList = config["urlAllowList"]?.list?.mapNotNull { it.string },
-        urlAllowListScopeJavaScriptInterface = config["urlAllowListScopeJavaScriptInterface"]?.list?.mapNotNull { it.string },
+        urlAllowListScopeJavaScriptInterface = config["urlAllowListScopeJavaScriptInterface"]?.list?.mapNotNull {
+            it.string
+        },
         urlAllowListScopeOpenUrl = config["urlAllowListScopeOpenUrl"]?.list?.mapNotNull { it.string },
         isChannelCaptureEnabled = config["isChannelCaptureEnabled"]?.boolean,
         isChannelCreationDelayEnabled = config["isChannelCreationDelayEnabled"]?.boolean,
@@ -41,28 +45,28 @@ public data class ProxyConfig(
         androidConfig = config["android"]?.map?.let { Android(it) }
     )
 
-    override fun toJsonValue(): JsonValue {
-        return JsonMap.newBuilder()
-            .put("default", defaultEnvironment)
-            .put("production", productionEnvironment)
-            .put("development", developmentEnvironment)
-            .put("site", site?.let { Utils.siteName(it) })
-            .putOpt("inProduction", inProduction)
-            .putOpt("initialConfigUrl", initialConfigUrl)
-            .putOpt("urlAllowList", urlAllowList)
-            .putOpt("urlAllowListScopeJavaScriptInterface", urlAllowListScopeJavaScriptInterface)
-            .putOpt("urlAllowListScopeOpenUrl", urlAllowListScopeOpenUrl)
-            .putOpt("isChannelCaptureEnabled", isChannelCaptureEnabled)
-            .putOpt("isChannelCreationDelayEnabled", isChannelCreationDelayEnabled)
-            .putOpt("enabledFeatures", enabledFeatures?.let { Utils.featureNames(it) })
-            .putOpt("autoPauseInAppAutomationOnLaunch", autoPauseInAppAutomationOnLaunch)
-            .putOpt("android", androidConfig)
-            .build()
-            .toJsonValue()
-    }
+    override fun toJsonValue(): JsonValue = JsonMap.newBuilder()
+        .put("default", defaultEnvironment)
+        .put("production", productionEnvironment)
+        .put("development", developmentEnvironment)
+        .put("site", site?.let { Utils.siteName(it) })
+        .putOpt("inProduction", inProduction)
+        .putOpt("initialConfigUrl", initialConfigUrl)
+        .putOpt("urlAllowList", urlAllowList)
+        .putOpt("urlAllowListScopeJavaScriptInterface", urlAllowListScopeJavaScriptInterface)
+        .putOpt("urlAllowListScopeOpenUrl", urlAllowListScopeOpenUrl)
+        .putOpt("isChannelCaptureEnabled", isChannelCaptureEnabled)
+        .putOpt("isChannelCreationDelayEnabled", isChannelCreationDelayEnabled)
+        .putOpt("enabledFeatures", enabledFeatures?.let { Utils.featureNames(it) })
+        .putOpt("autoPauseInAppAutomationOnLaunch", autoPauseInAppAutomationOnLaunch)
+        .putOpt("android", androidConfig)
+        .build()
+        .toJsonValue()
 
     public data class Environment(
-        val appKey: String?, val appSecret: String?, val logLevel: AirshipConfigOptions.LogLevel?
+        val appKey: String?,
+        val appSecret: String?,
+        val logLevel: AirshipConfigOptions.LogLevel?
     ) : JsonSerializable {
 
         override fun toJsonValue(): JsonValue = JsonMap.newBuilder()
@@ -72,9 +76,11 @@ public data class ProxyConfig(
             .build()
             .toJsonValue()
 
-        public constructor(config: JsonMap) : this(appKey = config["appKey"]?.string,
+        public constructor(config: JsonMap) : this(
+            appKey = config["appKey"]?.string,
             appSecret = config["appSecret"]?.string,
-            logLevel = config["logLevel"]?.string?.let { Utils.parseLogLevel(it) })
+            logLevel = config["logLevel"]?.string?.let { Utils.parseLogLevel(it) }
+        )
     }
 
     public data class Android(

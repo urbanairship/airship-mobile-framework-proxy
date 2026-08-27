@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import androidx.core.os.bundleOf

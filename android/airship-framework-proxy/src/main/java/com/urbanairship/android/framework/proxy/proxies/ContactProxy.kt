@@ -1,11 +1,13 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy.proxies
 
-import com.urbanairship.android.framework.proxy.AttributeOperation
 import com.urbanairship.UALog
-import com.urbanairship.android.framework.proxy.ScopedSubscriptionListOperation
-import com.urbanairship.android.framework.proxy.TagGroupOperation
+import com.urbanairship.android.framework.proxy.AttributeOperation
 import com.urbanairship.android.framework.proxy.EmailRegistrationProxyOptions
+import com.urbanairship.android.framework.proxy.ScopedSubscriptionListOperation
 import com.urbanairship.android.framework.proxy.SmsRegistrationProxyOptions
+import com.urbanairship.android.framework.proxy.TagGroupOperation
 import com.urbanairship.android.framework.proxy.applyOperation
 import com.urbanairship.contacts.Contact
 import com.urbanairship.json.JsonValue
@@ -112,5 +114,4 @@ public class ContactProxy internal constructor(private val contactProvider: () -
         }
         editor.apply()
     }
-
 }

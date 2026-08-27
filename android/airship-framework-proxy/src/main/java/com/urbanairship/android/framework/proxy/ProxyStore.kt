@@ -1,11 +1,11 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.urbanairship.android.framework.proxy.proxies.PushProxy
 import com.urbanairship.UALog
+import com.urbanairship.android.framework.proxy.proxies.PushProxy
 import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 import com.urbanairship.json.jsonMapOf
@@ -42,7 +42,7 @@ public class ProxyStore internal constructor(private val context: Context) {
 
     public var lastNotificationStatus: NotificationStatus?
         get() = getJson(NOTIFICATION_STATUS) {
-           NotificationStatus(it)
+            NotificationStatus(it)
         }
         set(status) = setJson(NOTIFICATION_STATUS, status)
 
@@ -78,13 +78,9 @@ public class ProxyStore internal constructor(private val context: Context) {
         }
     }
 
-    private fun getString(key: String, defaultValue: String?): String? {
-        return preferences.getString(key, defaultValue)
-    }
+    private fun getString(key: String, defaultValue: String?): String? = preferences.getString(key, defaultValue)
 
-    private fun getBoolean(key: String, defaultValue: Boolean): Boolean {
-        return preferences.getBoolean(key, defaultValue)
-    }
+    private fun getBoolean(key: String, defaultValue: Boolean): Boolean = preferences.getBoolean(key, defaultValue)
 
     private fun setString(key: String, value: String?) {
         if (value != null) {
@@ -110,9 +106,8 @@ public class ProxyStore internal constructor(private val context: Context) {
         }
     }
 
-    private fun getAutoLaunchPreferenceCenterKey(preferenceId: String): String {
-        return "${PREFERENCE_CENTER_AUTO_LAUNCH_PREFIX}_${preferenceId}"
-    }
+    private fun getAutoLaunchPreferenceCenterKey(preferenceId: String): String =
+        "${PREFERENCE_CENTER_AUTO_LAUNCH_PREFIX}_$preferenceId"
 
     internal companion object {
         private const val SHARED_PREFERENCES_FILE = "com.urbanairship.android.framework.proxy"

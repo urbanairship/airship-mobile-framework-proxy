@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy.proxies
 
 import com.urbanairship.PrivacyManager
@@ -5,9 +7,7 @@ import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.Utils
 import com.urbanairship.json.JsonValue
 
-public class PrivacyManagerProxy internal constructor(
-    private val privacyManagerProvider: () -> PrivacyManager
-) {
+public class PrivacyManagerProxy internal constructor(private val privacyManagerProvider: () -> PrivacyManager) {
     public fun setEnabledFeatures(featureNames: List<String>) {
         UALog.v { "setEnabledFeatures called, featureNames=$featureNames" }
         setEnabledFeatures(
@@ -71,13 +71,10 @@ public class PrivacyManagerProxy internal constructor(
         )
     }
 
-    public fun isFeatureEnabled(featureNames: JsonValue): Boolean {
-        return isFeatureEnabled(
-            Utils.parseFeatures(featureNames)
-        )
-    }
+    public fun isFeatureEnabled(featureNames: JsonValue): Boolean = isFeatureEnabled(
+        Utils.parseFeatures(featureNames)
+    )
 
-    public fun isFeatureEnabled(features: PrivacyManager.Feature): Boolean {
-        return privacyManagerProvider().isEnabled(features)
-    }
+    public fun isFeatureEnabled(features: PrivacyManager.Feature): Boolean =
+        privacyManagerProvider().isEnabled(features)
 }

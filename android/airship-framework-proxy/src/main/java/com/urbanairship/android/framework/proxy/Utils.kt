@@ -6,59 +6,52 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.annotation.ColorInt
+import androidx.core.graphics.toColorInt
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.PrivacyManager
 import com.urbanairship.UALog
 import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
-import androidx.core.graphics.toColorInt
 
 /**
  * Module utils.
  */
 public object Utils {
 
-    public fun parseLogLevel(logLevel: String): AirshipConfigOptions.LogLevel {
-        return when (logLevel.lowercase().trim()) {
-            "verbose" -> AirshipConfigOptions.LogLevel.VERBOSE
-            "debug" -> AirshipConfigOptions.LogLevel.DEBUG
-            "info" -> AirshipConfigOptions.LogLevel.INFO
-            "warning" -> AirshipConfigOptions.LogLevel.WARN
-            "error" -> AirshipConfigOptions.LogLevel.ERROR
-            "none" -> AirshipConfigOptions.LogLevel.ASSERT
-            else -> {
-                throw JsonException("Invalid log level: $logLevel")
-            }
+    public fun parseLogLevel(logLevel: String): AirshipConfigOptions.LogLevel = when (logLevel.lowercase().trim()) {
+        "verbose" -> AirshipConfigOptions.LogLevel.VERBOSE
+        "debug" -> AirshipConfigOptions.LogLevel.DEBUG
+        "info" -> AirshipConfigOptions.LogLevel.INFO
+        "warning" -> AirshipConfigOptions.LogLevel.WARN
+        "error" -> AirshipConfigOptions.LogLevel.ERROR
+        "none" -> AirshipConfigOptions.LogLevel.ASSERT
+        else -> {
+            throw JsonException("Invalid log level: $logLevel")
         }
     }
 
-    public fun logLevelString(logLevel: AirshipConfigOptions.LogLevel): String {
-        return when (logLevel) {
-            AirshipConfigOptions.LogLevel.VERBOSE -> "verbose"
-            AirshipConfigOptions.LogLevel.DEBUG -> "debug"
-            AirshipConfigOptions.LogLevel.INFO -> "info"
-            AirshipConfigOptions.LogLevel.WARN -> "warning"
-            AirshipConfigOptions.LogLevel.ERROR -> "error"
-            AirshipConfigOptions.LogLevel.ASSERT -> "none"
-        }
+    public fun logLevelString(logLevel: AirshipConfigOptions.LogLevel): String = when (logLevel) {
+        AirshipConfigOptions.LogLevel.VERBOSE -> "verbose"
+        AirshipConfigOptions.LogLevel.DEBUG -> "debug"
+        AirshipConfigOptions.LogLevel.INFO -> "info"
+        AirshipConfigOptions.LogLevel.WARN -> "warning"
+        AirshipConfigOptions.LogLevel.ERROR -> "error"
+        AirshipConfigOptions.LogLevel.ASSERT -> "none"
     }
 
-    public fun parseLogPrivacyLevel(privacyLevel: String): AirshipConfigOptions.PrivacyLevel {
-        return when (privacyLevel.lowercase().trim()) {
+    public fun parseLogPrivacyLevel(privacyLevel: String): AirshipConfigOptions.PrivacyLevel =
+        when (privacyLevel.lowercase().trim()) {
             "public" -> AirshipConfigOptions.PrivacyLevel.PUBLIC
             "private" -> AirshipConfigOptions.PrivacyLevel.PRIVATE
             else -> {
                 throw JsonException("Invalid log privacy level: $privacyLevel")
             }
         }
-    }
 
-    public fun logPrivacyLevelString(privacyLevel: AirshipConfigOptions.PrivacyLevel): String {
-        return when (privacyLevel) {
-            AirshipConfigOptions.PrivacyLevel.PUBLIC -> "public"
-            AirshipConfigOptions.PrivacyLevel.PRIVATE -> "private"
-        }
+    public fun logPrivacyLevelString(privacyLevel: AirshipConfigOptions.PrivacyLevel): String = when (privacyLevel) {
+        AirshipConfigOptions.PrivacyLevel.PUBLIC -> "public"
+        AirshipConfigOptions.PrivacyLevel.PRIVATE -> "private"
     }
 
     public fun parseFeatures(value: JsonValue): PrivacyManager.Feature {
@@ -68,22 +61,17 @@ public object Utils {
         return PrivacyManager.Feature.NONE
     }
 
-    public fun parseSite(value: String): AirshipConfigOptions.Site {
-        return when (value.lowercase()) {
-            "eu" -> AirshipConfigOptions.Site.SITE_EU
-            "us" -> AirshipConfigOptions.Site.SITE_US
-            else -> {
-                throw IllegalArgumentException("Invalid site: $value")
-            }
+    public fun parseSite(value: String): AirshipConfigOptions.Site = when (value.lowercase()) {
+        "eu" -> AirshipConfigOptions.Site.SITE_EU
+        "us" -> AirshipConfigOptions.Site.SITE_US
+        else -> {
+            throw IllegalArgumentException("Invalid site: $value")
         }
     }
 
-
-    public fun siteName(value: AirshipConfigOptions.Site): String {
-        return when (value) {
-            AirshipConfigOptions.Site.SITE_EU -> "eu"
-            AirshipConfigOptions.Site.SITE_US -> "us"
-        }
+    public fun siteName(value: AirshipConfigOptions.Site): String = when (value) {
+        AirshipConfigOptions.Site.SITE_EU -> "eu"
+        AirshipConfigOptions.Site.SITE_US -> "us"
     }
 
     /**
@@ -96,11 +84,7 @@ public object Utils {
      */
     @SuppressLint("DiscouragedApi")
     @JvmStatic
-    public fun getNamedResource(
-        context: Context,
-        resourceName: String,
-        resourceFolder: String
-    ): Int {
+    public fun getNamedResource(context: Context, resourceName: String, resourceFolder: String): Int {
         if (resourceName.isNotBlank()) {
             val id =
                 context.resources.getIdentifier(resourceName, resourceFolder, context.packageName)
@@ -134,9 +118,8 @@ public object Utils {
     }
 
     @JvmStatic
-    public fun featureNames(features: PrivacyManager.Feature): List<String> {
-        return features.toJsonValue().optList().mapNotNull { it.string }
-    }
+    public fun featureNames(features: PrivacyManager.Feature): List<String> =
+        features.toJsonValue().optList().mapNotNull { it.string }
 
     private fun getNotificationId(notificationId: Int, notificationTag: String?): String {
         var id = notificationId.toString()
@@ -151,7 +134,6 @@ public object Utils {
         notificationId: Int? = null,
         notificationTag: String? = null
     ): Map<String, Any> {
-
         val notification = mutableMapOf<String, Any>()
         val extras = mutableMapOf<String, String>()
         for (key in message.getPushBundle().keySet()) {
@@ -172,7 +154,7 @@ public object Utils {
                 extras[key] = value
             }
         }
-        notification["extras"] = extras;
+        notification["extras"] = extras
 
         message.title?.let { notification["title"] = it }
         message.alert?.let { notification["alert"] = it }

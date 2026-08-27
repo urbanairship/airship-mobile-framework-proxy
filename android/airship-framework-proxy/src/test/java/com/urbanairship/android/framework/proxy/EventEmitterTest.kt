@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.android.framework.proxy.events.Event
@@ -54,5 +56,4 @@ public class EventEmitterTest {
     }
 }
 
-public class TestEvent(override val type: EventType, override val body: JsonMap = JsonMap.EMPTY_MAP):
-    Event
+public class TestEvent(override val type: EventType, override val body: JsonMap = JsonMap.EMPTY_MAP) : Event

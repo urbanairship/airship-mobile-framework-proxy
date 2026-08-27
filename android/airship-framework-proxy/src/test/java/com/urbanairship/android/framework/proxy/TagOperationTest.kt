@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.channel.TagEditor
@@ -107,5 +109,4 @@ public class TagOperationTest {
         verify { editor.removeTags(tags.toSet()) }
         confirmVerified(editor)
     }
-
 }

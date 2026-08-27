@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy.proxies
 
 import com.urbanairship.UALog
@@ -66,17 +68,16 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
     }
 }
 
-public class LiveUpdateProxy(private val liveUpdate: LiveUpdate): JsonSerializable {
-    override fun toJsonValue(): JsonValue {
-        return jsonMapOf(
-            "name" to liveUpdate.name,
-            "type" to liveUpdate.type,
-            "content" to liveUpdate.content,
-            "lastContentUpdateTimestamp" to liveUpdate.lastContentUpdateTime.let { DateUtils.createIso8601TimeStamp(it) },
-            "lastStateChangeTimestamp" to liveUpdate.lastStateChangeTime.let { DateUtils.createIso8601TimeStamp(it) },
-            "dismissTimestamp" to liveUpdate.dismissalTime?.let { DateUtils.createIso8601TimeStamp(it) }
-        ).toJsonValue()
-    }
+public class LiveUpdateProxy(private val liveUpdate: LiveUpdate) : JsonSerializable {
+    override fun toJsonValue(): JsonValue = jsonMapOf(
+        "name" to liveUpdate.name,
+        "type" to liveUpdate.type,
+        "content" to liveUpdate.content,
+        "lastContentUpdateTimestamp" to
+            liveUpdate.lastContentUpdateTime.let { DateUtils.createIso8601TimeStamp(it) },
+        "lastStateChangeTimestamp" to liveUpdate.lastStateChangeTime.let { DateUtils.createIso8601TimeStamp(it) },
+        "dismissTimestamp" to liveUpdate.dismissalTime?.let { DateUtils.createIso8601TimeStamp(it) }
+    ).toJsonValue()
 }
 
 public sealed class LiveUpdateRequest {
@@ -86,7 +87,7 @@ public sealed class LiveUpdateRequest {
         val content: JsonMap,
         val timestamp: Long? = null,
         val dismissalTimestamp: Long? = null
-    ): LiveUpdateRequest() {
+    ) : LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)
             public fun fromJson(jsonValue: JsonValue): Update {
@@ -94,7 +95,7 @@ public sealed class LiveUpdateRequest {
                 return Update(
                     name = map.requireField(NAME),
                     content = map.requireField(CONTENT),
-                    timestamp =  map.optionalField<String>(TIMESTAMP)?.let {
+                    timestamp = map.optionalField<String>(TIMESTAMP)?.let {
                         DateUtils.parseIso8601(it)
                     },
                     dismissalTimestamp = map.optionalField<String>(DISMISSAL_TIMESTAMP)?.let {
@@ -110,7 +111,7 @@ public sealed class LiveUpdateRequest {
         val content: JsonMap?,
         val timestamp: Long? = null,
         val dismissalTimestamp: Long? = null
-    ): LiveUpdateRequest() {
+    ) : LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)
             public fun fromJson(jsonValue: JsonValue): End {
@@ -118,7 +119,7 @@ public sealed class LiveUpdateRequest {
                 return End(
                     name = map.requireField(NAME),
                     content = map.optionalField(CONTENT),
-                    timestamp =  map.optionalField<String>(TIMESTAMP)?.let {
+                    timestamp = map.optionalField<String>(TIMESTAMP)?.let {
                         DateUtils.parseIso8601(it)
                     },
                     dismissalTimestamp = map.optionalField<String>(DISMISSAL_TIMESTAMP)?.let {
@@ -135,7 +136,7 @@ public sealed class LiveUpdateRequest {
         val content: JsonMap,
         val timestamp: Long? = null,
         val dismissalTimestamp: Long? = null
-    ): LiveUpdateRequest() {
+    ) : LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)
             public fun fromJson(jsonValue: JsonValue): Start {
@@ -144,7 +145,7 @@ public sealed class LiveUpdateRequest {
                     name = map.requireField(NAME),
                     type = map.requireField(TYPE),
                     content = map.requireField(CONTENT),
-                    timestamp =  map.optionalField<String>(TIMESTAMP)?.let {
+                    timestamp = map.optionalField<String>(TIMESTAMP)?.let {
                         DateUtils.parseIso8601(it)
                     },
                     dismissalTimestamp = map.optionalField<String>(DISMISSAL_TIMESTAMP)?.let {
@@ -155,9 +156,7 @@ public sealed class LiveUpdateRequest {
         }
     }
 
-    public data class List(
-        val type: String
-    ): LiveUpdateRequest() {
+    public data class List(val type: String) : LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)
             public fun fromJson(jsonValue: JsonValue): List {

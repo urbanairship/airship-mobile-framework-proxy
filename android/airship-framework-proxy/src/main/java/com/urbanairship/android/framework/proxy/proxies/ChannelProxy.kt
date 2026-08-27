@@ -1,7 +1,9 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy.proxies
 
-import com.urbanairship.android.framework.proxy.AttributeOperation
 import com.urbanairship.UALog
+import com.urbanairship.android.framework.proxy.AttributeOperation
 import com.urbanairship.android.framework.proxy.SubscriptionListOperation
 import com.urbanairship.android.framework.proxy.TagGroupOperation
 import com.urbanairship.android.framework.proxy.TagOperation

@@ -55,8 +55,5 @@ public interface AirshipPluginExtender {
     public fun extendConfig(
         context: Context,
         configBuilder: AirshipConfigOptions.Builder
-    ): AirshipConfigOptions.Builder {
-        return configBuilder
-    }
+    ): AirshipConfigOptions.Builder = configBuilder
 }
-

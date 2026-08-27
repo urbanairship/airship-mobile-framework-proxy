@@ -1,7 +1,9 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy.proxies
 
-import com.urbanairship.android.framework.proxy.PendingEmbedded
 import com.urbanairship.UALog
+import com.urbanairship.android.framework.proxy.PendingEmbedded
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.automation.InAppAutomation
