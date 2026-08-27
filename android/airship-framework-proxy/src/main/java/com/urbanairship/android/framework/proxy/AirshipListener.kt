@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.Airship
@@ -28,10 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-internal class AirshipListener(
-    private val proxyStore: ProxyStore,
-    private val eventEmitter: EventEmitter
-) :
+internal class AirshipListener(private val proxyStore: ProxyStore, private val eventEmitter: EventEmitter) :
     MessageCenter.OnShowMessageCenterListener,
     PreferenceCenter.OnOpenListener,
     PushListener,
@@ -39,8 +38,7 @@ internal class AirshipListener(
     NotificationListener,
     DeepLinkListener,
     AirshipChannelListener,
-    InboxListener
-{
+    InboxListener {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val isAppForegrounded: Boolean
         get() {
@@ -52,23 +50,20 @@ internal class AirshipListener(
             return AirshipPluginExtensions.forwardNotificationListener
         }
 
-    override fun onShowMessageCenter(messageId: String?): Boolean {
-        return if (proxyStore.isAutoLaunchMessageCenterEnabled) {
-            false
-        } else {
-            eventEmitter.addEvent(DisplayMessageCenterEvent(messageId))
-            true
-        }
+    override fun onShowMessageCenter(messageId: String?): Boolean = if (proxyStore.isAutoLaunchMessageCenterEnabled) {
+        false
+    } else {
+        eventEmitter.addEvent(DisplayMessageCenterEvent(messageId))
+        true
     }
 
-    override fun onOpenPreferenceCenter(preferenceCenterId: String): Boolean {
-        return if (proxyStore.isAutoLaunchPreferenceCenterEnabled(preferenceCenterId)) {
+    override fun onOpenPreferenceCenter(preferenceCenterId: String): Boolean =
+        if (proxyStore.isAutoLaunchPreferenceCenterEnabled(preferenceCenterId)) {
             false
         } else {
             eventEmitter.addEvent(DisplayPreferenceCenterEvent(preferenceCenterId))
             true
         }
-    }
 
     override fun onPushReceived(message: PushMessage, notificationPosted: Boolean) {
         if (!notificationPosted) {
@@ -121,7 +116,7 @@ internal class AirshipListener(
 
     override fun onDeepLink(deepLink: String): Boolean {
         val override = AirshipPluginExtensions.onDeepLink?.invoke(deepLink)
-        when(override) {
+        when (override) {
             is AirshipPluginOverride.Override -> {
                 UALog.d { "Deeplink handling for $deepLink overridden by plugin extension" }
             }
@@ -146,7 +141,5 @@ internal class AirshipListener(
                 replacePending = true
             )
         }
-
     }
-
 }

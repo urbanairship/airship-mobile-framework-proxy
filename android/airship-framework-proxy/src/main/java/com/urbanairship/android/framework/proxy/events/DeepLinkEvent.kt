@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy.events
 
@@ -13,5 +13,4 @@ internal class DeepLinkEvent(deepLink: String) : Event {
     override val type = EventType.DEEP_LINK_RECEIVED
 
     override val body: JsonMap = jsonMapOf("deepLink" to deepLink)
-
 }

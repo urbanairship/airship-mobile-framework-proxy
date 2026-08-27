@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.channel.AttributeEditor
@@ -10,11 +12,15 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 public enum class AttributeOperationAction {
-    REMOVE, SET
+    REMOVE,
+    SET
 }
 
 public enum class AttributeValueType {
-    STRING, NUMBER, DATE, JSON
+    STRING,
+    NUMBER,
+    DATE,
+    JSON
 }
 
 public data class AttributeOperation(
@@ -62,11 +68,11 @@ internal fun AttributeOperation.applyOperation(editor: AttributeEditor) {
                     attribute,
                     requireNotNull(value).getDouble(0.0)
                 )
-                AttributeValueType.JSON ->  editor.setAttribute(
+                AttributeValueType.JSON -> editor.setAttribute(
                     attribute,
                     requireNotNull(instanceId),
                     expiry,
-                    requireNotNull(value).requireMap(),
+                    requireNotNull(value).requireMap()
                 )
             }
         }

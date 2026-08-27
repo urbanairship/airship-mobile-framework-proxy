@@ -1,3 +1,4 @@
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy
 
@@ -158,7 +159,7 @@ public class AttributeOperationTest {
     public fun testApplyJson() {
         val editor = mockk<AttributeEditor>(relaxed = true)
 
-        val operation  = AttributeOperation(
+        val operation = AttributeOperation(
             attribute = "some attribute",
             value = jsonMapOf("foo" to "bar").toJsonValue(),
             action = AttributeOperationAction.SET,
@@ -169,12 +170,14 @@ public class AttributeOperationTest {
 
         operation.applyOperation(editor)
 
-        verify { editor.setAttribute(
-            attribute = "some attribute",
-            instanceId = "instance id",
-            expiration = Date(1000),
-            json = jsonMapOf("foo" to "bar")
-        ) }
+        verify {
+            editor.setAttribute(
+                attribute = "some attribute",
+                instanceId = "instance id",
+                expiration = Date(1000),
+                json = jsonMapOf("foo" to "bar")
+            )
+        }
         confirmVerified(editor)
     }
 
@@ -182,7 +185,7 @@ public class AttributeOperationTest {
     public fun testApplyString() {
         val editor = mockk<AttributeEditor>(relaxed = true)
 
-        val operation  = AttributeOperation(
+        val operation = AttributeOperation(
             attribute = "some attribute",
             value = JsonValue.wrapOpt("neat"),
             action = AttributeOperationAction.SET,
@@ -199,7 +202,7 @@ public class AttributeOperationTest {
     public fun testApplyNumber() {
         val editor = mockk<AttributeEditor>(relaxed = true)
 
-        val operation  = AttributeOperation(
+        val operation = AttributeOperation(
             attribute = "some attribute",
             value = JsonValue.wrapOpt(100.1),
             action = AttributeOperationAction.SET,
@@ -216,7 +219,7 @@ public class AttributeOperationTest {
     public fun testApplyDate() {
         val editor = mockk<AttributeEditor>(relaxed = true)
 
-        val operation  = AttributeOperation(
+        val operation = AttributeOperation(
             attribute = "some attribute",
             value = JsonValue.wrapOpt(1682681877000),
             action = AttributeOperationAction.SET,
@@ -276,7 +279,6 @@ public class AttributeOperationTest {
         ).applyOperation(editor)
     }
 
-
     @Test(expected = java.lang.Exception::class)
     public fun testApplyNullString() {
         val editor = mockk<AttributeEditor>()
@@ -301,7 +303,6 @@ public class AttributeOperationTest {
         ).applyOperation(editor)
     }
 
-
     @Test(expected = java.lang.Exception::class)
     public fun testApplyNullNumber() {
         val editor = mockk<AttributeEditor>()
@@ -325,7 +326,6 @@ public class AttributeOperationTest {
             valueType = AttributeValueType.DATE
         ).applyOperation(editor)
     }
-
 
     @Test(expected = java.lang.Exception::class)
     public fun testApplyNullDate() {

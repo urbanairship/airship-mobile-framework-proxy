@@ -1,10 +1,14 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.channel.TagGroupsEditor
 import com.urbanairship.json.JsonMap
 
 public enum class TagGroupOperationAction {
-    ADD, REMOVE, SET
+    ADD,
+    REMOVE,
+    SET
 }
 
 public data class TagGroupOperation(

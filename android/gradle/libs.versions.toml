@@ -12,7 +12,7 @@ preferenceKtx = "1.2.1"
 spotlessPlugin = '8.1.0'
 
 # Spotless plugins
-ktlint = '0.45.2'
+ktlint = '1.7.1'
 
 # Dependencies
 

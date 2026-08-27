@@ -58,7 +58,7 @@ spotless {
     kotlin {
         target '**/*.kt'
         targetExclude '.idea/**', 'build/**', '*/build/**'
-        ktlint(libs.versions.ktlint.get()).userData(["android": "true"])
+        ktlint(libs.versions.ktlint.get()).editorConfigOverride(["ktlint_code_style": "android_studio"])
 
         licenseHeaderFile "${rootDir}/gradle/spotless.license"
         trimTrailingWhitespace()

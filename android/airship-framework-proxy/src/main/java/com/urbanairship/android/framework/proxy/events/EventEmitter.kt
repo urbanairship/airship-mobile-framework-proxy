@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy.events
 
@@ -18,8 +18,8 @@ public class EventEmitter {
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val pendingEvents = mutableListOf<Event>()
-    private val _pendingEventsUpdates = MutableSharedFlow<Event>()
-    public val pendingEventListener: SharedFlow<Event> = _pendingEventsUpdates
+    private val pendingEventsFlow = MutableSharedFlow<Event>()
+    public val pendingEventListener: SharedFlow<Event> = pendingEventsFlow
 
     /**
      * Adds an event.
@@ -30,12 +30,14 @@ public class EventEmitter {
         synchronized(lock) {
             if (replacePending) {
                 val removed = pendingEvents.removeAll { event.type == it.type }
-                UALog.v { "addEvent replacePending=true, type=${event.type}, removed=$removed, pendingCount=${pendingEvents.size}" }
+                UALog.v {
+                    "addEvent replacePending=true, type=${event.type}, removed=$removed, pendingCount=${pendingEvents.size}"
+                }
             }
             pendingEvents.add(event)
             UALog.v { "addEvent emitted event: type=${event.type}, body=${event.body}, replacePending=$replacePending" }
             scope.launch {
-                _pendingEventsUpdates.emit(event)
+                pendingEventsFlow.emit(event)
             }
         }
     }
@@ -79,7 +81,9 @@ public class EventEmitter {
                     onProcess(it)
                 }
             }
-            UALog.v { "processPending types=$types, processed=$removed, pendingBefore=$before, pendingAfter=${pendingEvents.size}" }
+            UALog.v {
+                "processPending types=$types, processed=$removed, pendingBefore=$before, pendingAfter=${pendingEvents.size}"
+            }
         }
     }
 
@@ -92,8 +96,6 @@ public class EventEmitter {
          * @return The shared {@link EventEmitter} instance.
          */
         @JvmStatic
-        public fun shared(): EventEmitter {
-            return sharedInstance
-        }
+        public fun shared(): EventEmitter = sharedInstance
     }
 }

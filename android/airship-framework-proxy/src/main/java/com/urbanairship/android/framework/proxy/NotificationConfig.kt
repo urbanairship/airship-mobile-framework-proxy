@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.json.JsonMap
@@ -16,14 +18,13 @@ public data class NotificationConfig(
         icon = config["icon"]?.string,
         largeIcon = config["largeIcon"]?.string,
         accentColor = config["accentColor"]?.string,
-        defaultChannelId = config["defaultChannelId"]?.string,
+        defaultChannelId = config["defaultChannelId"]?.string
     )
 
-    override fun toJsonValue(): JsonValue =
-        jsonMapOf(
-            "icon" to icon,
-            "largeIcon" to largeIcon,
-            "accentColor" to accentColor,
-            "defaultChannelId" to defaultChannelId
-        ).toJsonValue()
+    override fun toJsonValue(): JsonValue = jsonMapOf(
+        "icon" to icon,
+        "largeIcon" to largeIcon,
+        "accentColor" to accentColor,
+        "defaultChannelId" to defaultChannelId
+    ).toJsonValue()
 }

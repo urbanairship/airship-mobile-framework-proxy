@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy.proxies
 
@@ -6,11 +6,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.urbanairship.Airship
 import com.urbanairship.Autopilot
+import com.urbanairship.UALog
 import com.urbanairship.actions.DefaultActionRunner
 import com.urbanairship.android.framework.proxy.LaunchDeepLinkTracker
 import com.urbanairship.android.framework.proxy.ProxyConfig
 import com.urbanairship.android.framework.proxy.ProxyStore
-import com.urbanairship.UALog
 import com.urbanairship.automation.inAppAutomation
 import com.urbanairship.featureflag.FeatureFlagManager
 import com.urbanairship.json.JsonValue
@@ -18,10 +18,7 @@ import com.urbanairship.liveupdate.liveUpdateManager
 import com.urbanairship.messagecenter.messageCenter
 import com.urbanairship.preferencecenter.preferenceCenter
 
-public class AirshipProxy(
-    private val context: Context,
-    internal val proxyStore: ProxyStore
-) {
+public class AirshipProxy(private val context: Context, internal val proxyStore: ProxyStore) {
 
     public val actions: ActionProxy = ActionProxy {
         ensureTakeOff()
@@ -68,7 +65,7 @@ public class AirshipProxy(
         Airship.preferenceCenter
     }
 
-    public val privacyManager: PrivacyManagerProxy = PrivacyManagerProxy() {
+    public val privacyManager: PrivacyManagerProxy = PrivacyManagerProxy {
         ensureTakeOff()
         Airship.privacyManager
     }
@@ -86,14 +83,12 @@ public class AirshipProxy(
         }
     )
 
-    public val featureFlagManager: FeatureFlagManagerProxy = FeatureFlagManagerProxy() {
+    public val featureFlagManager: FeatureFlagManagerProxy = FeatureFlagManagerProxy {
         ensureTakeOff()
         FeatureFlagManager.shared()
     }
 
-    public fun takeOff(config: JsonValue): Boolean {
-        return takeOff(ProxyConfig(config.optMap()))
-    }
+    public fun takeOff(config: JsonValue): Boolean = takeOff(ProxyConfig(config.optMap()))
 
     public fun takeOff(config: ProxyConfig): Boolean {
         UALog.v { "TakeOff requested with config=$config" }
@@ -104,18 +99,14 @@ public class AirshipProxy(
         return flying
     }
 
-    public fun isFlying(): Boolean {
-        return Airship.isFlyingOrTakingOff
-    }
+    public fun isFlying(): Boolean = Airship.isFlyingOrTakingOff
 
     /**
      * Returns the deep link that launched the app from a notification tap,
      * or null if the app was not launched by a deep-link-carrying tap.
      * One-shot: the value is consumed on read.
      */
-    public suspend fun getLaunchDeepLink(): String? {
-        return LaunchDeepLinkTracker.shared().takeLaunchDeepLink()
-    }
+    public suspend fun getLaunchDeepLink(): String? = LaunchDeepLinkTracker.shared().takeLaunchDeepLink()
 
     public companion object {
         @SuppressLint("StaticFieldLeak")

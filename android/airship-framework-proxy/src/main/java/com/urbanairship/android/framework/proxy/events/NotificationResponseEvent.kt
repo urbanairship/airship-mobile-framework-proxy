@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy.events
 
@@ -35,4 +35,3 @@ internal class NotificationResponseEvent(
         "actionId" to actionButtonInfo?.buttonId
     )
 }
-

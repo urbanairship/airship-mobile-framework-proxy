@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy
 
@@ -7,18 +7,19 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import androidx.annotation.XmlRes
+import androidx.core.net.toUri
 import com.urbanairship.Airship
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
-import com.urbanairship.UALog
 import com.urbanairship.Predicate
+import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.Utils.getNamedResource
 import com.urbanairship.android.framework.proxy.events.EventEmitter
-import com.urbanairship.app.ApplicationListener
-import com.urbanairship.app.GlobalActivityMonitor
 import com.urbanairship.android.framework.proxy.events.NotificationStatusEvent
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
+import com.urbanairship.app.ApplicationListener
+import com.urbanairship.app.GlobalActivityMonitor
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.permission.Permission
 import com.urbanairship.preferencecenter.PreferenceCenter
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import androidx.core.net.toUri
 
 /**
  * Module's autopilot to customize Urban Airship.
@@ -108,8 +108,10 @@ public abstract class BaseAutopilot : Autopilot() {
         Airship.push.notificationProvider = notificationProvider
         Airship.push.foregroundNotificationDisplayPredicate = Predicate { message ->
             return@Predicate runBlocking {
-                val override = AirshipPluginExtensions.onShouldDisplayForegroundNotification?.invoke(message) ?: AirshipPluginOverride.UseDefault
-                return@runBlocking when(override) {
+                val override =
+                    AirshipPluginExtensions.onShouldDisplayForegroundNotification?.invoke(message)
+                        ?: AirshipPluginOverride.UseDefault
+                return@runBlocking when (override) {
                     is AirshipPluginOverride.Override -> {
                         override.result
                     }
@@ -139,6 +141,7 @@ public abstract class BaseAutopilot : Autopilot() {
     @SuppressLint("DiscouragedApi")
     private fun loadCustomNotificationChannels(context: Context) {
         val packageName = context.packageName
+
         @XmlRes val resId = context.resources.getIdentifier("ua_custom_notification_channels", "xml", packageName)
 
         if (resId != 0) {
@@ -150,6 +153,7 @@ public abstract class BaseAutopilot : Autopilot() {
     @SuppressLint("DiscouragedApi")
     private fun loadCustomNotificationButtonGroups(context: Context) {
         val packageName = context.packageName
+
         @XmlRes val resId = context.resources.getIdentifier("ua_custom_notification_buttons", "xml", packageName)
 
         if (resId != 0) {
@@ -185,8 +189,8 @@ public abstract class BaseAutopilot : Autopilot() {
         }
     }
 
-    public open fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder {
-        return AirshipConfigOptions.newBuilder()
+    public open fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder =
+        AirshipConfigOptions.newBuilder()
             .let {
                 try {
                     it.tryApplyDefaultProperties(context)
@@ -196,11 +200,8 @@ public abstract class BaseAutopilot : Autopilot() {
                 it
             }
             .setRequireInitialRemoteConfigEnabled(true)
-    }
 
-    override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions? {
-        return configOptions
-    }
+    override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions? = configOptions
 
     public abstract fun onMigrateData(context: Context, proxyStore: ProxyStore)
 }
@@ -238,7 +239,9 @@ public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxy
     proxyConfig.isChannelCaptureEnabled?.let { this.setChannelCaptureEnabled(it) }
     proxyConfig.initialConfigUrl?.let { this.setInitialConfigUrl(it) }
     proxyConfig.urlAllowList?.let { this.setUrlAllowList(it.toTypedArray()) }
-    proxyConfig.urlAllowListScopeJavaScriptInterface?.let { this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray()) }
+    proxyConfig.urlAllowListScopeJavaScriptInterface?.let {
+        this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray())
+    }
     proxyConfig.urlAllowListScopeOpenUrl?.let { this.setUrlAllowListScopeOpenUrl(it.toTypedArray()) }
     proxyConfig.androidConfig?.appStoreUri?.let { this.setAppStoreUri(it.toUri()) }
     proxyConfig.androidConfig?.fcmFirebaseAppName?.let { this.setFcmFirebaseAppName(it) }
@@ -304,5 +307,3 @@ private class ExtenderProvider {
         const val EXTENDER_MANIFEST_KEY = "com.urbanairship.plugin.extender"
     }
 }
-
-

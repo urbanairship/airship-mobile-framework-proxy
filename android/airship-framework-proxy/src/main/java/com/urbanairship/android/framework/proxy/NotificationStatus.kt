@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.json.JsonSerializable
@@ -17,7 +19,7 @@ public data class NotificationStatus(
     public val notificationPermissionStatus: String?
 ) : JsonSerializable {
 
-    public constructor(value: JsonValue): this(
+    public constructor(value: JsonValue) : this(
         isUserNotificationsEnabled = value.requireMap().requireField("isUserNotificationsEnabled"),
         areNotificationsAllowed = value.requireMap().requireField("areNotificationsAllowed"),
         isPushPrivacyFeatureEnabled = value.requireMap().requireField("isPushPrivacyFeatureEnabled"),
@@ -38,12 +40,12 @@ public data class NotificationStatus(
     )
 
     override fun toJsonValue(): JsonValue = jsonMapOf(
-            "isUserNotificationsEnabled" to this.isUserNotificationsEnabled,
-            "areNotificationsAllowed" to this.areNotificationsAllowed,
-            "isPushPrivacyFeatureEnabled" to this.isPushPrivacyFeatureEnabled,
-            "isPushTokenRegistered" to this.isPushTokenRegistered,
-            "isUserOptedIn" to this.isUserOptedIn,
-            "isOptedIn" to this.isOptedIn,
-            "notificationPermissionStatus" to this.notificationPermissionStatus
+        "isUserNotificationsEnabled" to this.isUserNotificationsEnabled,
+        "areNotificationsAllowed" to this.areNotificationsAllowed,
+        "isPushPrivacyFeatureEnabled" to this.isPushPrivacyFeatureEnabled,
+        "isPushTokenRegistered" to this.isPushTokenRegistered,
+        "isUserOptedIn" to this.isUserOptedIn,
+        "isOptedIn" to this.isOptedIn,
+        "notificationPermissionStatus" to this.notificationPermissionStatus
     ).toJsonValue()
 }

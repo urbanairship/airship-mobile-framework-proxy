@@ -1,10 +1,13 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.channel.SubscriptionListEditor
 import com.urbanairship.json.JsonMap
 
 public enum class SubscriptionListOperationAction {
-    SUBSCRIBE, UNSUBSCRIBE
+    SUBSCRIBE,
+    UNSUBSCRIBE
 }
 
 public data class SubscriptionListOperation(

@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.embedded.AirshipEmbeddedInfo
@@ -13,8 +15,8 @@ import kotlinx.coroutines.launch
 internal object PendingEmbedded {
     private val dispatcher = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    private  val _pending: MutableStateFlow<List<AirshipEmbeddedInfo>> = MutableStateFlow(emptyList())
-    val pending: StateFlow<List<AirshipEmbeddedInfo>> =  _pending.asStateFlow()
+    private val _pending: MutableStateFlow<List<AirshipEmbeddedInfo>> = MutableStateFlow(emptyList())
+    val pending: StateFlow<List<AirshipEmbeddedInfo>> = _pending.asStateFlow()
 
     init {
         dispatcher.launch {

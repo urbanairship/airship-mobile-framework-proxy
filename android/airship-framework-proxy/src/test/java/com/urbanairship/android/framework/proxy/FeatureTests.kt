@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.PrivacyManager
@@ -21,7 +23,7 @@ public class FeatureTests {
                 "analytics",
                 "tags_and_attributes",
                 "feature_flags",
-                "contacts",
+                "contacts"
             ).sorted(),
             names.sorted()
         )
@@ -48,5 +50,4 @@ public class FeatureTests {
         val feature = Utils.parseFeatures(JsonValue.wrapOpt(emptyList<String>()))
         assertEquals(PrivacyManager.Feature.NONE, feature)
     }
-
 }

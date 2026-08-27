@@ -1,3 +1,4 @@
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy
 

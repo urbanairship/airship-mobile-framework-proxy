@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy.proxies
 
 import com.urbanairship.UALog
@@ -16,7 +18,7 @@ public class FeatureFlagManagerProxy internal constructor(
 
     public val resultCache: ResultCacheProxy = ResultCacheProxy { featureFlagManagerProvider().resultCache }
 
-    public class ResultCacheProxy  internal constructor(private val cacheProvider: () -> FeatureFlagResultCache) {
+    public class ResultCacheProxy internal constructor(private val cacheProvider: () -> FeatureFlagResultCache) {
 
         public suspend fun cache(flag: FeatureFlagProxy, ttl: Duration) {
             UALog.v { "FeatureFlagManager.resultCache.cache called, flag=$flag, ttl=$ttl" }
@@ -46,11 +48,9 @@ public class FeatureFlagManagerProxy internal constructor(
     }
 }
 
-public data class FeatureFlagProxy(
-    internal val original: FeatureFlag,
-) : JsonSerializable {
+public data class FeatureFlagProxy(internal val original: FeatureFlag) : JsonSerializable {
 
-    public constructor(jsonValue: JsonValue): this(
+    public constructor(jsonValue: JsonValue) : this(
         FeatureFlag.fromJson(jsonValue.requireMap().requireField("_internal"))
     )
 

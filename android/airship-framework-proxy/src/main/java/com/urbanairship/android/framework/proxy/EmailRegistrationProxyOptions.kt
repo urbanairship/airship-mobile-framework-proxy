@@ -1,3 +1,5 @@
+/* Copyright Airship and Contributors */
+
 package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.contacts.EmailRegistrationOptions
@@ -11,8 +13,22 @@ public data class EmailRegistrationProxyOptions(
     public val doubleOptIn: Boolean
 ) {
     public constructor(json: JsonMap) : this(
-        transactionalOptedIn = if (json.opt("transactionalOptedIn").isNull) null else json.opt("transactionalOptedIn").getLong(0),
-        commercialOptedIn = if (json.opt("commercialOptedIn").isNull) null else json.opt("commercialOptedIn").getLong(0),
+        transactionalOptedIn = if (json.opt(
+                "transactionalOptedIn"
+            ).isNull
+        ) {
+            null
+        } else {
+            json.opt("transactionalOptedIn").getLong(0)
+        },
+        commercialOptedIn = if (json.opt(
+                "commercialOptedIn"
+            ).isNull
+        ) {
+            null
+        } else {
+            json.opt("commercialOptedIn").getLong(0)
+        },
         properties = json.opt("properties").map,
         doubleOptIn = json.opt("doubleOptIn").getBoolean(false)
     )

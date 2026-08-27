@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.android.framework.proxy
 
@@ -15,9 +15,7 @@ public open class BaseNotificationProvider(
     internal val configOptions: AirshipConfigOptions
 ) : AirshipNotificationProvider(context, configOptions) {
 
-    internal fun applyNotificationConfig(
-        notificationConfig: NotificationConfig?
-    ) {
+    internal fun applyNotificationConfig(notificationConfig: NotificationConfig?) {
         this.defaultNotificationChannelId = resolveNotificationChannel(notificationConfig)
         this.smallIcon = resolveSmallIcon(notificationConfig)
         this.largeIcon = resolveLargeIcon(notificationConfig)
@@ -34,9 +32,8 @@ public open class BaseNotificationProvider(
     }
 
     internal companion object {
-        internal const val PUSH_MESSAGE_BUNDLE_EXTRA: String = "com.urbanairship.push_bundle";
+        internal const val PUSH_MESSAGE_BUNDLE_EXTRA: String = "com.urbanairship.push_bundle"
     }
-
 
     private fun resolveNotificationChannel(notificationConfig: NotificationConfig?): String {
         // NotificationConfig
@@ -88,7 +85,7 @@ public open class BaseNotificationProvider(
         }
 
         // AirshipConfig
-       return configOptions.notificationLargeIcon
+        return configOptions.notificationLargeIcon
     }
 
     private fun findDrawable(name: String?): Int? {
@@ -103,5 +100,4 @@ public open class BaseNotificationProvider(
             null
         }
     }
-
 }
