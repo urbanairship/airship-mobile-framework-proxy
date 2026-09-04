@@ -204,13 +204,10 @@ public final class AirshipProxy: Sendable {
         }
 
         Task {
-            let updates = await Airship.featureFlagManager.featureFlagStatusUpdates.compactMap {
-                ($0 as? FeatureFlagUpdateStatus).map(FeatureFlagStatusProxy.init)
-            }
-
-            for await update in updates {
+            for await update in await Airship.featureFlagManager.featureFlagStatusUpdates {
+                guard let status = update as? FeatureFlagUpdateStatus else { continue }
                 AirshipProxyEventEmitter.shared.addEvent(
-                    FeatureFlagStatusChangedEvent(status: update),
+                    FeatureFlagStatusChangedEvent(status: FeatureFlagStatusProxy(status: status)),
                     replacePending: true
                 )
             }
