@@ -23,6 +23,8 @@ public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
 
     case pendingEmbeddedUpdated
     case liveActivitiesUpdated
+
+    case featureFlagStatusChanged
 }
 
 public protocol AirshipProxyEvent: Sendable {
@@ -207,6 +209,19 @@ struct AuthorizedNotificationSettingsChangedEvent: AirshipProxyEvent {
 
     struct Body: Codable, Sendable {
         let authorizedSettings: [String]
+    }
+}
+
+struct FeatureFlagStatusChangedEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .featureFlagStatusChanged
+    let body: Body
+
+    init(status: FeatureFlagStatusProxy) {
+        self.body = Body(status: status)
+    }
+
+    struct Body: Codable, Sendable {
+        let status: FeatureFlagStatusProxy
     }
 }
 
