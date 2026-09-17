@@ -27,12 +27,12 @@ fi
 
 echo -e "${BLUE}${BOLD}Detecting SDK Versions${NC}\n"
 
-# Get current proxy version from podspec
-CURRENT_PROXY_VERSION=$(grep "s.version" "$REPO_ROOT/AirshipFrameworkProxy.podspec" | grep -o "[0-9]*\.[0-9]*\.[0-9]*")
+# Get current proxy version
+CURRENT_PROXY_VERSION=$(grep "airshipProxy = " "$REPO_ROOT/android/gradle/libs.versions.toml" | grep -o "[0-9]*\.[0-9]*\.[0-9]*")
 echo -e "Current proxy version: ${BOLD}$CURRENT_PROXY_VERSION${NC}"
 
 # Get current iOS SDK dependency
-CURRENT_IOS_VERSION=$(grep "s.dependency.*'Airship'" "$REPO_ROOT/AirshipFrameworkProxy.podspec" | grep -o "[0-9]*\.[0-9]*\.[0-9]*")
+CURRENT_IOS_VERSION=$(grep "ios-library.git\", from:" "$REPO_ROOT/Package.swift" | grep -o "[0-9]*\.[0-9]*\.[0-9]*")
 echo -e "Current iOS SDK:       ${BOLD}$CURRENT_IOS_VERSION${NC}"
 
 # Get current Android SDK dependency

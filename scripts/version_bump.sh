@@ -30,15 +30,15 @@ echo -e "${BLUE}${BOLD}${ROCKET} Airship Mobile Framework Proxy Version Bumper $
 # Get current versions
 get_current_versions() {
   echo -e "${INFO} Detecting current versions..."
-  
-  # Check iOS SDK version from Podfile
-  IOS_SDK_CURRENT=$(grep "pod 'Airship'" ios/Podfile | grep -o "[0-9]*\.[0-9]*\.[0-9]*" || echo "unknown")
-  
+
+  # Check iOS SDK version from Package.swift
+  IOS_SDK_CURRENT=$(grep "ios-library.git\", from:" Package.swift | grep -o "[0-9]*\.[0-9]*\.[0-9]*" || echo "unknown")
+
   # Check Android SDK version from libs.versions.toml
   ANDROID_SDK_CURRENT=$(grep "airship =" android/gradle/libs.versions.toml | grep -o "[0-9]*\.[0-9]*\.[0-9]*" || echo "unknown")
-  
-  # Check proxy version from podspec
-  PROXY_CURRENT=$(grep "s.version" AirshipFrameworkProxy.podspec | grep -o "[0-9]*\.[0-9]*\.[0-9]*" || echo "unknown")
+
+  # Check proxy version from libs.versions.toml
+  PROXY_CURRENT=$(grep "airshipProxy =" android/gradle/libs.versions.toml | grep -o "[0-9]*\.[0-9]*\.[0-9]*" || echo "unknown")
   
   echo -e "${CHECK} Current versions detected:"
   echo -e "   ${BOLD}Proxy:${NC}        ${PROXY_CURRENT}"
@@ -74,15 +74,6 @@ update_versions() {
   echo -e "   ${BOLD}Android SDK:${NC}  ${android_sdk_version}"
   
   echo -e "\n${SPARKLE} Updating files..."
-  
-  # Podspec file
-  if [ -f "AirshipFrameworkProxy.podspec" ]; then
-    echo -e "${INFO} Updating AirshipFrameworkProxy.podspec"
-    sedi "s/s.version[[:space:]]*=[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.version                 = \"${proxy_version}\"/" AirshipFrameworkProxy.podspec
-    sedi "s/s.dependency[[:space:]]*'Airship',[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.dependency                'Airship', \"${ios_sdk_version}\"/" AirshipFrameworkProxy.podspec
-  else
-    echo -e "${WARN} AirshipFrameworkProxy.podspec not found"
-  fi
 
   # Package.swift
   if [ -f "Package.swift" ]; then
@@ -90,14 +81,6 @@ update_versions() {
     sedi "s/from: \"[0-9]*\.[0-9]*\.[0-9]*\"/from: \"${ios_sdk_version}\"/" Package.swift
   else
     echo -e "${WARN} Package.swift not found"
-  fi
-
-  # iOS Podfile
-  if [ -f "ios/Podfile" ]; then
-    echo -e "${INFO} Updating ios/Podfile"
-    sedi "s/pod 'Airship', '[0-9]*\.[0-9]*\.[0-9]*'/pod 'Airship', '${ios_sdk_version}'/" ios/Podfile
-  else
-    echo -e "${WARN} ios/Podfile not found"
   fi
 
   # Android libs.versions.toml
@@ -116,12 +99,11 @@ update_versions() {
 verify_changes() {
   echo -e "\n${INFO} Verifying changes..."
   
-  git diff --color AirshipFrameworkProxy.podspec Package.swift ios/Podfile android/gradle/libs.versions.toml
-  
+  git diff --color Package.swift android/gradle/libs.versions.toml
+
   echo -e "\n${INFO} Next steps:"
   echo -e "   1. Review the changes above"
-  echo -e "   2. Run 'pod install' in the ios directory"
-  echo -e "   3. PR the changes"
+  echo -e "   2. PR the changes"
 }
 
 # Main execution

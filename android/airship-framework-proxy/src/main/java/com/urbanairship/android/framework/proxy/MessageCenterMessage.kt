@@ -20,11 +20,11 @@ public data class MessageCenterMessage(
     internal constructor(message: Message) : this(
         title = message.title,
         id = message.id,
-        sentDate = message.sentDate.time,
+        sentDate = message.sentDate.toEpochMilli(),
         listIconUrl = message.listIconUrl,
         isRead = message.isRead,
         extras = message.extras ?: emptyMap<String, String?>(),
-        expirationDate = message.expirationDate?.time
+        expirationDate = message.expirationDate?.toEpochMilli()
     )
 
     override fun toJsonValue(): JsonValue = JsonMap.newBuilder()

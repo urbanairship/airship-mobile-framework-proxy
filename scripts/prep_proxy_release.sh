@@ -45,17 +45,6 @@ fi
 
 echo -e "${BLUE}Updating files...${NC}"
 
-# Update AirshipFrameworkProxy.podspec
-if [ "$TEST_MODE" = "false" ]; then
-    sedi "s/s.version[[:space:]]*=[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.version                 = \"${PROXY_VERSION}\"/" "$REPO_ROOT/AirshipFrameworkProxy.podspec"
-    sedi "s/s.dependency[[:space:]]*'Airship',[[:space:]]*\"[0-9]*\.[0-9]*\.[0-9]*\"/s.dependency                'Airship', \"${IOS_VERSION}\"/" "$REPO_ROOT/AirshipFrameworkProxy.podspec"
-    echo "✓ Updated AirshipFrameworkProxy.podspec"
-else
-    echo "  Would update AirshipFrameworkProxy.podspec:"
-    echo "    version: $PROXY_VERSION"
-    echo "    iOS SDK: $IOS_VERSION"
-fi
-
 # Update Package.swift
 if [ "$TEST_MODE" = "false" ]; then
     sedi "s/from: \"[0-9]*\.[0-9]*\.[0-9]*\"/from: \"${IOS_VERSION}\"/" "$REPO_ROOT/Package.swift"

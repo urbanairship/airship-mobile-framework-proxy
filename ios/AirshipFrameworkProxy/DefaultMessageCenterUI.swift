@@ -3,9 +3,9 @@ import UIKit
 import SwiftUI
 
 #if canImport(AirshipKit)
-import AirshipKit
+@_spi(AirshipInternal) import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 import AirshipMessageCenter
 #endif
 

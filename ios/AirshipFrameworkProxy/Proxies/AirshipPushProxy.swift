@@ -4,9 +4,9 @@ import Foundation
 public import UserNotifications
 
 #if canImport(AirshipKit)
-public import AirshipKit
+@_spi(AirshipInternal) public import AirshipKit
 #elseif canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 #endif
 
 public final class AirshipPushProxy: Sendable {

@@ -23,7 +23,8 @@ public class FeatureTests {
                 "analytics",
                 "tags_and_attributes",
                 "feature_flags",
-                "contacts"
+                "contacts",
+                "on_device_ai"
             ).sorted(),
             names.sorted()
         )

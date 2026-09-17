@@ -6,6 +6,7 @@ import AirshipKit
 #elseif canImport(AirshipCore)
 import AirshipCore
 #endif
+import AirshipScenes
 
 public enum AirshipProxyEventType: CaseIterable, Equatable, Sendable {
     case deepLinkReceived

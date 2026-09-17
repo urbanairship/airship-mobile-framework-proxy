@@ -5,9 +5,9 @@ import Combine
 import UserNotifications
 
 #if canImport(AirshipKit)
-public import AirshipKit
+@_spi(AirshipInternal) public import AirshipKit
 #elseif canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 import AirshipAutomation
 import AirshipMessageCenter
 import AirshipFeatureFlags

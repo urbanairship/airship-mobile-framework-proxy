@@ -18,4 +18,8 @@ struct PushUtils {
             return action.identifier == notificationResponse.actionIdentifier
         })
     }
+
+    static func deviceTokenString(_ token: Data) -> String {
+        [UInt8](token).reduce(into: "") { $0.append(String(format: "%02x", $1)) }
+    }
 }

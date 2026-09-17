@@ -8,7 +8,7 @@ import AirshipKit
 #elseif canImport(AirshipCore)
 import AirshipCore
 #endif
-
+import AirshipScenes
 
 public actor EmbeddedEventEmitter {
     static let shared: EmbeddedEventEmitter = EmbeddedEventEmitter()
