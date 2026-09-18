@@ -3,10 +3,10 @@
 import Foundation
 
 #if canImport(AirshipKit)
-public import AirshipKit
+@_spi(AirshipInternal) public import AirshipKit
 @_spi(AirshipInternal) import AirshipKit
 #elseif canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 @_spi(AirshipInternal) import AirshipBasement
 #endif
 

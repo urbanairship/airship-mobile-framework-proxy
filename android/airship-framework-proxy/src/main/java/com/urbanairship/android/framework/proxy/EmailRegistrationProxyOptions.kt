@@ -4,7 +4,7 @@ package com.urbanairship.android.framework.proxy
 
 import com.urbanairship.contacts.EmailRegistrationOptions
 import com.urbanairship.json.JsonMap
-import java.util.Date
+import java.time.Instant
 
 public data class EmailRegistrationProxyOptions(
     public val transactionalOptedIn: Long?,
@@ -34,8 +34,8 @@ public data class EmailRegistrationProxyOptions(
     )
 
     public fun toEmailRegistrationOptions(): EmailRegistrationOptions {
-        val transactionalDate = transactionalOptedIn?.let { Date(it) }
-        val commercialDate = commercialOptedIn?.let { Date(it) }
+        val transactionalDate = transactionalOptedIn?.let { Instant.ofEpochMilli(it) }
+        val commercialDate = commercialOptedIn?.let { Instant.ofEpochMilli(it) }
 
         return if (commercialDate != null) {
             EmailRegistrationOptions.commercialOptions(

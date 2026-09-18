@@ -4,9 +4,9 @@ import Foundation
 public import UserNotifications
 
 #if canImport(AirshipKit)
-import AirshipKit
+@_spi(AirshipInternal) import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 public final class ProxyStore: Sendable {

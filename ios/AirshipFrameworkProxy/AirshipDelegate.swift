@@ -5,10 +5,10 @@ import UserNotifications
 import UIKit
 
 #if canImport(AirshipKit)
-import AirshipKit
+@_spi(AirshipInternal) import AirshipKit
 import Combine
 #elseif canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 import AirshipMessageCenter
 import AirshipPreferenceCenter
 import AirshipAutomation
@@ -147,7 +147,7 @@ extension AirshipDelegate: RegistrationDelegate {
 
     @MainActor
     func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
-        let token = AirshipUtils.deviceTokenStringFromDeviceToken(deviceToken)
+        let token = PushUtils.deviceTokenString(deviceToken)
         self.eventEmitter.addEvent(
             PushTokenReceivedEvent(
                 pushToken: token

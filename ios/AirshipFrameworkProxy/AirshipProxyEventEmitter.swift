@@ -2,9 +2,9 @@ import Foundation
 @preconcurrency public import Combine
 
 #if canImport(AirshipKit)
-import AirshipKit
+@_spi(AirshipInternal) import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 @MainActor

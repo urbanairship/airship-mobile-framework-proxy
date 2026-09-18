@@ -2,9 +2,9 @@
 
 import Foundation
 #if canImport(AirshipKit)
-import AirshipKit
+@_spi(AirshipInternal) import AirshipKit
 #elseif canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 public struct AttributeOperation: Decodable, Equatable, Sendable {

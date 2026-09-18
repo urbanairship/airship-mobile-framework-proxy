@@ -7,9 +7,8 @@ import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.json.optionalField
 import com.urbanairship.json.requireField
-import java.util.*
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import java.time.Instant
+import java.util.Date
 
 public enum class AttributeOperationAction {
     REMOVE,
@@ -29,7 +28,7 @@ public data class AttributeOperation(
     public val valueType: AttributeValueType?,
     public val action: AttributeOperationAction,
     public val instanceId: String? = null,
-    public val expiry: Date? = null
+    public val expiry: Instant? = null
 ) {
     public constructor(json: JsonMap) : this(
         attribute = json.requireField("key"),
@@ -42,7 +41,7 @@ public data class AttributeOperation(
         ),
         instanceId = json.optionalField("instance_id"),
         expiry = json.optionalField<Long>("expiration_milliseconds")?.let {
-            Date(it)
+            Instant.ofEpochMilli(it)
         }
     )
 }
