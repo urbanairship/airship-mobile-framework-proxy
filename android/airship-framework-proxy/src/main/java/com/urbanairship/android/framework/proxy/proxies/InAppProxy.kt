@@ -7,6 +7,7 @@ import com.urbanairship.android.framework.proxy.PendingEmbedded
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.events.PendingEmbeddedUpdated
 import com.urbanairship.automation.InAppAutomation
+import kotlin.time.Duration.Companion.milliseconds
 
 public class InAppProxy internal constructor(private val inAppProvider: () -> InAppAutomation) {
 
@@ -22,12 +23,12 @@ public class InAppProxy internal constructor(private val inAppProvider: () -> In
 
     public fun setDisplayInterval(milliseconds: Long) {
         UALog.v { "setDisplayInterval called, milliseconds=$milliseconds" }
-        inAppProvider().inAppMessaging.displayInterval = milliseconds
+        inAppProvider().inAppMessaging.displayInterval = milliseconds.milliseconds
     }
 
     public fun getDisplayInterval(): Long {
         UALog.v { "getDisplayInterval called" }
-        return inAppProvider().inAppMessaging.displayInterval
+        return inAppProvider().inAppMessaging.displayInterval.inWholeMilliseconds
     }
 
     public fun resendLastEmbeddedEvent() {

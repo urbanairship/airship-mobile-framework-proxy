@@ -26,7 +26,6 @@ import com.urbanairship.featureflag.FeatureFlagManager
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.permission.Permission
 import com.urbanairship.preferencecenter.PreferenceCenter
-import com.urbanairship.push.pushNotificationStatusFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -35,6 +34,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.time.Instant
 
 /**
  * Module's autopilot to customize Urban Airship.
@@ -71,12 +71,12 @@ public abstract class BaseAutopilot : Autopilot() {
             LaunchDeepLinkTracker.shared().markLaunchResolved()
         } else {
             activityMonitor.addApplicationListener(object : ApplicationListener {
-                override fun onForeground(milliseconds: Long) {
+                override fun onForeground(timestamp: Instant) {
                     LaunchDeepLinkTracker.shared().markLaunchResolved()
                     activityMonitor.removeApplicationListener(this)
                 }
 
-                override fun onBackground(milliseconds: Long) {}
+                override fun onBackground(timestamp: Instant) {}
             })
         }
 

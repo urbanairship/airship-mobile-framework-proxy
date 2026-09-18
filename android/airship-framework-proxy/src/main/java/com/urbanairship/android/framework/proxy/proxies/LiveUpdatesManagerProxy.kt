@@ -13,6 +13,7 @@ import com.urbanairship.json.requireField
 import com.urbanairship.liveupdate.LiveUpdate
 import com.urbanairship.liveupdate.LiveUpdateManager
 import com.urbanairship.util.DateUtils
+import java.time.Instant
 
 public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpdateManager) {
 
@@ -37,7 +38,7 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
             name = request.name,
             type = request.type,
             content = request.content,
-            timestamp = request.timestamp ?: System.currentTimeMillis(),
+            timestamp = request.timestamp ?: Instant.now(),
             dismissTimestamp = request.dismissalTimestamp
         )
     }
@@ -47,7 +48,7 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
         this.manager.update(
             name = request.name,
             content = request.content,
-            timestamp = request.timestamp ?: System.currentTimeMillis(),
+            timestamp = request.timestamp ?: Instant.now(),
             dismissTimestamp = request.dismissalTimestamp
         )
     }
@@ -57,7 +58,7 @@ public class LiveUpdatesManagerProxy(private val managerProvider: () -> LiveUpda
         this.manager.end(
             name = request.name,
             content = request.content,
-            timestamp = request.timestamp ?: System.currentTimeMillis(),
+            timestamp = request.timestamp ?: Instant.now(),
             dismissTimestamp = request.dismissalTimestamp
         )
     }
@@ -85,8 +86,8 @@ public sealed class LiveUpdateRequest {
     public data class Update(
         val name: String,
         val content: JsonMap,
-        val timestamp: Long? = null,
-        val dismissalTimestamp: Long? = null
+        val timestamp: Instant? = null,
+        val dismissalTimestamp: Instant? = null
     ) : LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)
@@ -109,8 +110,8 @@ public sealed class LiveUpdateRequest {
     public data class End(
         val name: String,
         val content: JsonMap?,
-        val timestamp: Long? = null,
-        val dismissalTimestamp: Long? = null
+        val timestamp: Instant? = null,
+        val dismissalTimestamp: Instant? = null
     ) : LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)
@@ -134,8 +135,8 @@ public sealed class LiveUpdateRequest {
         val name: String,
         val type: String,
         val content: JsonMap,
-        val timestamp: Long? = null,
-        val dismissalTimestamp: Long? = null
+        val timestamp: Instant? = null,
+        val dismissalTimestamp: Instant? = null
     ) : LiveUpdateRequest() {
         public companion object {
             @Throws(JsonException::class)

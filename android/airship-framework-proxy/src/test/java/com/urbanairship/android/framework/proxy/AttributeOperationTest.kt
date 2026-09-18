@@ -12,7 +12,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.util.*
+import java.time.Instant
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 public class AttributeOperationTest {
@@ -165,7 +166,7 @@ public class AttributeOperationTest {
             action = AttributeOperationAction.SET,
             valueType = AttributeValueType.JSON,
             instanceId = "instance id",
-            expiry = Date(1000)
+            expiry = Instant.ofEpochMilli(1000)
         )
 
         operation.applyOperation(editor)
@@ -174,7 +175,7 @@ public class AttributeOperationTest {
             editor.setAttribute(
                 attribute = "some attribute",
                 instanceId = "instance id",
-                expiration = Date(1000),
+                expiration = Instant.ofEpochMilli(1000),
                 json = jsonMapOf("foo" to "bar")
             )
         }
