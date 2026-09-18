@@ -204,6 +204,16 @@ public final class AirshipProxy: Sendable {
         }
 
         Task {
+            for await update in await Airship.featureFlagManager.featureFlagStatusUpdates {
+                guard let status = update as? FeatureFlagUpdateStatus else { continue }
+                AirshipProxyEventEmitter.shared.addEvent(
+                    FeatureFlagStatusChangedEvent(status: FeatureFlagStatusProxy(status: status)),
+                    replacePending: true
+                )
+            }
+        }
+
+        Task {
             await EmbeddedEventEmitter.shared.start()
         }
 

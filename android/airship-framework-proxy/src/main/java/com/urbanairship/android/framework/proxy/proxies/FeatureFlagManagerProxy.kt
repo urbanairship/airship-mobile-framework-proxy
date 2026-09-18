@@ -5,6 +5,7 @@ package com.urbanairship.android.framework.proxy.proxies
 import com.urbanairship.UALog
 import com.urbanairship.featureflag.FeatureFlag
 import com.urbanairship.featureflag.FeatureFlagManager
+import com.urbanairship.featureflag.FeatureFlagRemoteDataStatus
 import com.urbanairship.featureflag.FeatureFlagResultCache
 import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
@@ -46,6 +47,20 @@ public class FeatureFlagManagerProxy internal constructor(
         UALog.v { "trackInteraction called, flag=$flag" }
         featureFlagManagerProvider().trackInteraction(flag.original)
     }
+
+    public val status: String
+        get() = featureFlagManagerProvider().status.toProxyString()
+
+    public suspend fun waitRefresh(maxTimeMillis: Long?) {
+        UALog.v { "waitRefresh called, maxTimeMillis=$maxTimeMillis" }
+        featureFlagManagerProvider().waitRefresh(maxTimeMillis)
+    }
+}
+
+public fun FeatureFlagRemoteDataStatus.toProxyString(): String = when (this) {
+    FeatureFlagRemoteDataStatus.UP_TO_DATE -> "up_to_date"
+    FeatureFlagRemoteDataStatus.STALE -> "stale"
+    FeatureFlagRemoteDataStatus.OUT_OF_DATE -> "out_of_date"
 }
 
 public data class FeatureFlagProxy(internal val original: FeatureFlag) : JsonSerializable {
