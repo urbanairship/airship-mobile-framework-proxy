@@ -42,6 +42,7 @@ dependencies {
     api(libs.airship.message.center)
     api(libs.airship.preference.center)
     api(libs.airship.automation)
+    api(libs.airship.automation.compose)
     api(libs.airship.fcm)
     api(libs.airship.feature.flag)
     api(libs.airship.live.update)
