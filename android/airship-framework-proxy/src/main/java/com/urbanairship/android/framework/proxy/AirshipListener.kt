@@ -39,7 +39,7 @@ internal class AirshipListener(private val proxyStore: ProxyStore, private val e
     DeepLinkListener,
     AirshipChannelListener,
     InboxListener {
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val isAppForegrounded: Boolean
         get() {
             return GlobalActivityMonitor.shared(Airship.application).isAppForegrounded
