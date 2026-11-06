@@ -68,6 +68,10 @@ public class EventEmitter {
 
     /**
      * Processes events for the given types.
+     *
+     * [onProcess] runs while the emitter's lock is held, blocking [addEvent] and [takePending] for
+     * its duration, so it must not wait on another thread.
+     *
      * @param types The types.
      * @param onProcess The process callback. Return true to remove the event as pending.
      */
