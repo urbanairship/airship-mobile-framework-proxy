@@ -2,7 +2,6 @@
 
 package com.urbanairship.android.framework.proxy
 
-import android.annotation.SuppressLint
 import android.content.Context
 import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.proxies.PushProxy
@@ -22,29 +21,21 @@ public class ProxyStore internal constructor(private val context: Context) {
         context.getSharedPreferences(SHARED_PREFERENCES_FILE, Context.MODE_PRIVATE)
     }
 
-    private var _notificationConfig: NotificationConfig? = null
-    public var notificationConfig: NotificationConfig?
-        get() {
-            val config = _notificationConfig
-            if (config != null) {
-                return config
-            }
+    private val notificationConfigEntry = MemoizedJson(NOTIFICATION_CONFIG) { NotificationConfig(it.optMap()) }
+    private val airshipConfigEntry = MemoizedJson(AIRSHIP_CONFIG) { ProxyConfig(it.optMap()) }
+    private val notificationStatusEntry = MemoizedJson(NOTIFICATION_STATUS) { NotificationStatus(it) }
 
-            val fromStore = getJson(NOTIFICATION_CONFIG) { NotificationConfig(it.optMap()) }
-            _notificationConfig = fromStore
-            return fromStore
-        }
-        set(value) = setJson(NOTIFICATION_CONFIG, value)
+    public var notificationConfig: NotificationConfig?
+        get() = notificationConfigEntry.get()
+        set(value) = notificationConfigEntry.set(value)
 
     public var airshipConfig: ProxyConfig?
-        get() = getJson(AIRSHIP_CONFIG) { ProxyConfig(it.optMap()) }
-        set(value) = setJson(AIRSHIP_CONFIG, value)
+        get() = airshipConfigEntry.get()
+        set(value) = airshipConfigEntry.set(value)
 
     public var lastNotificationStatus: NotificationStatus?
-        get() = getJson(NOTIFICATION_STATUS) {
-            NotificationStatus(it)
-        }
-        set(status) = setJson(NOTIFICATION_STATUS, status)
+        get() = notificationStatusEntry.get()
+        set(status) = notificationStatusEntry.set(status)
 
     public var defaultAutoLaunchMessageCenter: Boolean = true
 
@@ -109,6 +100,38 @@ public class ProxyStore internal constructor(private val context: Context) {
     private fun getAutoLaunchPreferenceCenterKey(preferenceId: String): String =
         "${PREFERENCE_CENTER_AUTO_LAUNCH_PREFIX}_$preferenceId"
 
+    /**
+     * Reads a JSON preference once and keeps the parsed value in memory.
+     *
+     * Writes refresh the memo, so a read always reflects the last write.
+     *
+     * @param key The preference key.
+     * @param parser Parses the stored JSON into a value.
+     */
+    private inner class MemoizedJson<T : JsonSerializable>(
+        private val key: String,
+        private val parser: (JsonValue) -> T
+    ) {
+        private var cached: T? = null
+        private var isLoaded: Boolean = false
+
+        @Synchronized
+        fun get(): T? {
+            if (!isLoaded) {
+                cached = getJson(key, parser)
+                isLoaded = true
+            }
+            return cached
+        }
+
+        @Synchronized
+        fun set(value: T?) {
+            cached = value
+            isLoaded = true
+            setJson(key, value)
+        }
+    }
+
     internal companion object {
         private const val SHARED_PREFERENCES_FILE = "com.urbanairship.android.framework.proxy"
         private const val NOTIFICATION_STATUS = "NOTIFICATION_STATUS"
@@ -118,19 +141,5 @@ public class ProxyStore internal constructor(private val context: Context) {
         private const val AIRSHIP_CONFIG = "AIRSHIP_CONFIG"
         private const val NOTIFICATION_CONFIG = "NOTIFICATION_CONFIG"
         private const val PREFERENCE_CENTER_AUTO_LAUNCH_PREFIX = "PREFERENCE_CENTER_AUTO_LAUNCH"
-
-        @SuppressLint("StaticFieldLeak")
-        @Volatile
-        private var sharedInstance: ProxyStore? = null
-        private val sharedInstanceLock = Any()
-
-        fun shared(context: Context): ProxyStore {
-            synchronized(sharedInstanceLock) {
-                if (sharedInstance == null) {
-                    sharedInstance = ProxyStore(context)
-                }
-                return sharedInstance!!
-            }
-        }
     }
 }

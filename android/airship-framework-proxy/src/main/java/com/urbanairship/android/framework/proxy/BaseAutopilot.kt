@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Instant
 
 /**
@@ -44,8 +45,10 @@ public abstract class BaseAutopilot : Autopilot() {
     private var extenderProvider: ExtenderProvider = ExtenderProvider()
     private var configOptions: AirshipConfigOptions? = null
     private var firstReady: Boolean = false
+    private var rejectedConfig: ProxyConfig? = null
+    private var hasRejectedConfig: Boolean = false
 
-    private val dispatcher = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val dispatcher = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     final override fun onAirshipReady(context: Context) {
         UALog.v { "Airship ready, registering listeners and applying notification config" }
@@ -123,9 +126,20 @@ public abstract class BaseAutopilot : Autopilot() {
         Airship.push.notificationProvider = notificationProvider
         Airship.push.foregroundNotificationDisplayPredicate = Predicate { message ->
             return@Predicate runBlocking {
-                val override =
-                    AirshipPluginExtensions.onShouldDisplayForegroundNotification?.invoke(message)
-                        ?: AirshipPluginOverride.UseDefault
+                val shouldDisplay = AirshipPluginExtensions.onShouldDisplayForegroundNotification
+
+                // runBlocking holds the push-handling thread, so a stalled override falls back
+                // to the default instead of delaying the notification.
+                val override = if (shouldDisplay == null) {
+                    AirshipPluginOverride.UseDefault
+                } else {
+                    withTimeoutOrNull(FOREGROUND_DISPLAY_OVERRIDE_TIMEOUT_MS) {
+                        shouldDisplay(message)
+                    } ?: run {
+                        UALog.w { "Foreground notification override timed out, using the default" }
+                        AirshipPluginOverride.UseDefault
+                    }
+                }
                 return@runBlocking when (override) {
                     is AirshipPluginOverride.Override -> {
                         override.result
@@ -178,32 +192,57 @@ public abstract class BaseAutopilot : Autopilot() {
     }
 
     override fun isReady(context: Context): Boolean {
+        val proxyStore = AirshipProxy.shared(context).proxyStore
+
         if (!firstReady) {
-            onMigrateData(context, AirshipProxy.shared(context).proxyStore)
+            onMigrateData(context, proxyStore)
             firstReady = true
         }
 
+        val proxyConfig = proxyStore.airshipConfig
+        val extender = extenderProvider.get(context)
+
+        // Core asks again at every entry point until takeoff succeeds, so a config that already
+        // failed validation is rejected without rebuilding it, unless an extender may change it.
+        if (extender == null && hasRejectedConfig && proxyConfig == rejectedConfig) {
+            UALog.v { "Airship config unchanged since it failed validation, skipping rebuild" }
+            return false
+        }
+
         var builder = createConfigBuilder(context)
-        AirshipProxy.shared(context).proxyStore.airshipConfig?.let {
+        proxyConfig?.let {
             UALog.v { "Applying proxy config to Airship config" }
             builder.applyProxyConfig(context, it)
         }
 
-        builder = extenderProvider.get(context)?.extendConfig(context, builder) ?: builder
+        builder = extender?.extendConfig(context, builder) ?: builder
 
         val configOptions = builder.build()
 
         return try {
             configOptions.validate()
             this.configOptions = configOptions
+            rejectedConfig = null
+            hasRejectedConfig = false
             UALog.i { "Airship config validated successfully" }
             true
         } catch (e: Exception) {
+            rejectedConfig = proxyConfig
+            hasRejectedConfig = true
             UALog.w { "Airship config validation failed: ${e.message}" }
             false
         }
     }
 
+    /**
+     * Creates the config builder used to take off.
+     *
+     * This is called again only when the stored proxy config changes or a plugin extender is
+     * installed, so an override must not depend on state that changes while the app runs.
+     *
+     * @param context The application context.
+     * @return The config builder.
+     */
     public open fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder =
         AirshipConfigOptions.newBuilder()
             .let {
@@ -219,6 +258,10 @@ public abstract class BaseAutopilot : Autopilot() {
     override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions? = configOptions
 
     public abstract fun onMigrateData(context: Context, proxyStore: ProxyStore)
+
+    private companion object {
+        const val FOREGROUND_DISPLAY_OVERRIDE_TIMEOUT_MS = 3000L
+    }
 }
 
 public fun AirshipConfigOptions.Builder.applyProxyConfig(context: Context, proxyConfig: ProxyConfig) {
@@ -283,13 +326,18 @@ private class ExtenderProvider {
     private var extender: AirshipPluginExtender? = null
     private var created: Boolean = false
 
+    // isReady runs on the main thread while Airship's onReady callback runs on a background one,
+    // so the cached instance has to be published across threads.
+    @Synchronized
     fun get(context: Context): AirshipPluginExtender? {
         if (!created) {
             extender = createExtender(context)
+            created = true
         }
         return extender
     }
 
+    @Synchronized
     fun reset() {
         created = false
         extender = null
