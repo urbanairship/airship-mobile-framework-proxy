@@ -42,7 +42,7 @@ jobs:
           fail_on_failure: true
           
   ios:
-    runs-on: macos-26-xlarge
+    runs-on: xcode-27-xlarge
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -52,9 +52,10 @@ jobs:
 
       - name: Build SDK
         run: |
+          set -o pipefail
           cd ios
           xcodebuild \
             -project AirshipFrameworkProxy.xcodeproj \
             -scheme AirshipFrameworkProxy \
-            -destination 'platform=iOS Simulator,OS=26.1,name=iPhone 17 Pro Max' \
+            -destination 'platform=iOS Simulator,OS=latest,name=iPhone 17' \
             clean test | xcbeautify --renderer github-actions
