@@ -30,17 +30,16 @@ final class LaunchDeepLinkTracker {
         self.dateProvider = dateProvider
     }
 
-    /// Called from the notification response handler with the tapped
-    /// notification's payload. A default-action tap resolves the launch,
-    /// stashing the payload's deep link when the app was not already
-    /// foregrounded.
+    /// Called from the notification response handler for a response that
+    /// opens the app. The first one resolves the launch, stashing the
+    /// payload's deep link for a default-action tap; responses after the
+    /// launch resolved were made while the app was in use and are ignored.
     func onNotificationResponse(
         userInfo: [AnyHashable: Any],
-        isDefaultAction: Bool,
-        isAppForegrounded: Bool
+        isDefaultAction: Bool
     ) {
-        guard isDefaultAction else { return }
-        if !isAppForegrounded {
+        guard !launchResolved else { return }
+        if isDefaultAction {
             let deepLink = Self.deepLinkActionKeys
                 .compactMap { userInfo[$0] as? String }
                 .first
@@ -57,6 +56,12 @@ final class LaunchDeepLinkTracker {
     func onLaunchResolved() {
         launchResolved = true
         resolveWaiters()
+    }
+
+    /// Reopens the launch so the tap that brings the app back from the
+    /// background counts as a launch tap.
+    func onAppEnteredBackground() {
+        launchResolved = false
     }
 
     /// Returns the deep link that launched the app, or nil. Consumes the value.

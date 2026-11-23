@@ -238,12 +238,37 @@ public final class AirshipProxy: Sendable {
             }
         }
 
-        if AppStateTracker.shared.isForegrounded {
-            LaunchDeepLinkTracker.shared.onLaunchResolved()
-        } else {
+        NotificationCenter.default.addObserver(
+            forName: AppStateTracker.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                // The SDK records a tap as soon as iOS delivers it but forwards it here later, so wait for a recorded one.
+                if Airship.analytics.conversionSendID == nil {
+                    LaunchDeepLinkTracker.shared.onLaunchResolved()
+                }
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: AppStateTracker.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                LaunchDeepLinkTracker.shared.onAppEnteredBackground()
+            }
+        }
+
+        if AppStateTracker.shared.state == .active {
+            // Scene-based apps report active before their didBecomeActive, so don't resolve yet;
+            // a takeOff after activation gets no didBecomeActive, so resolve if nothing else has.
             Task { @MainActor in
-                await AppStateTracker.shared.waitForActive()
-                LaunchDeepLinkTracker.shared.onLaunchResolved()
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                if AppStateTracker.shared.state == .active {
+                    LaunchDeepLinkTracker.shared.onLaunchResolved()
+                }
             }
         }
 

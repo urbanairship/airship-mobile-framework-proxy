@@ -10,8 +10,7 @@ final class LaunchDeepLinkTrackerTest: XCTestCase {
         let tracker = LaunchDeepLinkTracker()
         tracker.onNotificationResponse(
             userInfo: ["^d": "myapp://home"],
-            isDefaultAction: true,
-            isAppForegrounded: false
+            isDefaultAction: true
         )
         let result = await tracker.takeLaunchDeepLink()
         XCTAssertEqual(result, "myapp://home")
@@ -21,8 +20,7 @@ final class LaunchDeepLinkTrackerTest: XCTestCase {
         let tracker = LaunchDeepLinkTracker()
         tracker.onNotificationResponse(
             userInfo: ["^d": "myapp://home"],
-            isDefaultAction: true,
-            isAppForegrounded: false
+            isDefaultAction: true
         )
         _ = await tracker.takeLaunchDeepLink()
         let second = await tracker.takeLaunchDeepLink()
@@ -33,19 +31,18 @@ final class LaunchDeepLinkTrackerTest: XCTestCase {
         let tracker = LaunchDeepLinkTracker()
         tracker.onNotificationResponse(
             userInfo: ["deep_link_action": "myapp://home"],
-            isDefaultAction: true,
-            isAppForegrounded: false
+            isDefaultAction: true
         )
         let result = await tracker.takeLaunchDeepLink()
         XCTAssertEqual(result, "myapp://home")
     }
 
-    func testForegroundTapSkipsStash() async {
+    func testTapAfterLaunchResolvedIsIgnored() async {
         let tracker = LaunchDeepLinkTracker()
+        tracker.onLaunchResolved()
         tracker.onNotificationResponse(
             userInfo: ["^d": "myapp://home"],
-            isDefaultAction: true,
-            isAppForegrounded: true
+            isDefaultAction: true
         )
         let result = await tracker.takeLaunchDeepLink()
         XCTAssertNil(result)
@@ -55,23 +52,34 @@ final class LaunchDeepLinkTrackerTest: XCTestCase {
         let tracker = LaunchDeepLinkTracker()
         tracker.onNotificationResponse(
             userInfo: [:],
-            isDefaultAction: true,
-            isAppForegrounded: false
+            isDefaultAction: true
         )
         let result = await tracker.takeLaunchDeepLink()
         XCTAssertNil(result)
     }
 
-    func testNonDefaultActionIgnored() async {
+    func testActionButtonResolvesLaunchWithoutLink() async {
         let tracker = LaunchDeepLinkTracker()
+        let task = Task { await tracker.takeLaunchDeepLink() }
+        await Task.yield()
         tracker.onNotificationResponse(
             userInfo: ["^d": "myapp://home"],
-            isDefaultAction: false,
-            isAppForegrounded: false
+            isDefaultAction: false
         )
-        tracker.onLaunchResolved()
-        let result = await tracker.takeLaunchDeepLink()
+        let result = await task.value
         XCTAssertNil(result)
+    }
+
+    func testEnteringBackgroundReopensLaunch() async {
+        let tracker = LaunchDeepLinkTracker()
+        tracker.onLaunchResolved()
+        tracker.onAppEnteredBackground()
+        tracker.onNotificationResponse(
+            userInfo: ["^d": "myapp://home"],
+            isDefaultAction: true
+        )
+        let result = await tracker.takeLaunchDeepLink()
+        XCTAssertEqual(result, "myapp://home")
     }
 
     func testWaiterResolvedByLaterTap() async {
@@ -80,8 +88,7 @@ final class LaunchDeepLinkTrackerTest: XCTestCase {
         await Task.yield()
         tracker.onNotificationResponse(
             userInfo: ["^d": "myapp://home"],
-            isDefaultAction: true,
-            isAppForegrounded: false
+            isDefaultAction: true
         )
         let result = await task.value
         XCTAssertEqual(result, "myapp://home")
@@ -108,8 +115,7 @@ final class LaunchDeepLinkTrackerTest: XCTestCase {
         let tracker = LaunchDeepLinkTracker(dateProvider: { now })
         tracker.onNotificationResponse(
             userInfo: ["^d": "myapp://home"],
-            isDefaultAction: true,
-            isAppForegrounded: false
+            isDefaultAction: true
         )
         now = now.addingTimeInterval(11.0)
         let result = await tracker.takeLaunchDeepLink()
@@ -121,8 +127,7 @@ final class LaunchDeepLinkTrackerTest: XCTestCase {
         let tracker = LaunchDeepLinkTracker(dateProvider: { now })
         tracker.onNotificationResponse(
             userInfo: ["^d": "myapp://home"],
-            isDefaultAction: true,
-            isAppForegrounded: false
+            isDefaultAction: true
         )
         now = now.addingTimeInterval(9.0)
         let result = await tracker.takeLaunchDeepLink()
