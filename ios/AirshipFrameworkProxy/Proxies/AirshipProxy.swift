@@ -34,6 +34,9 @@ public final class AirshipProxy: Sendable {
         NSClassFromString("AirshipPluginExtender") as? any AirshipPluginExtenderProtocol.Type
     }()
 
+    /// How long to wait for a launch tap that may never reach the push delegate.
+    private static let launchTapGracePeriod: TimeInterval = 3
+
     @MainActor
     public var delegate: (any AirshipProxyDelegate)?
     @MainActor
@@ -244,9 +247,12 @@ public final class AirshipProxy: Sendable {
             queue: .main
         ) { _ in
             MainActor.assumeIsolated {
-                // The SDK records a tap as soon as iOS delivers it but forwards it here later, so wait for a recorded one.
                 if Airship.analytics.conversionSendID == nil {
                     LaunchDeepLinkTracker.shared.onLaunchResolved()
+                } else {
+                    // The SDK records a tap before forwarding it, and skips forwarding when push is
+                    // disabled or `onNotificationResponseReceived` is set, so the tap may never arrive.
+                    LaunchDeepLinkTracker.shared.resolveLaunch(after: AirshipProxy.launchTapGracePeriod)
                 }
             }
         }
@@ -262,14 +268,9 @@ public final class AirshipProxy: Sendable {
         }
 
         if AppStateTracker.shared.state == .active {
-            // Scene-based apps report active before their didBecomeActive, so don't resolve yet;
-            // a takeOff after activation gets no didBecomeActive, so resolve if nothing else has.
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 3_000_000_000)
-                if AppStateTracker.shared.state == .active {
-                    LaunchDeepLinkTracker.shared.onLaunchResolved()
-                }
-            }
+            // A takeOff after activation gets no didBecomeActive, and its notification delegate was
+            // set too late for iOS to deliver a launch tap, so no link can still arrive.
+            LaunchDeepLinkTracker.shared.onLaunchResolved()
         }
 
         Airship.push.defaultPresentationOptions = self.proxyStore.foregroundPresentationOptions

@@ -82,6 +82,52 @@ final class LaunchDeepLinkTrackerTest: XCTestCase {
         XCTAssertEqual(result, "myapp://home")
     }
 
+    func testEnteringBackgroundDropsUnreadLink() async {
+        let tracker = LaunchDeepLinkTracker()
+        tracker.onNotificationResponse(
+            userInfo: ["^d": "myapp://home"],
+            isDefaultAction: true
+        )
+        tracker.onAppEnteredBackground()
+        tracker.onLaunchResolved()
+        let result = await tracker.takeLaunchDeepLink()
+        XCTAssertNil(result)
+    }
+
+    func testDelayedResolveResolvesWaiterWithoutTap() async {
+        let tracker = LaunchDeepLinkTracker()
+        let task = Task { await tracker.takeLaunchDeepLink() }
+        await Task.yield()
+        tracker.resolveLaunch(after: 0.01)
+        let result = await task.value
+        XCTAssertNil(result)
+    }
+
+    func testTapBeforeDelayedResolveKeepsLink() async {
+        let tracker = LaunchDeepLinkTracker()
+        tracker.resolveLaunch(after: 0.01)
+        tracker.onNotificationResponse(
+            userInfo: ["^d": "myapp://home"],
+            isDefaultAction: true
+        )
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        let result = await tracker.takeLaunchDeepLink()
+        XCTAssertEqual(result, "myapp://home")
+    }
+
+    func testEnteringBackgroundCancelsDelayedResolve() async {
+        let tracker = LaunchDeepLinkTracker()
+        tracker.resolveLaunch(after: 0.01)
+        tracker.onAppEnteredBackground()
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        tracker.onNotificationResponse(
+            userInfo: ["^d": "myapp://home"],
+            isDefaultAction: true
+        )
+        let result = await tracker.takeLaunchDeepLink()
+        XCTAssertEqual(result, "myapp://home")
+    }
+
     func testWaiterResolvedByLaterTap() async {
         let tracker = LaunchDeepLinkTracker()
         let task = Task { await tracker.takeLaunchDeepLink() }

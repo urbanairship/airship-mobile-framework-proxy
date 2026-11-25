@@ -23,6 +23,7 @@ final class LaunchDeepLinkTracker {
     private var stash: (deepLink: String, date: Date)?
     private var launchResolved = false
     private var waiters: [CheckedContinuation<String?, Never>] = []
+    private var pendingResolve: Task<Void, Never>?
 
     private let dateProvider: () -> Date
 
@@ -58,9 +59,27 @@ final class LaunchDeepLinkTracker {
         resolveWaiters()
     }
 
+    /// Resolves the launch without a deep link after `delay`, unless a tap
+    /// resolves it first or the app is backgrounded.
+    ///
+    /// Calling it again replaces the pending resolve.
+    /// - Parameter delay: Seconds to wait before resolving.
+    func resolveLaunch(after delay: TimeInterval) {
+        pendingResolve?.cancel()
+        pendingResolve = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            self?.onLaunchResolved()
+        }
+    }
+
     /// Reopens the launch so the tap that brings the app back from the
-    /// background counts as a launch tap.
+    /// background counts as a launch tap. Drops any unread link, since the
+    /// next return may not come from a tap.
     func onAppEnteredBackground() {
+        pendingResolve?.cancel()
+        pendingResolve = nil
+        stash = nil
         launchResolved = false
     }
 
