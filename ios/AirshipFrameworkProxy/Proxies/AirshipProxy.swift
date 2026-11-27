@@ -34,9 +34,6 @@ public final class AirshipProxy: Sendable {
         NSClassFromString("AirshipPluginExtender") as? any AirshipPluginExtenderProtocol.Type
     }()
 
-    /// How long to wait for a launch tap that may never reach the push delegate.
-    private static let launchTapGracePeriod: TimeInterval = 3
-
     @MainActor
     public var delegate: (any AirshipProxyDelegate)?
     @MainActor
@@ -247,13 +244,11 @@ public final class AirshipProxy: Sendable {
             queue: .main
         ) { _ in
             MainActor.assumeIsolated {
-                if Airship.analytics.conversionSendID == nil {
-                    LaunchDeepLinkTracker.shared.onLaunchResolved()
-                } else {
-                    // The SDK records a tap before forwarding it, and skips forwarding when push is
-                    // disabled or `onNotificationResponseReceived` is set, so the tap may never arrive.
-                    LaunchDeepLinkTracker.shared.resolveLaunch(after: AirshipProxy.launchTapGracePeriod)
-                }
+                // A recorded tap never reaches our delegate if push is disabled or the app handles responses itself.
+                let tapPending = Airship.analytics.conversionSendID != nil
+                    && Airship.privacyManager.isEnabled(.push)
+                    && Airship.push.onNotificationResponseReceived == nil
+                LaunchDeepLinkTracker.shared.onAppBecameActive(tapPending: tapPending)
             }
         }
 

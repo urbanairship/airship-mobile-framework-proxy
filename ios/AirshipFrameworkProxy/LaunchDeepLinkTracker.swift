@@ -23,12 +23,19 @@ final class LaunchDeepLinkTracker {
     private var stash: (deepLink: String, date: Date)?
     private var launchResolved = false
     private var waiters: [CheckedContinuation<String?, Never>] = []
-    private var pendingResolve: Task<Void, Never>?
+    private(set) var pendingResolve: Task<Void, Never>?
 
     private let dateProvider: () -> Date
+    private let sleep: @Sendable (TimeInterval) async -> Void
 
-    init(dateProvider: @escaping () -> Date = { Date() }) {
+    init(
+        dateProvider: @escaping () -> Date = { Date() },
+        sleep: @escaping @Sendable (TimeInterval) async -> Void = { seconds in
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+        }
+    ) {
         self.dateProvider = dateProvider
+        self.sleep = sleep
     }
 
     /// Called from the notification response handler for a response that
@@ -52,35 +59,33 @@ final class LaunchDeepLinkTracker {
         resolveWaiters()
     }
 
-    /// Resolves the launch without a deep link. Called once the app becomes
-    /// active so normal launches resolve nil without waiting.
+    /// Resolves the launch without a deep link.
     func onLaunchResolved() {
         launchResolved = true
         resolveWaiters()
     }
 
-    /// Resolves the launch without a deep link after `delay`, unless a tap
-    /// resolves it first or the app is backgrounded.
-    ///
-    /// Calling it again replaces the pending resolve.
-    /// - Parameter delay: Seconds to wait before resolving.
-    func resolveLaunch(after delay: TimeInterval) {
+    /// Resolves the launch, or waits up to `maxStashAge` for a tap the SDK
+    /// forwards only after running the notification's actions.
+    /// - Parameter tapPending: Whether a recorded tap is still on its way.
+    func onAppBecameActive(tapPending: Bool) {
+        guard !launchResolved else { return }
+        guard tapPending else {
+            onLaunchResolved()
+            return
+        }
         pendingResolve?.cancel()
+        let sleep = self.sleep
         pendingResolve = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            await sleep(Self.maxStashAge)
             guard !Task.isCancelled else { return }
             self?.onLaunchResolved()
         }
     }
 
-    /// Reopens the launch so the tap that brings the app back from the
-    /// background counts as a launch tap. Drops any unread link, since the
-    /// next return may not come from a tap.
+    /// Drops any unread launch link.
     func onAppEnteredBackground() {
-        pendingResolve?.cancel()
-        pendingResolve = nil
         stash = nil
-        launchResolved = false
     }
 
     /// Returns the deep link that launched the app, or nil. Consumes the value.
