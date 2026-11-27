@@ -95,11 +95,12 @@ extension AirshipDelegate: PushNotificationDelegate {
 
     @MainActor
     func receivedNotificationResponse(_ notificationResponse: UNNotificationResponse) async {
-        LaunchDeepLinkTracker.shared.onNotificationResponse(
-            userInfo: notificationResponse.notification.request.content.userInfo,
-            isDefaultAction: notificationResponse.actionIdentifier == UNNotificationDefaultActionIdentifier,
-            isAppForegrounded: AppStateTracker.shared.isForegrounded
-        )
+        if opensApp(notificationResponse) {
+            LaunchDeepLinkTracker.shared.onNotificationResponse(
+                userInfo: notificationResponse.notification.request.content.userInfo,
+                isDefaultAction: notificationResponse.actionIdentifier == UNNotificationDefaultActionIdentifier
+            )
+        }
 
         do {
             if (notificationResponse.actionIdentifier != UNNotificationDismissActionIdentifier) {
@@ -114,6 +115,24 @@ extension AirshipDelegate: PushNotificationDelegate {
         }
 
         await forwardPushDelegate?.receivedNotificationResponse(notificationResponse)
+    }
+
+    /// Returns whether the response brings the app to the foreground: a tap on the
+    /// notification, or an action button with the foreground option.
+    ///
+    /// Looks the action up in the SDK's categories, as the SDK does when it records the tap.
+    /// - Parameter response: The notification response.
+    /// - Returns: `true` if the response opens the app.
+    @MainActor
+    private func opensApp(_ response: UNNotificationResponse) -> Bool {
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            return true
+        }
+        let categoryID = response.notification.request.content.categoryIdentifier
+        let action = Airship.push.combinedCategories
+            .first { $0.identifier == categoryID }?
+            .actions.first { $0.identifier == response.actionIdentifier }
+        return action?.options.contains(.foreground) == true
     }
 
     @MainActor

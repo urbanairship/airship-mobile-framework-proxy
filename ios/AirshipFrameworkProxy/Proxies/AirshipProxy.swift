@@ -238,13 +238,34 @@ public final class AirshipProxy: Sendable {
             }
         }
 
-        if AppStateTracker.shared.isForegrounded {
-            LaunchDeepLinkTracker.shared.onLaunchResolved()
-        } else {
-            Task { @MainActor in
-                await AppStateTracker.shared.waitForActive()
-                LaunchDeepLinkTracker.shared.onLaunchResolved()
+        NotificationCenter.default.addObserver(
+            forName: AppStateTracker.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                // A recorded tap never reaches our delegate if push is disabled or the app handles responses itself.
+                let tapPending = Airship.analytics.conversionSendID != nil
+                    && Airship.privacyManager.isEnabled(.push)
+                    && Airship.push.onNotificationResponseReceived == nil
+                LaunchDeepLinkTracker.shared.onAppBecameActive(tapPending: tapPending)
             }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: AppStateTracker.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                LaunchDeepLinkTracker.shared.onAppEnteredBackground()
+            }
+        }
+
+        if AppStateTracker.shared.state == .active {
+            // A takeOff after activation gets no didBecomeActive, and its notification delegate was
+            // set too late for iOS to deliver a launch tap, so no link can still arrive.
+            LaunchDeepLinkTracker.shared.onLaunchResolved()
         }
 
         Airship.push.defaultPresentationOptions = self.proxyStore.foregroundPresentationOptions
